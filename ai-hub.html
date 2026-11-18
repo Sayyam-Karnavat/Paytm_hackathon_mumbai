@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paytm AI Hub — Your AI-powered Paytm Assistant</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="mockup.png">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100vh;
+      background-color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    .canvas-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      background: #ffffff;
+    }
+
+    .canvas-inner {
+      position: relative;
+      width: 100%;
+      max-width: 1440px;
+    }
+
+    .dashboard-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* Hotspot Interactive Elements */
+    .hotspot {
+      position: absolute;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 20;
+    }
+
+    .hotspot:hover {
+      background-color: rgba(0, 185, 241, 0.15);
+      box-shadow: 0 0 0 2px rgba(0, 185, 241, 0.45);
+    }
+
+    .hotspot:active {
+      transform: scale(0.96);
+      background-color: rgba(0, 41, 112, 0.2);
+    }
+
+    /* Transparent Interactive Real Input Field */
+    .real-chat-input {
+      position: absolute;
+      left: 18.6%;
+      top: 37.6%;
+      width: 58.8%;
+      height: 8.2%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: clamp(12px, 1.3vw, 17px);
+      font-weight: 500;
+      color: #0f172a;
+      padding: 0 12px;
+      z-index: 25;
+    }
+
+    .real-chat-input::placeholder {
+      color: #94a3b8;
+      font-weight: 400;
+    }
+
+    /* Send Button Pulse & Glow */
+    .hotspot-send {
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .hotspot-send:hover {
+      background-color: rgba(0, 186, 242, 0.35);
+      box-shadow: 0 0 20px rgba(0, 186, 242, 0.8);
+      transform: scale(1.08);
+    }
+
+    .hotspot-send:active {
+      transform: scale(0.92);
+    }
+
+    /* Top Floating Back Button */
+    .back-home-pill {
+      position: fixed;
+      top: 14px;
+      left: 20px;
+      z-index: 50;
+      background: white;
+      color: #002970;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 13px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), 0 0 0 1px #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .back-home-pill:hover {
+      background: #002970;
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 41, 112, 0.25);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Portal Transition Overlay -->
+  <div id="portal-overlay" class="page-portal-overlay flex-col gap-4">
+    <div class="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+    <div class="text-xl font-bold tracking-wide">Opening Paytm AI Workspace...</div>
+  </div>
+
+  <!-- Floating Back to Paytm Home Button -->
+  <a href="index.html" class="back-home-pill interactive-btn">
+    <span>←</span>
+    <span>Paytm Home</span>
+  </a>
+
+  <!-- MAIN SEAMLESS CANVAS -->
+  <div class="canvas-container">
+    <div class="canvas-inner">
+      
+      <!-- Clean High-Resolution AI Hub Dashboard Background Image -->
+      <img src="assets/ai_hub_dashboard_clean.png" alt="Paytm AI Hub" class="dashboard-img">
+
+      <!-- ==================== 1. SEARCH / PROMPT BAR ==================== -->
+      
+      <!-- A. Real Working Text Input -->
+      <input type="text" 
+             id="ai-prompt-input" 
+             class="real-chat-input" 
+             placeholder="Just tell me, I'll do it for you... (e.g., Recharge mobile, check refund)"
+             onkeydown="if(event.key === 'Enter') handleSend();">
+
+      <!-- B. Mic Button (Voice Command) -->
+      <div onclick="triggerVoice()" 
+           class="hotspot ripple-effect" 
+           title="Voice Command (Mic)"
+           style="left: 13.2%; top: 37.6%; width: 4.4%; height: 8.2%; border-radius: 9999px;">
+      </div>
+
+      <!-- C. Image Attachment Button -->
+      <div onclick="triggerImageUpload()" 
+           class="hotspot ripple-effect" 
+           title="Attach Receipt or Screenshot"
+           style="left: 77.9%; top: 37.6%; width: 4.2%; height: 8.2%; border-radius: 9999px;">
+      </div>
+
+      <!-- D. SEND BUTTON (Paper Plane Icon) -> Opens Background Workspace Page! -->
+      <div onclick="handleSend()" 
+           class="hotspot hotspot-send ripple-effect" 
+           title="Send Command to Paytm AI Hub"
+           style="left: 82.35%; top: 37.58%; width: 4.41%; height: 8.21%;">
+      </div>
+
+
+      <!-- ==================== 2. LANGUAGE SELECTOR ==================== -->
+      <div onclick="switchLanguage()" 
+           class="hotspot ripple-effect" 
+           title="Switch Language: मराठी • हिंदी • English"
+           style="left: 35.8%; top: 49.3%; width: 27.0%; height: 5.8%; border-radius: 9999px;">
+      </div>
+
+
+      <!-- ==================== 3. ACTION MODE CARD (LEFT) ==================== -->
+      <!-- Action Mode Header & Arrow -->
+      <div onclick="paytm.showToast('⚡ Action Mode Active: Auto-banking with AI', 'info', '⚡')" 
+           class="hotspot ripple-effect" 
+           title="Action Mode (Paytm ONE)"
+           style="left: 6.4%; top: 58.5%; width: 41.5%; height: 9.8%;">
+      </div>
+
+      <!-- 1. Recharge Button -->
+      <div onclick="quickAction('Recharge')" 
+           class="hotspot ripple-effect" 
+           title="Mobile Recharge / Bill"
+           style="left: 7.35%; top: 69.0%; width: 6.6%; height: 10.5%;">
+      </div>
+
+      <!-- 2. Travel Button -->
+      <div onclick="quickAction('Travel')" 
+           class="hotspot ripple-effect" 
+           title="Travel Booking"
+           style="left: 15.2%; top: 69.0%; width: 6.6%; height: 10.5%;">
+      </div>
+
+      <!-- 3. Shopping Button -->
+      <div onclick="quickAction('Shopping')" 
+           class="hotspot ripple-effect" 
+           title="Shopping & Store Deals"
+           style="left: 23.0%; top: 69.0%; width: 6.6%; height: 10.5%;">
+      </div>
+
+      <!-- 4. Bills Button -->
+      <div onclick="quickAction('Bills')" 
+           class="hotspot ripple-effect" 
+           title="Pay Electricity / Utility Bills"
+           style="left: 30.9%; top: 69.0%; width: 6.6%; height: 10.5%;">
+      </div>
+
+      <!-- 5. Offers Button -->
+      <div onclick="quickAction('Offers')" 
+           class="hotspot ripple-effect" 
+           title="Cashback & Offers"
+           style="left: 38.7%; top: 69.0%; width: 6.6%; height: 10.5%;">
+      </div>
+
+
+      <!-- ==================== 4. RESOLVE MODE CARD (RIGHT) ==================== -->
+      <!-- Resolve Mode Header & Arrow -->
+      <div onclick="paytm.showToast('🛡️ Resolve Mode Active: AI Dispute Resolver', 'info', '🛡️')" 
+           class="hotspot ripple-effect" 
+           title="Resolve Mode (Paytm Resolve)"
+           style="left: 51.5%; top: 58.5%; width: 42.0%; height: 9.8%;">
+      </div>
+
+      <!-- 1. Pending Button -->
+      <div onclick="quickResolve('Pending')" 
+           class="hotspot ripple-effect" 
+           title="Check Pending Payments"
+           style="left: 52.4%; top: 69.0%; width: 6.6%; height: 10.5%;">
+      </div>
+
+      <!-- 2. Refund Button -->
+      <div onclick="quickResolve('Refund')" 
+           class="hotspot ripple-effect" 
+           title="Track Refund Status"
+           style="left: 60.3%; top: 69.0%; width: 6.6%; height: 10.5%;">
+      </div>
+
+      <!-- 3. Failed Button -->
+      <div onclick="quickResolve('Failed')" 
+           class="hotspot ripple-effect" 
+           title="Resolve Failed Transactions"
+           style="left: 68.1%; top: 69.0%; width: 6.6%; height: 10.5%;">
+      </div>
+
+      <!-- 4. Complaint Button -->
+      <div onclick="quickResolve('Complaint')" 
+           class="hotspot ripple-effect" 
+           title="Raise Payment Complaint"
+           style="left: 76.0%; top: 69.0%; width: 6.6%; height: 10.5%;">
+      </div>
+
+      <!-- 5. Track Button -->
+      <div onclick="quickResolve('Track')" 
+           class="hotspot ripple-effect" 
+           title="Track Open Issues"
+           style="left: 83.8%; top: 69.0%; width: 6.6%; height: 10.5%;">
+      </div>
+
+
+      <!-- ==================== 5. POPULAR THINGS YOU CAN DO (CHIPS) ==================== -->
+      <!-- Chip 1: Recharge my mobile -->
+      <div onclick="setChipPrompt('Recharge my mobile ₹299 (Jio)')" 
+           class="hotspot ripple-effect" 
+           title="Click to recharge mobile"
+           style="left: 5.4%; top: 87.4%; width: 15.7%; height: 7.3%; border-radius: 9999px;">
+      </div>
+
+      <!-- Chip 2: Book a flight to Mumbai -->
+      <div onclick="setChipPrompt('Book cheapest flight from Delhi to Mumbai this Friday')" 
+           class="hotspot ripple-effect" 
+           title="Click to book flight"
+           style="left: 22.0%; top: 87.4%; width: 17.6%; height: 7.3%; border-radius: 9999px;">
+      </div>
+
+      <!-- Chip 3: Pay my electricity bill -->
+      <div onclick="setChipPrompt('Pay my electricity bill for MSEDCL')" 
+           class="hotspot ripple-effect" 
+           title="Click to pay electricity bill"
+           style="left: 40.7%; top: 87.4%; width: 16.7%; height: 7.3%; border-radius: 9999px;">
+      </div>
+
+      <!-- Chip 4: Check my refund status -->
+      <div onclick="setChipPrompt('Check refund status for order #84920')" 
+           class="hotspot ripple-effect" 
+           title="Click to check refund"
+           style="left: 58.3%; top: 87.4%; width: 16.2%; height: 7.3%; border-radius: 9999px;">
+      </div>
+
+      <!-- Chip 5: Raise a payment complaint -->
+      <div onclick="setChipPrompt('Raise payment complaint for failed UPI debit ₹1200')" 
+           class="hotspot ripple-effect" 
+           title="Click to raise complaint"
+           style="left: 75.5%; top: 87.4%; width: 18.1%; height: 7.3%; border-radius: 9999px;">
+      </div>
+
+
+      <!-- ==================== 6. TOP NAVBAR HOTSPOTS ==================== -->
+      <!-- Logo: Back to Home -->
+      <a href="index.html" 
+         class="hotspot" 
+         title="Paytm Home"
+         style="left: 6.4%; top: 2.5%; width: 10.8%; height: 6.0%;">
+      </a>
+
+      <!-- Download App -->
+      <div onclick="paytm.openModal('download-modal')" 
+           class="hotspot" 
+           title="Download Paytm App"
+           style="left: 73.0%; top: 2.5%; width: 9.8%; height: 6.0%;">
+      </div>
+
+      <!-- Sign In -->
+      <div onclick="paytm.openModal('signin-modal')" 
+           class="hotspot" 
+           title="Sign In"
+           style="left: 84.8%; top: 2.5%; width: 8.0%; height: 6.0%; border-radius: 9999px;">
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- Modals (Recharge, Sign In, QR Code) -->
+  <!-- 1. DOWNLOAD APP MODAL -->
+  <div id="download-modal" class="modal-backdrop fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
+      <div class="flex items-center justify-between border-b pb-2">
+        <h3 class="font-bold text-slate-900 text-base">Download Paytm App</h3>
+        <button onclick="paytm.closeModal('download-modal')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
+      </div>
+      <div class="p-4 bg-slate-50 border-2 border-dashed border-[#00b9f1] rounded-2xl inline-block">
+        <svg class="w-40 h-40 mx-auto" viewBox="0 0 100 100" fill="none">
+          <rect width="100" height="100" rx="10" fill="white"/>
+          <path fill="#002970" d="M10 10h30v30h-30zM15 15h20v20h-20zM60 10h30v30h-30zM65 15h20v20h-20zM10 60h30v30h-30zM15 65h20v20h-20zM45 10h10v10h-10zM10 45h10v10h-10zM45 45h10v10h-10zM60 45h10v10h-10zM45 60h10v10h-10zM75 60h15v10h-15zM60 75h10v15h-10zM75 80h15v10h-15z"/>
+          <circle cx="50" cy="50" r="10" fill="#00b9f1"/>
+        </svg>
+      </div>
+      <p class="text-xs font-medium text-slate-600">Scan QR code to install Paytm on Android & iOS</p>
+    </div>
+  </div>
+
+  <!-- 2. SIGN IN MODAL -->
+  <div id="signin-modal" class="modal-backdrop fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-2">
+        <h3 class="font-bold text-slate-900 text-lg">Login to Paytm</h3>
+        <button onclick="paytm.closeModal('signin-modal')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
+      </div>
+      <form onsubmit="event.preventDefault(); paytm.closeModal('signin-modal'); paytm.showToast('✅ Logged in successfully!', 'success', '👤')" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Mobile Number or Email</label>
+          <input type="text" value="+91 98765 43210" required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 font-bold text-slate-900 focus:border-[#00b9f1] outline-hidden">
+        </div>
+        <button type="submit" class="interactive-btn w-full bg-[#002970] text-white font-bold py-3 rounded-xl shadow-md text-sm">
+          Secure Login
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Hidden File Input for Image Upload -->
+  <input type="file" id="image-upload-input" accept="image/*" class="hidden" onchange="onImageSelected(event)">
+
+  <script src="app.js"></script>
+  <script>
+    // Handle SEND Button Action -> Opens Background Page (ai-workspace.html)!
+    function handleSend() {
+      const input = document.getElementById('ai-prompt-input');
+      const query = input.value.trim() || 'Paytm AI Assistant Query';
+
+      paytm.playSound('chime');
+      paytm.showToast('🚀 Opening Paytm AI Workspace...', 'ai', '🤖');
+
+      const overlay = document.getElementById('portal-overlay');
+      if (overlay) overlay.classList.add('active');
+
+      setTimeout(() => {
+        window.location.href = `ai-workspace.html?q=${encodeURIComponent(query)}`;
+      }, 400);
+    }
+
+    function setChipPrompt(text) {
+      const input = document.getElementById('ai-prompt-input');
+      input.value = text;
+      paytm.playSound('click');
+      paytm.showToast(`Selected: "${text}"`, 'info', '💡');
+      input.focus();
+    }
+
+    function triggerVoice() {
+      paytm.playSound('chime');
+      paytm.showToast('🎤 Listening to your voice... Speak now!', 'info', '🎙️');
+      const input = document.getElementById('ai-prompt-input');
+      setTimeout(() => {
+        input.value = 'Recharge ₹299 Jio for mom';
+        paytm.showToast('Captured: "Recharge ₹299 Jio for mom"', 'success', '✅');
+      }, 1200);
+    }
+
+    function triggerImageUpload() {
+      paytm.playSound('click');
+      document.getElementById('image-upload-input').click();
+    }
+
+    function onImageSelected(e) {
+      if (e.target.files && e.target.files[0]) {
+        const file = e.target.files[0];
+        paytm.playSound('success');
+        paytm.showToast(`Attached image: ${file.name}`, 'info', '📷');
+        const input = document.getElementById('ai-prompt-input');
+        input.value = `Analyze receipt: ${file.name}`;
+      }
+    }
+
+    function switchLanguage() {
+      paytm.playSound('click');
+      const langs = ['मराठी', 'हिंदी', 'English'];
+      const chosen = langs[Math.floor(Math.random() * langs.length)];
+      paytm.showToast(`Language set to: ${chosen} (Auto Detect Active)`, 'info', '🌐');
+    }
+
+    function quickAction(action) {
+      paytm.playSound('click');
+      const input = document.getElementById('ai-prompt-input');
+      input.value = `Execute ${action} with Paytm AI`;
+      paytm.showToast(`Action Mode: ${action} selected`, 'info', '⚡');
+    }
+
+    function quickResolve(resolveType) {
+      paytm.playSound('click');
+      const input = document.getElementById('ai-prompt-input');
+      input.value = `Resolve ${resolveType} issue immediately`;
+      paytm.showToast(`Resolve Mode: ${resolveType} selected`, 'info', '🛡️');
+    }
+  </script>
+</body>
+</html>

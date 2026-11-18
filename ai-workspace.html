@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paytm AI Hub Workspace</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="mockup.png">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100vh;
+      background: #0d2847 url('assets/ai_chat_bg.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      overflow-x: hidden;
+      color: #ffffff;
+    }
+
+    /* Glass Header Bar */
+    .glass-header {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 8px 32px 0 rgba(0, 41, 112, 0.2);
+    }
+
+    /* Glass Control Panel */
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 28px;
+      box-shadow: 0 20px 50px rgba(0, 41, 112, 0.25);
+    }
+
+    /* Ambient Glow Pulse */
+    @keyframes ambientGlow {
+      0%, 100% {
+        box-shadow: 0 0 25px rgba(0, 186, 242, 0.35);
+      }
+      50% {
+        box-shadow: 0 0 50px rgba(0, 186, 242, 0.75);
+      }
+    }
+
+    .ambient-glow {
+      animation: ambientGlow 4s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="flex flex-col justify-between min-h-screen">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- TOP HEADER BAR -->
+  <header class="glass-header sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Left: Back Button & Branding -->
+      <div class="flex items-center gap-4">
+        <a href="ai-hub.html" class="interactive-btn flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-full border border-white/30 transition-all">
+          <span>←</span>
+          <span>Back to AI Hub</span>
+        </a>
+
+        <div class="h-6 w-px bg-white/20"></div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-xl font-black tracking-tight text-white">paytm</span>
+          <span class="text-xs bg-cyan-400 text-[#002970] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">AI</span>
+        </div>
+      </div>
+
+      <!-- Right: Live AI Engine Status Indicator -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 bg-white/20 border border-white/30 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+          <span>AI Canvas Ready</span>
+        </div>
+
+        <a href="index.html" class="interactive-btn text-xs font-bold text-white/80 hover:text-white bg-white/10 hover:bg-white/20 px-3.5 py-2 rounded-full border border-white/20 transition-all">
+          Home 🏠
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- CENTER WORKSPACE CANVAS -->
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-12 w-full flex-1 flex flex-col justify-center items-center">
+    
+    <div class="glass-panel ambient-glow w-full p-8 sm:p-10 text-center space-y-6">
+      
+      <!-- Top Glowing Status -->
+      <div class="inline-flex items-center gap-2 bg-white/20 border border-white/30 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-cyan-200">
+        <span class="text-base">✨</span>
+        <span>Paytm AI Workspace Activated</span>
+      </div>
+
+      <!-- User's Query Display -->
+      <div>
+        <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">
+          Paytm Autonomous AI Agent
+        </h1>
+        <p class="text-sm sm:text-base text-cyan-100/90 mt-3 font-medium">
+          Executing user instruction in real-time environment:
+        </p>
+      </div>
+
+      <!-- Active Query Glass Pill -->
+      <div class="bg-black/20 border border-white/30 rounded-2xl p-4 max-w-xl mx-auto text-left flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 truncate">
+          <span class="text-xl">💬</span>
+          <span id="active-query-text" class="font-bold text-white text-sm sm:text-base truncate">
+            Recharge mobile or check refund
+          </span>
+        </div>
+        <span class="shrink-0 text-xs font-bold bg-cyan-400 text-[#002970] px-3 py-1 rounded-full">
+          Processing
+        </span>
+      </div>
+
+      <!-- Agent Reasoning Stepper -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl mx-auto text-xs text-left">
+        <div class="p-3 bg-white/15 rounded-xl border border-white/20">
+          <div class="text-cyan-300 font-bold mb-1">1. Intent Analysis</div>
+          <div class="text-white/80">Parsed parameters & user authentication</div>
+        </div>
+        <div class="p-3 bg-white/15 rounded-xl border border-white/20">
+          <div class="text-cyan-300 font-bold mb-1">2. NPCI Routing</div>
+          <div class="text-white/80">Checking gateway health & account balance</div>
+        </div>
+        <div class="p-3 bg-white/15 rounded-xl border border-white/20">
+          <div class="text-emerald-300 font-bold mb-1">3. Execution</div>
+          <div class="text-white/80">Autonomous resolution & settlement</div>
+        </div>
+      </div>
+
+      <!-- Interactive Buttons / Actions as requested: "aapun tyvar ntr buton he sarv basvu" -->
+      <div class="pt-4 flex flex-wrap items-center justify-center gap-3">
+        <button onclick="paytm.showToast('✅ Transaction simulated successfully!', 'success', '⚡')" class="interactive-btn bg-gradient-to-r from-cyan-400 to-[#00b9f1] hover:from-cyan-300 hover:to-[#00b9f1] text-[#002970] font-bold text-sm px-6 py-3 rounded-2xl shadow-xl transition-all">
+          ⚡ Execute Payment
+        </button>
+
+        <button onclick="paytm.showToast('📄 Downloaded official bank advice!', 'info', '📄')" class="interactive-btn bg-white/20 hover:bg-white/30 text-white font-bold text-sm px-6 py-3 rounded-2xl border border-white/30 transition-all">
+          📄 View Receipt
+        </button>
+
+        <a href="ai-hub.html" class="interactive-btn bg-white/10 hover:bg-white/20 text-white font-bold text-sm px-6 py-3 rounded-2xl border border-white/20 transition-all">
+          + New Prompt
+        </a>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- BOTTOM FOOTER -->
+  <footer class="py-4 text-center text-xs text-white/60">
+    Paytm AI Hub • Powered by One97 Communications & NPCI UPI Switch
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // Read query from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('q');
+    if (query) {
+      document.getElementById('active-query-text').innerText = query;
+    }
+  </script>
+</body>
+</html>

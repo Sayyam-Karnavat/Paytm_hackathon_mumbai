@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paytm: Secure UPI Payments, Recharge & Paytm AI Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="mockup.png">
+  <style>
+    /* Full Page Seamless Paytm Canvas */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100vh;
+      background-color: #f2f7fd; /* Exact seamless background from Paytm mockup */
+      overflow-x: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* 100% Full-Width Header Bar */
+    .paytm-header-bar {
+      width: 100%;
+      background-color: #ffffff;
+      border-bottom: 1px solid #edf2f7;
+      display: flex;
+      justify-content: center;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .header-inner {
+      position: relative;
+      width: 100%;
+      max-width: 1827px;
+    }
+
+    /* 100% Full-Width Body Section */
+    .paytm-body-section {
+      width: 100%;
+      background-color: #f2f7fd;
+      display: flex;
+      justify-content: center;
+      padding-bottom: 40px;
+    }
+
+    .body-inner {
+      position: relative;
+      width: 100%;
+      max-width: 1827px;
+    }
+
+    .seamless-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* Hotspot Interactive Elements */
+    .hotspot {
+      position: absolute;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      z-index: 20;
+    }
+
+    .hotspot:hover {
+      background-color: rgba(0, 185, 241, 0.12);
+      box-shadow: 0 0 0 2px rgba(0, 185, 241, 0.4);
+    }
+
+    .hotspot:active {
+      transform: scale(0.97);
+      background-color: rgba(0, 41, 112, 0.2);
+    }
+
+    /* Star Feature: Paytm AI Hub Glowing Card Hotspot */
+    .hotspot-ai-card {
+      border-radius: 28px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .hotspot-ai-card:hover {
+      background-color: rgba(0, 186, 242, 0.14);
+      box-shadow: 0 0 30px rgba(0, 186, 242, 0.5), inset 0 0 20px rgba(0, 186, 242, 0.2);
+    }
+
+    .hotspot-ai-card:active {
+      transform: scale(0.98);
+    }
+
+    .hotspot-ai-btn {
+      border-radius: 9999px;
+      cursor: pointer;
+    }
+
+    .hotspot-ai-btn:hover {
+      background-color: rgba(0, 41, 112, 0.25);
+      box-shadow: 0 4px 15px rgba(0, 41, 112, 0.4);
+    }
+
+    /* Floating AI Hub Portal Pill */
+    .floating-hub-pill {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 50;
+      background: linear-gradient(135deg, #002970 0%, #00b9f1 100%);
+      color: white;
+      padding: 12px 22px;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 10px 25px -5px rgba(0, 41, 112, 0.4), 0 0 0 2px rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .floating-hub-pill:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 16px 32px -5px rgba(0, 41, 112, 0.5), 0 0 0 3px rgba(255, 255, 255, 1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Page Portal Transition Overlay -->
+  <div id="portal-overlay" class="page-portal-overlay flex-col gap-4">
+    <div class="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+    <div class="text-xl font-bold tracking-wide">Connecting to Paytm AI Hub...</div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- ==================== 1. FULL-WIDTH NAVBAR (100% SCREEN EDGE-TO-EDGE) ==================== -->
+  <header class="paytm-header-bar">
+    <div class="header-inner">
+      <img src="assets/navbar.png" alt="Paytm Header" class="seamless-img">
+
+      <!-- NAVBAR HOTSPOTS -->
+      <!-- Sign In Button -->
+      <div onclick="paytm.openModal('signin-modal')" 
+           class="hotspot ripple-effect" 
+           title="Sign In to Paytm"
+           style="left: 83.2%; top: 16%; width: 7.7%; height: 68%; border-radius: 9999px;">
+      </div>
+
+      <!-- Download App Button -->
+      <div onclick="paytm.openModal('download-modal')" 
+           class="hotspot ripple-effect" 
+           title="Download Paytm App"
+           style="left: 73.9%; top: 16%; width: 8.2%; height: 68%;">
+      </div>
+
+      <!-- Recharge & Bills -->
+      <div onclick="paytm.openModal('recharge-modal')" 
+           class="hotspot ripple-effect" 
+           title="Recharge & Bills"
+           style="left: 20.8%; top: 16%; width: 8.2%; height: 68%;">
+      </div>
+
+      <!-- Ticket Booking -->
+      <div onclick="paytm.showToast('Ticket Booking: Select Flight, Bus, or Train below', 'info', '✈️')" 
+           class="hotspot ripple-effect" 
+           title="Ticket Booking"
+           style="left: 30.1%; top: 16%; width: 7.7%; height: 68%;">
+      </div>
+
+      <!-- Payments & Services -->
+      <div onclick="paytm.openModal('viewall-modal')" 
+           class="hotspot ripple-effect" 
+           title="Payments & Services"
+           style="left: 38.9%; top: 16%; width: 9.3%; height: 68%;">
+      </div>
+
+      <!-- Paytm for Business -->
+      <div onclick="paytm.showToast('Paytm for Business: QR, Soundbox & Merchant POS ready', 'info', '💼')" 
+           class="hotspot ripple-effect" 
+           title="Paytm for Business"
+           style="left: 49.3%; top: 16%; width: 8.8%; height: 68%;">
+      </div>
+
+      <!-- Company -->
+      <div onclick="paytm.showToast('Paytm: India\'s leading payments super app', 'info', '🇮🇳')" 
+           class="hotspot ripple-effect" 
+           title="Company"
+           style="left: 59.1%; top: 16%; width: 6.0%; height: 68%;">
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ==================== 2. FULL-WIDTH BODY (100% SCREEN EDGE-TO-EDGE) ==================== -->
+  <main class="paytm-body-section">
+    <div class="body-inner">
+      <img src="assets/content.png" alt="Paytm Services & AI Hub" class="seamless-img">
+
+      <!-- ==================== BODY HOTSPOTS ==================== -->
+
+      <!-- A. THE STAR COMPONENT: PAYTM AI HUB (BIG CARD) -->
+      <div onclick="paytm.navigateToAiHub()" 
+           class="hotspot hotspot-ai-card ripple-effect" 
+           title="Click to Open Paytm AI Hub Project Page!"
+           style="left: 64.3%; top: 3.8%; width: 26.8%; height: 33.4%;">
+        
+        <!-- Live Glow Indicator -->
+        <span class="absolute top-4 right-4 flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-[#00b9f1]"></span>
+        </span>
+      </div>
+
+      <!-- "Explore AI Hub ->" Button (Inside AI Hub card) -->
+      <div onclick="paytm.navigateToAiHub()" 
+           class="hotspot hotspot-ai-btn ripple-effect" 
+           title="Explore AI Hub -> Click to Launch!"
+           style="left: 66.0%; top: 27.6%; width: 12.6%; height: 7.1%;">
+      </div>
+
+
+      <!-- B. 6 RECHARGE & BILL BUTTONS -->
+      <!-- 1. Mobile Recharge -->
+      <div onclick="paytm.openModal('recharge-modal')" 
+           class="hotspot ripple-effect" 
+           title="Mobile Recharge / Bill"
+           style="left: 12.6%; top: 12.2%; width: 4.9%; height: 15.4%;">
+      </div>
+
+      <!-- 2. Electricity Bill -->
+      <div onclick="paytm.openModal('electricity-modal')" 
+           class="hotspot ripple-effect" 
+           title="Electricity Bill"
+           style="left: 21.6%; top: 12.2%; width: 5.2%; height: 15.4%;">
+      </div>
+
+      <!-- 3. FASTag Recharge -->
+      <div onclick="paytm.openModal('fastag-modal')" 
+           class="hotspot ripple-effect" 
+           title="FASTag Recharge"
+           style="left: 30.7%; top: 12.2%; width: 5.2%; height: 15.4%;">
+      </div>
+
+      <!-- 4. DTH Recharge -->
+      <div onclick="paytm.openModal('dth-modal')" 
+           class="hotspot ripple-effect" 
+           title="DTH Recharge"
+           style="left: 40.2%; top: 12.2%; width: 4.9%; height: 15.4%;">
+      </div>
+
+      <!-- 5. Insurance Premium -->
+      <div onclick="paytm.openModal('insurance-modal')" 
+           class="hotspot ripple-effect" 
+           title="Insurance Premium"
+           style="left: 48.4%; top: 12.2%; width: 4.9%; height: 15.4%;">
+      </div>
+
+      <!-- 6. View All Products -->
+      <div onclick="paytm.openModal('viewall-modal')" 
+           class="hotspot ripple-effect" 
+           title="View All Products"
+           style="left: 56.7%; top: 12.2%; width: 4.9%; height: 15.4%;">
+      </div>
+
+
+      <!-- C. DUE BILLS BANNER -->
+      <!-- Wifi Pay Now -->
+      <div onclick="paytm.openModal('bill-modal')" 
+           class="hotspot ripple-effect" 
+           title="Pay Wifi Bill Now"
+           style="left: 40.2%; top: 41.7%; width: 7.9%; height: 5.8%; border-radius: 9999px;">
+      </div>
+
+      <!-- Loan EMI Pay Now -->
+      <div onclick="paytm.openModal('bill-modal')" 
+           class="hotspot ripple-effect" 
+           title="Pay Loan EMI Now"
+           style="left: 82.1%; top: 41.7%; width: 7.7%; height: 5.8%; border-radius: 9999px;">
+      </div>
+
+
+      <!-- D. 3 PROMO CARDS -->
+      <!-- Promo 1: Download App -->
+      <div onclick="paytm.openModal('download-modal')" 
+           class="hotspot ripple-effect" 
+           title="Download Paytm App"
+           style="left: 11.2%; top: 68.0%; width: 10.4%; height: 5.1%; border-radius: 9999px;">
+      </div>
+
+      <!-- Promo 2: Download App Now -->
+      <div onclick="paytm.openModal('download-modal')" 
+           class="hotspot ripple-effect" 
+           title="Download Paytm App Now"
+           style="left: 37.8%; top: 68.0%; width: 11.5%; height: 5.1%; border-radius: 9999px;">
+      </div>
+
+      <!-- Promo 3: Download App Now -->
+      <div onclick="paytm.openModal('download-modal')" 
+           class="hotspot ripple-effect" 
+           title="Download Paytm App Now"
+           style="left: 66.0%; top: 68.0%; width: 11.5%; height: 5.1%; border-radius: 9999px;">
+      </div>
+
+
+      <!-- E. TRAVEL TABS -->
+      <!-- Flights -->
+      <div onclick="paytm.showToast('✈️ Paytm Travel: Flights Selected', 'info', '✈️')" 
+           class="hotspot ripple-effect" 
+           title="Paytm Travel: Flights"
+           style="left: 11.0%; top: 80.2%; width: 5.2%; height: 7.1%;">
+      </div>
+
+      <!-- Bus -->
+      <div onclick="paytm.showToast('🚌 Paytm Travel: Bus Tickets Selected', 'info', '🚌')" 
+           class="hotspot ripple-effect" 
+           title="Paytm Travel: Bus Tickets"
+           style="left: 18.1%; top: 80.2%; width: 4.6%; height: 7.1%;">
+      </div>
+
+      <!-- Trains -->
+      <div onclick="paytm.showToast('🚆 IRCTC Train Tickets Selected', 'info', '🚆')" 
+           class="hotspot ripple-effect" 
+           title="Paytm Travel: Trains"
+           style="left: 24.6%; top: 80.2%; width: 4.6%; height: 7.1%;">
+      </div>
+
+      <!-- Intl Flights -->
+      <div onclick="paytm.showToast('🌐 International Flights Selected', 'info', '🌐')" 
+           class="hotspot ripple-effect" 
+           title="Paytm Travel: International Flights"
+           style="left: 30.9%; top: 80.2%; width: 5.5%; height: 7.1%;">
+      </div>
+
+    </div>
+  </main>
+
+
+  <!-- ==================== FLOATING QUICK AI LAUNCHER ==================== -->
+  <div onclick="paytm.navigateToAiHub()" class="floating-hub-pill interactive-btn">
+    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+    <span>Paytm AI Hub</span>
+    <span class="text-base">✨</span>
+  </div>
+
+
+  <!-- ==================== INTERACTIVE MODALS ==================== -->
+
+  <!-- 1. MOBILE RECHARGE MODAL -->
+  <div id="recharge-modal" class="modal-backdrop fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center">
+            <img src="assets/icon_mobile.png" class="w-5 h-5">
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg">Mobile Recharge</h3>
+        </div>
+        <button onclick="paytm.closeModal('recharge-modal')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
+      </div>
+
+      <form onsubmit="paytm.simulateRecharge(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Mobile Number</label>
+          <input type="tel" value="98765 43210" required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 font-semibold focus:border-[#00b9f1] focus:ring-1 focus:ring-[#00b9f1] outline-hidden">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Select Operator</label>
+          <div class="grid grid-cols-4 gap-2 text-center text-xs font-semibold">
+            <div class="border-2 border-[#00b9f1] bg-sky-50 py-2 rounded-xl text-[#002970] cursor-pointer">Jio</div>
+            <div class="border border-slate-200 py-2 rounded-xl text-slate-600 hover:bg-slate-50 cursor-pointer">Airtel</div>
+            <div class="border border-slate-200 py-2 rounded-xl text-slate-600 hover:bg-slate-50 cursor-pointer">Vi</div>
+            <div class="border border-slate-200 py-2 rounded-xl text-slate-600 hover:bg-slate-50 cursor-pointer">BSNL</div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Select Popular Plan</label>
+          <div class="space-y-2">
+            <div class="p-3 border-2 border-[#002970] bg-slate-50 rounded-xl flex items-center justify-between cursor-pointer">
+              <div>
+                <div class="font-bold text-slate-900 text-sm">₹299 <span class="text-xs font-normal text-slate-500">• 28 Days</span></div>
+                <div class="text-xs text-slate-500">2GB/day Data + Unlimited Calls + 100 SMS/day</div>
+              </div>
+              <span class="text-xs bg-[#002970] text-white px-2.5 py-1 rounded-full font-bold">Selected</span>
+            </div>
+            <div class="p-3 border border-slate-200 hover:border-slate-300 rounded-xl flex items-center justify-between cursor-pointer">
+              <div>
+                <div class="font-bold text-slate-900 text-sm">₹666 <span class="text-xs font-normal text-slate-500">• 70 Days</span></div>
+                <div class="text-xs text-slate-500">1.5GB/day + Unlimited 5G Data</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="interactive-btn w-full bg-[#002970] hover:bg-[#001f54] text-white font-bold py-3 rounded-xl shadow-md transition-colors text-sm">
+          Proceed to Pay ₹299
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. ELECTRICITY BILL MODAL -->
+  <div id="electricity-modal" class="modal-backdrop fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+            <img src="assets/icon_electricity.png" class="w-5 h-5">
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg">Electricity Bill</h3>
+        </div>
+        <button onclick="paytm.closeModal('electricity-modal')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
+      </div>
+
+      <form onsubmit="paytm.simulateBillPay(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">State / Electricity Board</label>
+          <select class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 font-medium focus:border-[#00b9f1] outline-hidden">
+            <option>Maharashtra - MSEDCL (Mahavitaran)</option>
+            <option>Tata Power - Mumbai</option>
+            <option>Adani Electricity - Mumbai</option>
+            <option>Delhi - BSES Rajdhani</option>
+            <option>Karnataka - BESCOM</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Consumer Number (CA Number)</label>
+          <input type="text" value="002948192841" required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 font-semibold focus:border-[#00b9f1] outline-hidden">
+        </div>
+        <div class="bg-sky-50 border border-sky-100 p-3 rounded-xl flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-700">Due Amount: ₹1,420</span>
+          <span class="text-xs text-emerald-600 font-bold">Due on: 28 Nov</span>
+        </div>
+        <button type="submit" class="interactive-btn w-full bg-[#002970] hover:bg-[#001f54] text-white font-bold py-3 rounded-xl shadow-md transition-colors text-sm">
+          Pay Bill Instantly
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. FASTAG MODAL -->
+  <div id="fastag-modal" class="modal-backdrop fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-bold text-slate-900 text-lg">FASTag Instant Recharge</h3>
+        <button onclick="paytm.closeModal('fastag-modal')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
+      </div>
+      <form onsubmit="paytm.simulateBillPay(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Vehicle Registration Number</label>
+          <input type="text" placeholder="MH 12 AB 1234" value="MH 12 AB 8921" required class="w-full uppercase border border-slate-300 rounded-xl px-4 py-2.5 font-bold text-slate-900 focus:border-[#00b9f1] outline-hidden">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Recharge Amount</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" class="border-2 border-[#002970] bg-sky-50 py-2 rounded-xl font-bold text-sm text-[#002970]">₹500</button>
+            <button type="button" class="border border-slate-200 py-2 rounded-xl font-bold text-sm text-slate-700">₹1,000</button>
+            <button type="button" class="border border-slate-200 py-2 rounded-xl font-bold text-sm text-slate-700">₹2,000</button>
+          </div>
+        </div>
+        <button type="submit" class="interactive-btn w-full bg-[#002970] text-white font-bold py-3 rounded-xl shadow-md text-sm">
+          Recharge FASTag
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. DTH MODAL -->
+  <div id="dth-modal" class="modal-backdrop fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-bold text-slate-900 text-lg">DTH Recharge</h3>
+        <button onclick="paytm.closeModal('dth-modal')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
+      </div>
+      <form onsubmit="paytm.simulateBillPay(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Select DTH Provider</label>
+          <select class="w-full border border-slate-300 rounded-xl px-4 py-2.5 font-medium text-slate-800">
+            <option>Tata Play (Tata Sky)</option>
+            <option>Airtel Digital TV</option>
+            <option>Dish TV</option>
+            <option>Sun Direct</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Subscriber ID / Smart Card No.</label>
+          <input type="text" value="1092837461" required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 font-bold text-slate-900 focus:border-[#00b9f1] outline-hidden">
+        </div>
+        <button type="submit" class="interactive-btn w-full bg-[#002970] text-white font-bold py-3 rounded-xl shadow-md text-sm">
+          Proceed to Pay ₹350
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. INSURANCE MODAL -->
+  <div id="insurance-modal" class="modal-backdrop fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-bold text-slate-900 text-lg">Insurance Premium Payment</h3>
+        <button onclick="paytm.closeModal('insurance-modal')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
+      </div>
+      <form onsubmit="paytm.simulateBillPay(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Insurer</label>
+          <select class="w-full border border-slate-300 rounded-xl px-4 py-2.5 font-medium text-slate-800">
+            <option>Life Insurance Corporation of India (LIC)</option>
+            <option>HDFC Life Insurance</option>
+            <option>ICICI Prudential Life Insurance</option>
+            <option>SBI Life Insurance</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Policy Number</label>
+          <input type="text" value="849201948" required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 font-bold text-slate-900 focus:border-[#00b9f1] outline-hidden">
+        </div>
+        <button type="submit" class="interactive-btn w-full bg-[#002970] text-white font-bold py-3 rounded-xl shadow-md text-sm">
+          Fetch & Pay Premium
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. VIEW ALL PRODUCTS MODAL -->
+  <div id="viewall-modal" class="modal-backdrop fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-5 max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-bold text-slate-900 text-lg">Paytm All Financial Services</h3>
+        <button onclick="paytm.closeModal('viewall-modal')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
+      </div>
+      <div class="grid grid-cols-3 sm:grid-cols-4 gap-4 text-center">
+        <div onclick="paytm.openModal('recharge-modal'); paytm.closeModal('viewall-modal');" class="interactive-btn p-3 rounded-2xl hover:bg-slate-50 border border-slate-100 cursor-pointer">
+          <div class="text-2xl mb-1">📱</div>
+          <span class="text-xs font-semibold text-slate-700">Mobile Prepaid</span>
+        </div>
+        <div onclick="paytm.openModal('recharge-modal'); paytm.closeModal('viewall-modal');" class="interactive-btn p-3 rounded-2xl hover:bg-slate-50 border border-slate-100 cursor-pointer">
+          <div class="text-2xl mb-1">📞</div>
+          <span class="text-xs font-semibold text-slate-700">Postpaid</span>
+        </div>
+        <div onclick="paytm.openModal('electricity-modal'); paytm.closeModal('viewall-modal');" class="interactive-btn p-3 rounded-2xl hover:bg-slate-50 border border-slate-100 cursor-pointer">
+          <div class="text-2xl mb-1">💡</div>
+          <span class="text-xs font-semibold text-slate-700">Electricity</span>
+        </div>
+        <div onclick="paytm.openModal('dth-modal'); paytm.closeModal('viewall-modal');" class="interactive-btn p-3 rounded-2xl hover:bg-slate-50 border border-slate-100 cursor-pointer">
+          <div class="text-2xl mb-1">📡</div>
+          <span class="text-xs font-semibold text-slate-700">DTH</span>
+        </div>
+        <div onclick="paytm.openModal('fastag-modal'); paytm.closeModal('viewall-modal');" class="interactive-btn p-3 rounded-2xl hover:bg-slate-50 border border-slate-100 cursor-pointer">
+          <div class="text-2xl mb-1">🚗</div>
+          <span class="text-xs font-semibold text-slate-700">FASTag</span>
+        </div>
+        <div onclick="paytm.openModal('bill-modal'); paytm.closeModal('viewall-modal');" class="interactive-btn p-3 rounded-2xl hover:bg-slate-50 border border-slate-100 cursor-pointer">
+          <div class="text-2xl mb-1">🌐</div>
+          <span class="text-xs font-semibold text-slate-700">Broadband</span>
+        </div>
+        <div onclick="paytm.openModal('bill-modal'); paytm.closeModal('viewall-modal');" class="interactive-btn p-3 rounded-2xl hover:bg-slate-50 border border-slate-100 cursor-pointer">
+          <div class="text-2xl mb-1">💳</div>
+          <span class="text-xs font-semibold text-slate-700">Credit Card</span>
+        </div>
+        <div onclick="paytm.navigateToAiHub()" class="interactive-btn p-3 rounded-2xl bg-cyan-50 border border-cyan-200 cursor-pointer">
+          <div class="text-2xl mb-1">🤖</div>
+          <span class="text-xs font-bold text-[#002970]">Paytm AI Hub</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. DOWNLOAD APP MODAL (QR CODE) -->
+  <div id="download-modal" class="modal-backdrop fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
+      <div class="flex items-center justify-between border-b pb-2">
+        <h3 class="font-bold text-slate-900 text-base">Download Paytm App</h3>
+        <button onclick="paytm.closeModal('download-modal')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
+      </div>
+      <div class="p-4 bg-slate-50 border-2 border-dashed border-[#00b9f1] rounded-2xl inline-block">
+        <svg class="w-40 h-40 mx-auto" viewBox="0 0 100 100" fill="none">
+          <rect width="100" height="100" rx="10" fill="white"/>
+          <path fill="#002970" d="M10 10h30v30h-30zM15 15h20v20h-20zM60 10h30v30h-30zM65 15h20v20h-20zM10 60h30v30h-30zM15 65h20v20h-20zM45 10h10v10h-10zM10 45h10v10h-10zM45 45h10v10h-10zM60 45h10v10h-10zM45 60h10v10h-10zM75 60h15v10h-15zM60 75h10v15h-10zM75 80h15v10h-15z"/>
+          <circle cx="50" cy="50" r="10" fill="#00b9f1"/>
+        </svg>
+      </div>
+      <p class="text-xs font-medium text-slate-600">Scan QR code with your phone camera to download Paytm App on Android or iOS</p>
+    </div>
+  </div>
+
+  <!-- 8. SIGN IN MODAL -->
+  <div id="signin-modal" class="modal-backdrop fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-2">
+        <h3 class="font-bold text-slate-900 text-lg">Login to Paytm</h3>
+        <button onclick="paytm.closeModal('signin-modal')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
+      </div>
+      <form onsubmit="event.preventDefault(); paytm.closeModal('signin-modal'); paytm.showToast('✅ Logged in successfully as Akash (+91 9876543210)', 'success', '👤')" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Mobile Number or Email</label>
+          <input type="text" value="+91 98765 43210" required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 font-bold text-slate-900 focus:border-[#00b9f1] outline-hidden">
+        </div>
+        <button type="submit" class="interactive-btn w-full bg-[#002970] text-white font-bold py-3 rounded-xl shadow-md text-sm">
+          Secure Login
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 9. BILL PAY MODAL (Wifi & EMI) -->
+  <div id="bill-modal" class="modal-backdrop fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-2">
+        <h3 class="font-bold text-slate-900 text-lg">Instant Bill Checkout</h3>
+        <button onclick="paytm.closeModal('bill-modal')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
+      </div>
+      <form onsubmit="paytm.simulateBillPay(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Account / Loan Reference ID</label>
+          <input type="text" value="ACT-90821-BROADBAND" required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 font-bold text-slate-900 focus:border-[#00b9f1] outline-hidden">
+        </div>
+        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+          <div class="flex justify-between text-xs text-slate-600">
+            <span>Bill Provider:</span>
+            <span class="font-bold text-slate-800">Airtel Xstream Fiber</span>
+          </div>
+          <div class="flex justify-between text-sm font-bold text-slate-900 border-t pt-2">
+            <span>Amount Due:</span>
+            <span class="text-emerald-600">₹825</span>
+          </div>
+        </div>
+        <button type="submit" class="interactive-btn w-full bg-[#002970] text-white font-bold py-3 rounded-xl shadow-md text-sm">
+          Pay ₹825 via Paytm UPI
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
