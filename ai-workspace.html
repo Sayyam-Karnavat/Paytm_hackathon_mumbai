@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Paytm AI Workspace</title>
+  <title>Paytm AI Workspace — Open Canvas</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="mockup.png">
@@ -12,85 +12,153 @@
       margin: 0;
       padding: 0;
       width: 100%;
-      height: 100vh;
-      background: #0d2847 url('assets/ai_chat_bg_hd.png') no-repeat center center fixed;
-      background-size: cover;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #dceaff 0%, #ebf4fe 40%, #f4f8fd 100%);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Top Sleek Nav Bar (Aligned with Card) */
+    .top-nav-bar {
+      width: min(980px, 94vw, calc((100vh - 85px) * 1.7818));
+      margin: 10px auto 4px auto;
+      padding: 0 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .home-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffffff;
+      color: #002970;
+      padding: 7px 16px;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 13px;
+      box-shadow: 0 2px 8px rgba(0, 41, 112, 0.1), 0 0 0 1px #e2e8f0;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .home-back-btn:hover {
+      background: #002970;
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 41, 112, 0.2);
+    }
+
+    /* Contained & Perfectly Scaled Canvas Card (No Zoom / Razor Crisp) */
+    .dashboard-wrapper {
+      position: relative;
+      width: min(980px, 94vw, calc((100vh - 85px) * 1.7818));
+      aspect-ratio: 1666 / 935;
+      margin: 6px auto 20px auto;
+      border-radius: 22px;
+      box-shadow: 0 24px 60px -15px rgba(0, 41, 112, 0.22), 0 0 0 1px rgba(0, 41, 112, 0.08);
+      background: #08214d;
       overflow: hidden;
-      color: #ffffff;
     }
 
-    /* Minimalist Glass Header */
-    .minimal-glass-header {
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    /* Crisp High-Res Background Image */
+    .dashboard-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      user-select: none;
+      pointer-events: none;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
     }
 
-    /* Subtle Floating Query Pill */
+    /* Clean Workspace Overlay (Open space for hackathon additions) */
+    .workspace-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 5%;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Floating Active Query Pill */
     .query-indicator-pill {
-      background: rgba(255, 255, 255, 0.16);
+      pointer-events: auto;
+      background: rgba(255, 255, 255, 0.88);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 10px 30px rgba(0, 41, 112, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 12px 36px -4px rgba(0, 41, 112, 0.2), 0 0 0 1px rgba(0, 41, 112, 0.08);
+      border-radius: 9999px;
+      padding: 10px 22px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      animation: floatQuery 4s ease-in-out infinite;
+    }
+
+    .query-indicator-pill:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 40px -4px rgba(0, 41, 112, 0.28);
+    }
+
+    @keyframes floatQuery {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
     }
   </style>
 </head>
-<body class="flex flex-col justify-between h-screen select-none">
+<body class="px-3 sm:px-6">
 
-  <!-- MINIMAL SLEEK TOP BAR -->
-  <header class="minimal-glass-header w-full px-6 py-4 flex items-center justify-between z-50">
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Top Navigation Helper Bar -->
+  <div class="top-nav-bar">
+    <a href="ai-hub.html" class="home-back-btn interactive-btn">
+      <span>←</span>
+      <span>Back to AI Hub</span>
+    </a>
     
-    <!-- Left: Back to AI Hub Navigation -->
-    <div class="flex items-center gap-4">
-      <a href="ai-hub.html" class="interactive-btn flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-full border border-white/30 transition-all">
-        <span>←</span>
-        <span>Back to AI Hub</span>
-      </a>
-
-      <div class="h-5 w-px bg-white/30"></div>
-
-      <!-- Paytm Logo -->
-      <div class="flex items-center gap-1.5">
-        <span class="text-xl font-black tracking-tight text-white">paytm</span>
-        <span class="text-[11px] bg-cyan-400 text-[#002970] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">AI</span>
-      </div>
-    </div>
-
-    <!-- Center/Right: Subtle Status Indicator -->
-    <div class="flex items-center gap-3">
-      <div class="flex items-center gap-2 bg-white/15 border border-white/25 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md">
-        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-        <span class="text-white/90">AI Canvas Ready</span>
+    <div class="flex items-center gap-2">
+      <div class="text-xs font-semibold text-[#002970]/80 flex items-center gap-1.5 bg-white/80 backdrop-blur-xs px-3 py-1.5 rounded-full border border-white/80 shadow-xs">
+        <span class="w-2 h-2 rounded-full bg-cyan-500 animate-ping"></span>
+        <span>Paytm AI Canvas Ready</span>
       </div>
 
-      <a href="index.html" class="interactive-btn text-xs font-bold text-white/80 hover:text-white bg-white/10 hover:bg-white/20 px-3.5 py-1.5 rounded-full border border-white/20 transition-all">
-        Paytm Home 🏠
+      <a href="index.html" class="home-back-btn interactive-btn">
+        <span>Paytm Home 🏠</span>
       </a>
     </div>
+  </div>
 
-  </header>
-
-  <!-- COMPLETELY CLEAN, OPEN, SPACIOUS CANVAS -->
-  <!-- "mokle ahe tasch rahude, aapun tyvar ntr buton he sarv basvu" -->
-  <main class="flex-1 flex flex-col items-center justify-center p-6 relative">
+  <!-- MAIN CONTAINED CANVAS (Matches AI Hub Card Dimensions & Crispness) -->
+  <div class="dashboard-wrapper">
     
-    <!-- Subtle Floating Active Query Pill -->
-    <div id="query-pill" class="query-indicator-pill rounded-full px-6 py-3 flex items-center gap-3 text-sm font-semibold max-w-lg transition-all animate-in fade-in zoom-in-95 duration-300">
-      <span class="text-cyan-300 text-lg">✨</span>
-      <span class="text-white/80 text-xs">Query:</span>
-      <span id="active-query-text" class="text-white font-bold truncate">Paytm AI Assistant Query</span>
-      <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse ml-2"></span>
+    <!-- High-Res Crisp Abstract Blue Wave Canvas -->
+    <img src="assets/ai_chat_bg_clean.png" alt="Paytm AI Hub Abstract Wave Canvas" class="dashboard-img">
+
+    <!-- OPEN CLEAN WORKSPACE: Free and ready for new buttons/components -->
+    <div class="workspace-overlay">
+      
+      <!-- Subtle Floating Active Query Pill -->
+      <div id="query-pill" class="query-indicator-pill">
+        <span class="text-cyan-500 text-lg">✨</span>
+        <span class="text-[#002970]/60 text-xs font-bold uppercase tracking-wider">Query:</span>
+        <span id="active-query-text" class="text-[#002970] font-bold text-sm sm:text-base max-w-md truncate">Paytm AI Assistant Query</span>
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse ml-1"></span>
+      </div>
+
     </div>
 
-  </main>
-
-  <!-- MINIMAL BOTTOM BAR -->
-  <footer class="py-3 px-6 text-center text-xs text-white/40">
-    Paytm AI Hub • Workspace Ready
-  </footer>
+  </div>
 
   <script src="app.js"></script>
   <script>
@@ -98,9 +166,9 @@
     const urlParams = new URLSearchParams(window.location.search);
     const query = urlParams.get('q');
     if (query) {
-      document.getElementById('active-query-text').innerText = query;
+      document.getElementById('active-query-text').textContent = decodeURIComponent(query);
     } else {
-      document.getElementById('query-pill').style.display = 'none';
+      document.getElementById('active-query-text').textContent = "Paytm AI Hub Workspace (Ready for Action)";
     }
   </script>
 </body>
