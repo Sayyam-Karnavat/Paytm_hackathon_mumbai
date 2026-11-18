@@ -13,25 +13,27 @@
       padding: 0;
       width: 100%;
       min-height: 100vh;
-      background-color: #ffffff;
+      /* Seamless matching gradient that blends 100% with the dashboard artwork */
+      background: linear-gradient(180deg, #d6e8ff 0%, #e6f0fe 35%, #ffffff 65%, #ffffff 100%);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       overflow-x: hidden;
     }
 
+    /* Full-Width Seamless Canvas Container */
     .canvas-container {
       width: 100%;
       display: flex;
       justify-content: center;
-      background: #ffffff;
+      padding-bottom: 60px;
     }
 
     .canvas-inner {
       position: relative;
       width: 100%;
-      max-width: 1600px;
+      max-width: 1720px;
     }
 
-    /* HD Crisp Image Rendering */
+    /* Ultra HD Crisp Image Rendering */
     .dashboard-img {
       width: 100%;
       height: auto;
@@ -40,7 +42,6 @@
       pointer-events: none;
       image-rendering: -webkit-optimize-contrast;
       image-rendering: crisp-edges;
-      image-rendering: high-quality;
     }
 
     /* Hotspot Interactive Elements */
@@ -54,7 +55,7 @@
 
     .hotspot:hover {
       background-color: rgba(0, 185, 241, 0.14);
-      box-shadow: 0 0 0 2px rgba(0, 185, 241, 0.4);
+      box-shadow: 0 0 0 2px rgba(0, 185, 241, 0.45);
     }
 
     .hotspot:active {
@@ -72,10 +73,10 @@
       background: transparent;
       border: none;
       outline: none;
-      font-size: clamp(13px, 1.35vw, 18px);
+      font-size: clamp(14px, 1.4vw, 19px);
       font-weight: 500;
       color: #0f172a;
-      padding: 0 14px;
+      padding: 0 16px;
       z-index: 25;
     }
 
@@ -101,7 +102,7 @@
       transform: scale(0.92);
     }
 
-    /* Bottom-Left Non-overlapping Home Button */
+    /* Clean Floating Home Button at bottom-left (No overlap with logo!) */
     .bottom-home-pill {
       position: fixed;
       bottom: 24px;
@@ -109,11 +110,11 @@
       z-index: 50;
       background: white;
       color: #002970;
-      padding: 10px 20px;
+      padding: 10px 22px;
       border-radius: 9999px;
       font-weight: 700;
       font-size: 13px;
-      box-shadow: 0 4px 20px rgba(0, 41, 112, 0.15), 0 0 0 1px #e2e8f0;
+      box-shadow: 0 6px 20px rgba(0, 41, 112, 0.15), 0 0 0 1px #e2e8f0;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -125,7 +126,7 @@
       background: #002970;
       color: white;
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 41, 112, 0.3);
+      box-shadow: 0 10px 25px rgba(0, 41, 112, 0.3);
     }
   </style>
 </head>
@@ -140,10 +141,10 @@
     <div class="text-xl font-bold tracking-wide">Opening Paytm AI Workspace...</div>
   </div>
 
-  <!-- Non-overlapping Floating Back Button (Bottom-Left) -->
+  <!-- Floating Back Button (Bottom-Left, perfectly clear of all elements) -->
   <a href="index.html" class="bottom-home-pill interactive-btn">
     <span>←</span>
-    <span>Back to Paytm Home</span>
+    <span>Paytm Home</span>
   </a>
 
   <!-- MAIN SEAMLESS CANVAS -->
@@ -318,7 +319,7 @@
 
 
       <!-- ==================== 6. TOP NAVBAR HOTSPOTS ==================== -->
-      <!-- Logo: Back to Home (Clean, no overlap) -->
+      <!-- Logo: Back to Home (Clean, direct click on logo) -->
       <a href="index.html" 
          class="hotspot" 
          title="Paytm Home"
@@ -343,7 +344,7 @@
   </div>
 
 
-  <!-- Modals (Recharge, Sign In, QR Code) -->
+  <!-- Modals -->
   <!-- 1. DOWNLOAD APP MODAL -->
   <div id="download-modal" class="modal-backdrop fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
@@ -386,7 +387,6 @@
 
   <script src="app.js"></script>
   <script>
-    // Handle SEND Button Action -> Opens Clean Background Page (ai-workspace.html)!
     function handleSend() {
       const input = document.getElementById('ai-prompt-input');
       const query = input.value.trim() || 'Paytm AI Assistant Query';
