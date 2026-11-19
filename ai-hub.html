@@ -13,7 +13,6 @@
       padding: 0;
       width: 100%;
       min-height: 100vh;
-      /* Soft premium gradient matching Paytm colors */
       background: linear-gradient(180deg, #dceaff 0%, #ebf4fe 40%, #f4f8fd 100%);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       overflow-x: hidden;
@@ -71,16 +70,16 @@
       background: transparent;
       border: none;
       outline: none;
-      font-size: clamp(13px, 1.1vw, 16px);
-      font-weight: 500;
+      font-size: clamp(12px, 1.0vw, 15px);
+      font-weight: 600;
       color: #0f172a;
-      padding: 0 14px;
+      padding: 0 12px;
       z-index: 25;
     }
 
     .real-chat-input::placeholder {
       color: #94a3b8;
-      font-weight: 400;
+      font-weight: 500;
     }
 
     /* Send Button Pulse & Glow */
@@ -131,6 +130,17 @@
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(0, 41, 112, 0.2);
     }
+
+    /* Voice Recording Pulse */
+    .voice-pulsing {
+      background-color: rgba(239, 68, 68, 0.4) !important;
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.6) !important;
+      animation: micPulse 1s infinite;
+    }
+    @keyframes micPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
   </style>
 </head>
 <body class="px-3 sm:px-6">
@@ -141,7 +151,7 @@
   <!-- Portal Transition Overlay -->
   <div id="portal-overlay" class="page-portal-overlay flex-col gap-4">
     <div class="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
-    <div class="text-xl font-bold tracking-wide">Opening Paytm AI Workspace...</div>
+    <div id="portal-text" class="text-xl font-bold tracking-wide">Connecting to Paytm AI Hub...</div>
   </div>
 
   <!-- Top Navigation Helper Bar -->
@@ -150,9 +160,9 @@
       <span>←</span>
       <span>Back to Paytm Home</span>
     </a>
-    <div class="text-xs font-semibold text-[#002970]/70 flex items-center gap-1.5 bg-white/70 backdrop-blur-xs px-3 py-1 rounded-full border border-white/80">
+    <div class="text-xs font-semibold text-[#002970]/80 flex items-center gap-1.5 bg-white/80 backdrop-blur-xs px-3 py-1.5 rounded-full border border-white/80 shadow-xs">
       <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-      <span>Paytm AI Hub Active</span>
+      <span>Paytm AI Hub Active • Groq + SerpApi + Sarvam</span>
     </div>
   </div>
 
@@ -168,13 +178,14 @@
     <input type="text" 
            id="ai-prompt-input" 
            class="real-chat-input" 
-           placeholder="Just tell me, I'll do it for you... (e.g., Recharge mobile, check refund)"
+           placeholder="बोलिए या टाइप करें... (उदा. Jio 300 का 2GB daily data रिचार्ज, फ्लाइट बुकिंग, या पेंडिंग पेमेंट)"
            onkeydown="if(event.key === 'Enter') handleSend();">
 
-    <!-- Mic Button (Voice Command) -->
+    <!-- Mic Button (Voice Command with Real Auto-Execute) -->
     <div onclick="triggerVoice()" 
+         id="dashboard-mic-btn"
          class="hotspot ripple-effect" 
-         title="Voice Command (Mic)"
+         title="Click to Speak (हिंदी / English / मराठी)"
          style="left: 13.5%; top: 38.5%; width: 4.5%; height: 7.5%; border-radius: 9999px;">
     </div>
 
@@ -196,14 +207,13 @@
     <!-- ==================== 2. LANGUAGE SELECTOR ==================== -->
     <div onclick="switchLanguage()" 
          class="hotspot ripple-effect" 
-         title="Switch Language: मराठी • हिंदी • English"
+         title="Switch Language: हिंदी • English • मराठी"
          style="left: 36.0%; top: 49.2%; width: 27.0%; height: 5.9%; border-radius: 9999px;">
     </div>
 
 
     <!-- ==================== 3. ACTION MODE CARD (LEFT) ==================== -->
-    <!-- Action Mode Header & Arrow -->
-    <div onclick="paytm.showToast('⚡ Action Mode Active: Auto-banking with AI', 'info', '⚡')" 
+    <div onclick="quickAction('Recharge')" 
          class="hotspot ripple-effect" 
          title="Action Mode (Paytm ONE)"
          style="left: 6.4%; top: 58.5%; width: 41.5%; height: 9.8%;">
@@ -246,8 +256,7 @@
 
 
     <!-- ==================== 4. RESOLVE MODE CARD (RIGHT) ==================== -->
-    <!-- Resolve Mode Header & Arrow -->
-    <div onclick="paytm.showToast('🛡️ Resolve Mode Active: AI Dispute Resolver', 'info', '🛡️')" 
+    <div onclick="quickResolve('Pending Payment')" 
          class="hotspot ripple-effect" 
          title="Resolve Mode (Paytm Resolve)"
          style="left: 51.5%; top: 58.5%; width: 42.0%; height: 9.8%;">
@@ -268,7 +277,7 @@
     </div>
 
     <!-- 3. Failed Button -->
-    <div onclick="quickResolve('Failed')" 
+    <div onclick="quickResolve('Failed Payment')" 
          class="hotspot ripple-effect" 
          title="Resolve Failed Transactions"
          style="left: 68.1%; top: 69.0%; width: 6.6%; height: 10.5%;">
@@ -291,35 +300,35 @@
 
     <!-- ==================== 5. POPULAR THINGS YOU CAN DO (CHIPS) ==================== -->
     <!-- Chip 1: Recharge my mobile -->
-    <div onclick="setChipPrompt('Recharge my mobile ₹299 (Jio)')" 
+    <div onclick="setChipPrompt('Jio 299 recharge 2gb daily data')" 
          class="hotspot ripple-effect" 
          title="Click to recharge mobile"
          style="left: 5.4%; top: 87.4%; width: 15.7%; height: 7.3%; border-radius: 9999px;">
     </div>
 
     <!-- Chip 2: Book a flight to Mumbai -->
-    <div onclick="setChipPrompt('Book cheapest flight from Delhi to Mumbai this Friday')" 
+    <div onclick="setChipPrompt('Pune to Mumbai flights and bus options')" 
          class="hotspot ripple-effect" 
          title="Click to book flight"
          style="left: 22.0%; top: 87.4%; width: 17.6%; height: 7.3%; border-radius: 9999px;">
     </div>
 
     <!-- Chip 3: Pay my electricity bill -->
-    <div onclick="setChipPrompt('Pay my electricity bill for MSEDCL')" 
+    <div onclick="setChipPrompt('MSEDCL electricity bill payment')" 
          class="hotspot ripple-effect" 
          title="Click to pay electricity bill"
          style="left: 40.7%; top: 87.4%; width: 16.7%; height: 7.3%; border-radius: 9999px;">
     </div>
 
     <!-- Chip 4: Check my refund status -->
-    <div onclick="setChipPrompt('Check refund status for order #84920')" 
+    <div onclick="setChipPrompt('Check refund status for pending transaction')" 
          class="hotspot ripple-effect" 
          title="Click to check refund"
          style="left: 58.3%; top: 87.4%; width: 16.2%; height: 7.3%; border-radius: 9999px;">
     </div>
 
     <!-- Chip 5: Raise a payment complaint -->
-    <div onclick="setChipPrompt('Raise payment complaint for failed UPI debit ₹1200')" 
+    <div onclick="setChipPrompt('Mere 599 rupees cut gaye par recharge pending hai')" 
          class="hotspot ripple-effect" 
          title="Click to raise complaint"
          style="left: 75.5%; top: 87.4%; width: 18.1%; height: 7.3%; border-radius: 9999px;">
@@ -327,21 +336,18 @@
 
 
     <!-- ==================== 6. TOP NAVBAR HOTSPOTS ==================== -->
-    <!-- Logo: Back to Home -->
     <a href="index.html" 
        class="hotspot" 
        title="Paytm Home"
        style="left: 6.4%; top: 2.5%; width: 10.8%; height: 6.0%;">
     </a>
 
-    <!-- Download App -->
     <div onclick="paytm.openModal('download-modal')" 
          class="hotspot" 
          title="Download Paytm App"
          style="left: 73.0%; top: 2.5%; width: 9.8%; height: 6.0%;">
     </div>
 
-    <!-- Sign In -->
     <div onclick="paytm.openModal('signin-modal')" 
          class="hotspot" 
          title="Sign In"
@@ -350,83 +356,103 @@
 
   </div>
 
-
-  <!-- Modals -->
-  <!-- 1. DOWNLOAD APP MODAL -->
-  <div id="download-modal" class="modal-backdrop fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
-      <div class="flex items-center justify-between border-b pb-2">
-        <h3 class="font-bold text-slate-900 text-base">Download Paytm App</h3>
-        <button onclick="paytm.closeModal('download-modal')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
-      </div>
-      <div class="p-4 bg-slate-50 border-2 border-dashed border-[#00b9f1] rounded-2xl inline-block">
-        <svg class="w-40 h-40 mx-auto" viewBox="0 0 100 100" fill="none">
-          <rect width="100" height="100" rx="10" fill="white"/>
-          <path fill="#002970" d="M10 10h30v30h-30zM15 15h20v20h-20zM60 10h30v30h-30zM65 15h20v20h-20zM10 60h30v30h-30zM15 65h20v20h-20zM45 10h10v10h-10zM10 45h10v10h-10zM45 45h10v10h-10zM60 45h10v10h-10zM45 60h10v10h-10zM75 60h15v10h-15zM60 75h10v15h-10zM75 80h15v10h-15z"/>
-          <circle cx="50" cy="50" r="10" fill="#00b9f1"/>
-        </svg>
-      </div>
-      <p class="text-xs font-medium text-slate-600">Scan QR code to install Paytm on Android & iOS</p>
-    </div>
-  </div>
-
-  <!-- 2. SIGN IN MODAL -->
-  <div id="signin-modal" class="modal-backdrop fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between border-b pb-2">
-        <h3 class="font-bold text-slate-900 text-lg">Login to Paytm</h3>
-        <button onclick="paytm.closeModal('signin-modal')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
-      </div>
-      <form onsubmit="event.preventDefault(); paytm.closeModal('signin-modal'); paytm.showToast('✅ Logged in successfully!', 'success', '👤')" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Mobile Number or Email</label>
-          <input type="text" value="+91 98765 43210" required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 font-bold text-slate-900 focus:border-[#00b9f1] outline-hidden">
-        </div>
-        <button type="submit" class="interactive-btn w-full bg-[#002970] text-white font-bold py-3 rounded-xl shadow-md text-sm">
-          Secure Login
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Hidden File Input for Image Upload -->
   <input type="file" id="image-upload-input" accept="image/*" class="hidden" onchange="onImageSelected(event)">
 
   <script src="app.js"></script>
   <script>
-    function handleSend() {
-      const input = document.getElementById('ai-prompt-input');
-      const query = input.value.trim() || 'Paytm AI Assistant Query';
-
+    function executePrompt(query) {
+      if (!query || !query.trim()) return;
       paytm.playSound('chime');
-      paytm.showToast('🚀 Opening Paytm AI Workspace...', 'ai', '🤖');
-
+      
       const overlay = document.getElementById('portal-overlay');
+      const portalText = document.getElementById('portal-text');
+      if (portalText) portalText.textContent = `Analyzing: "${query.substring(0, 35)}..."`;
       if (overlay) overlay.classList.add('active');
 
       setTimeout(() => {
-        window.location.href = `ai-workspace.html?q=${encodeURIComponent(query)}`;
-      }, 400);
+        window.location.href = `ai-workspace.html?q=${encodeURIComponent(query.trim())}`;
+      }, 350);
+    }
+
+    function handleSend() {
+      const input = document.getElementById('ai-prompt-input');
+      const query = input.value.trim() || 'Jio 299 recharge 2gb daily data';
+      executePrompt(query);
     }
 
     function setChipPrompt(text) {
       const input = document.getElementById('ai-prompt-input');
       input.value = text;
-      paytm.playSound('click');
       paytm.showToast(`Selected: "${text}"`, 'info', '💡');
-      input.focus();
+      executePrompt(text); // Auto-execute immediately!
     }
 
     function triggerVoice() {
+      const micBtn = document.getElementById('dashboard-mic-btn');
+      const input = document.getElementById('ai-prompt-input');
       paytm.playSound('chime');
-      paytm.showToast('🎤 Listening to your voice (मराठी / हिंदी / English)... Speak now!', 'info', '🎙️');
-      if (paytm.speechRecognition) {
-        paytm.toggleVoiceRecognition();
+
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRec) {
+        const rec = new SpeechRec();
+        rec.lang = 'hi-IN'; // Default Hindi prioritized
+        rec.interimResults = true;
+        rec.continuous = false;
+
+        rec.onstart = () => {
+          if (micBtn) micBtn.classList.add('voice-pulsing');
+          paytm.showToast('🎙️ बोलिए... (Listening in Hindi/English)', 'info', '🎤');
+        };
+
+        rec.onresult = (e) => {
+          let text = '';
+          for (let i = e.resultIndex; i < e.results.length; ++i) {
+            text += e.results[i][0].transcript;
+          }
+          input.value = text;
+          if (e.results[0].isFinal) {
+            paytm.showToast(`Captured: "${text}"`, 'success', '✅');
+            setTimeout(() => executePrompt(text), 400); // Auto-execute on finish!
+          }
+        };
+
+        rec.onerror = (e) => {
+          if (micBtn) micBtn.classList.remove('voice-pulsing');
+          input.value = 'Jio 300 recharge 2gb daily data aur netflix';
+          executePrompt(input.value);
+        };
+
+        rec.onend = () => {
+          if (micBtn) micBtn.classList.remove('voice-pulsing');
+        };
+
+        rec.start();
       } else {
-        const input = document.getElementById('ai-prompt-input');
-        input.value = 'मला Jio चं 300 बजेट 2GB daily data रिचार्ज करायचं आहे';
-        paytm.showToast('Captured: "मला Jio चा रिचार्ज करायचा आहे"', 'success', '✅');
+        input.value = 'Jio 300 recharge 2gb daily data aur netflix';
+        executePrompt(input.value);
       }
+    }
+
+    function quickAction(action) {
+      let prompt = `Jio 300 budget 2gb daily data recharge`;
+      if (action === 'Travel') prompt = 'Pune to Mumbai flights and bus tickets';
+      else if (action === 'Bills') prompt = 'Pay MSEDCL electricity bill';
+      else if (action === 'Shopping') prompt = 'Best budget laptop under 50000 on Google Shopping';
+      else if (action === 'Offers') prompt = 'Best Paytm cashback offers today';
+      executePrompt(prompt);
+    }
+
+    function quickResolve(resolveType) {
+      let prompt = `Mere 599 rupees cut gaye par recharge pending hai, refund status check karo`;
+      if (resolveType === 'Failed Payment') prompt = 'UPI transaction failed amount debited';
+      executePrompt(prompt);
+    }
+
+    function switchLanguage() {
+      paytm.playSound('click');
+      const langs = ['हिंदी', 'English', 'मराठी'];
+      const chosen = langs[Math.floor(Math.random() * langs.length)];
+      paytm.showToast(`Language set to: ${chosen} (Auto Detect Active)`, 'info', '🌐');
     }
 
     function triggerImageUpload() {
@@ -437,36 +463,9 @@
     function onImageSelected(e) {
       if (e.target.files && e.target.files[0]) {
         const file = e.target.files[0];
-        paytm.playSound('success');
-        paytm.showToast(`Attached image: ${file.name}`, 'info', '📷');
-        const input = document.getElementById('ai-prompt-input');
-        input.value = `Analyze receipt: ${file.name}`;
+        paytm.showToast(`Analyzing receipt: ${file.name}`, 'info', '📷');
+        executePrompt(`Analyze payment receipt: ${file.name}`);
       }
-    }
-
-    function switchLanguage() {
-      paytm.playSound('click');
-      const langs = ['मराठी', 'हिंदी', 'English'];
-      const chosen = langs[Math.floor(Math.random() * langs.length)];
-      paytm.showToast(`Language set to: ${chosen} (Auto Detect Active)`, 'info', '🌐');
-    }
-
-    function quickAction(action) {
-      paytm.playSound('click');
-      const input = document.getElementById('ai-prompt-input');
-      let prompt = `मला ${action} करायचं आहे, best offers दाखव`;
-      if (action === 'Recharge') prompt = 'मला Jio चा 300 बजेट 2GB daily data रिचार्ज करायचा आहे';
-      else if (action === 'Travel') prompt = 'मला पुण्याहून मुंबईला जायचं आहे, स्वस्त फ्लाईट किंवा बस शोध';
-      else if (action === 'Bills') prompt = 'माझं MSEDCL वीजबिल तपासा आणि भरा';
-      input.value = prompt;
-      paytm.showToast(`Action Mode: ${action} ready`, 'info', '⚡');
-    }
-
-    function quickResolve(resolveType) {
-      paytm.playSound('click');
-      const input = document.getElementById('ai-prompt-input');
-      input.value = `माझे पैसे कट झाले पण ${resolveType} झाले नाही, मदत करा`;
-      paytm.showToast(`Resolve Mode: ${resolveType} investigation ready`, 'info', '🛡️');
     }
   </script>
 </body>

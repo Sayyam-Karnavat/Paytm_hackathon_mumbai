@@ -1,6 +1,43 @@
 // Paytm AI Hub — Universal Action & Resolution OS
 // Powered by Groq LLM, Sarvam AI Voice, SerpApi Live Search, You.com Citations, and Nexconn Chat SDK
 
+const FRONTEND_PLANS = {
+  jio: [
+    { id: 'jio-198', price: 198, validity: '14 Days', data: '2 GB / Day', calls: 'Unlimited', badge: '5G Booster 🚀', ott: ['JioTV', 'JioCinema'], cashback: '₹15 Cashback', network: 'True Unlimited 5G', description: '2GB/day fast data pack.' },
+    { id: 'jio-239', price: 239, validity: '28 Days', data: '1.5 GB / Day', calls: 'Unlimited', badge: 'Daily 1.5GB 📱', ott: ['JioTV', 'JioCinema'], cashback: '₹20 Cashback', network: 'Jio 4G/5G', description: 'Standard 28-day daily pack.' },
+    { id: 'jio-299', price: 299, validity: '28 Days', data: '2 GB / Day', calls: 'Unlimited', badge: 'Best Seller ⭐', ott: ['JioCinema', 'JioTV', 'JioCloud'], cashback: '₹25 Cashback with Paytm UPI', network: 'True Unlimited 5G', description: 'Unlimited 5G Data with 2GB/day high-speed.' },
+    { id: 'jio-349', price: 349, validity: '28 Days', data: '2.5 GB / Day', calls: 'Unlimited', badge: 'Power Pack ⚡', ott: ['JioCinema Premium', 'JioTV'], cashback: '₹30 Cashback', network: 'True Unlimited 5G', description: '2.5GB per day with JioCinema Premium.' },
+    { id: 'jio-398', price: 398, validity: '28 Days', data: '2 GB / Day', calls: 'Unlimited', badge: 'Netflix Mobile 🍿', ott: ['Netflix (Basic Mobile)', 'JioCinema'], cashback: '₹40 Cashback', network: 'True Unlimited 5G', description: 'Includes Netflix Mobile Subscription + 2GB/Day.' },
+    { id: 'jio-448', price: 448, validity: '28 Days', data: '2 GB / Day', calls: 'Unlimited', badge: '12 OTT Suite 🎬', ott: ['SonyLIV', 'Zee5', 'JioCinema Premium'], cashback: '₹45 Cashback', network: 'True Unlimited 5G', description: 'Mega entertainment pack with 12 OTTs.' },
+    { id: 'jio-666', price: 666, validity: '70 Days', data: '1.5 GB / Day', calls: 'Unlimited', badge: '70 Days Value 🌟', ott: ['JioTV', 'JioCinema'], cashback: '₹50 Cashback', network: 'True Unlimited 5G', description: '70 days long validity plan.' },
+    { id: 'jio-857', price: 857, validity: '84 Days', data: '2 GB / Day', calls: 'Unlimited', badge: 'Amazon Prime 📦', ott: ['Amazon Prime Video Mobile', 'JioCinema'], cashback: '₹50 Cashback', network: 'True Unlimited 5G', description: '84 days with Amazon Prime Video.' },
+    { id: 'jio-1099', price: 1099, validity: '84 Days', data: '2 GB / Day', calls: 'Unlimited', badge: 'Netflix 84 Days 🍿', ott: ['Netflix (Basic)', 'Unlimited 5G'], cashback: '₹75 Cashback', network: 'True Unlimited 5G', description: '84 Days with Netflix Basic.' },
+    { id: 'jio-2999', price: 2999, validity: '365 Days (1 Year)', data: '2.5 GB / Day', calls: 'Unlimited', badge: 'Annual 👑', ott: ['JioCinema Premium', 'JioTV'], cashback: '₹150 Cashback', network: 'True Unlimited 5G', description: 'Full 1 year unlimited 5G.' }
+  ],
+  airtel: [
+    { id: 'airtel-199', price: 199, validity: '28 Days', data: '2 GB Total', calls: 'Unlimited', badge: 'Calling Special 📞', ott: ['Wynk Music', 'Free Hellotunes'], cashback: '₹15 Cashback', network: 'Airtel 4G/5G', description: 'Budget calling pack.' },
+    { id: 'airtel-299', price: 299, validity: '28 Days', data: '1.5 GB / Day', calls: 'Unlimited', badge: 'Popular ⭐', ott: ['Airtel Xstream Play (20+ OTTs)'], cashback: '₹20 Cashback', network: 'Unlimited 5G Data', description: '1.5GB daily with Xstream Play.' },
+    { id: 'airtel-349', price: 349, validity: '28 Days', data: '2 GB / Day', calls: 'Unlimited', badge: 'Best 2GB 🌟', ott: ['Airtel Xstream Play'], cashback: '₹30 Cashback', network: 'Unlimited 5G Data', description: '2GB per day with unlimited 5G.' },
+    { id: 'airtel-399', price: 399, validity: '28 Days', data: '2.5 GB / Day', calls: 'Unlimited', badge: 'Disney+ Hotstar 🏏', ott: ['Disney+ Hotstar (3 Months)', 'Xstream'], cashback: '₹35 Cashback', network: 'Unlimited 5G Data', description: '2.5GB/day + 3 Months Disney+ Hotstar.' },
+    { id: 'airtel-839', price: 839, validity: '84 Days', data: '2 GB / Day', calls: 'Unlimited', badge: 'Hotstar 84D 🏏', ott: ['Disney+ Hotstar (3 Months)'], cashback: '₹50 Cashback', network: 'Unlimited 5G Data', description: '84 days with Disney+ Hotstar.' },
+    { id: 'airtel-999', price: 999, validity: '84 Days', data: '2.5 GB / Day', calls: 'Unlimited', badge: 'Amazon Prime 📦', ott: ['Amazon Prime (84 Days)', 'Xstream'], cashback: '₹60 Cashback', network: 'Unlimited 5G Data', description: '84 days validity with Amazon Prime.' },
+    { id: 'airtel-1199', price: 1199, validity: '84 Days', data: '2.5 GB / Day', calls: 'Unlimited', badge: 'Netflix + Prime 🍿', ott: ['Netflix (Basic)', 'Amazon Prime'], cashback: '₹80 Cashback', network: 'Unlimited 5G Data', description: 'Dual OTT pack with Netflix and Prime.' },
+    { id: 'airtel-2999', price: 2999, validity: '365 Days', data: '2 GB / Day', calls: 'Unlimited', badge: 'Annual Pack 👑', ott: ['Apollo 24/7', 'Wynk Music'], cashback: '₹150 Cashback', network: 'Unlimited 5G Data', description: 'Full 365 days 2GB/day data.' }
+  ],
+  vi: [
+    { id: 'vi-199', price: 199, validity: '18 Days', data: '1 GB / Day', calls: 'Unlimited', badge: 'Short Term 🏷️', ott: ['Vi Movies & TV'], cashback: '₹15 Cashback', network: 'Vi 4G', description: 'Quick recharge.' },
+    { id: 'vi-299', price: 299, validity: '28 Days', data: '1.5 GB / Day + Night Free', calls: 'Unlimited', badge: 'Hero Unlimited 🦸', ott: ['Binge All Night (12AM-6AM)', 'Weekend Rollover'], cashback: '₹25 Cashback', network: 'Vi 4G', description: 'Unlimited night data 12AM-6AM.' },
+    { id: 'vi-365', price: 365, validity: '28 Days', data: '2 GB / Day', calls: 'Unlimited', badge: 'Hotstar Special 🍿', ott: ['Disney+ Hotstar', 'Binge All Night'], cashback: '₹35 Cashback', network: 'Vi 4G', description: '2GB/Day + Hotstar + Binge All Night.' },
+    { id: 'vi-839', price: 839, validity: '84 Days', data: '2 GB / Day', calls: 'Unlimited', badge: '84 Days Hero 🦸', ott: ['Binge All Night', 'Weekend Rollover'], cashback: '₹50 Cashback', network: 'Vi 4G', description: '84 days with Hero Unlimited benefits.' },
+    { id: 'vi-2899', price: 2899, validity: '365 Days', data: '1.5 GB / Day', calls: 'Unlimited', badge: 'Annual Hero 👑', ott: ['Binge All Night', 'Weekend Rollover'], cashback: '₹150 Cashback', network: 'Vi 4G', description: '1 Year unlimited night data.' }
+  ],
+  bsnl: [
+    { id: 'bsnl-107', price: 107, validity: '35 Days', data: '3 GB Total', calls: '200 Mins', badge: 'Super Economy 🏷️', ott: ['BSNL Tunes'], cashback: '₹10 Cashback', network: 'BSNL 4G', description: '35 days longest validity under ₹110.' },
+    { id: 'bsnl-197', price: 197, validity: '70 Days', data: '2 GB / Day (18D)', calls: 'Unlimited (18D)', badge: '70 Days Saver 🌟', ott: ['Zing'], cashback: '₹15 Cashback', network: 'BSNL 4G', description: '70 days incoming validity saver.' },
+    { id: 'bsnl-397', price: 397, validity: '150 Days', data: '2 GB / Day (30D)', calls: 'Unlimited (30D)', badge: '150 Days 👑', ott: ['Free PRBT'], cashback: '₹25 Cashback', network: 'BSNL 4G', description: '150 days secondary SIM validity.' }
+  ]
+};
+
 class PaytmApp {
   constructor() {
     this.audioCtx = null;
@@ -11,6 +48,8 @@ class PaytmApp {
     this.currentLanguage = 'hi-IN'; // Default: Hindi as requested
     this.backendUrl = 'http://localhost:8000';
     this.activeVoiceAudio = null;
+    this.selectedOperator = 'jio';
+    this.selectedCategory = 'recommended';
     
     this.initAudio();
     this.initSpeechRecognition();
@@ -283,6 +322,9 @@ class PaytmApp {
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     document.body.style.overflow = 'hidden';
+    if (modalId === 'recharge-modal') {
+      this.renderPlansCatalog();
+    }
   }
 
   closeModal(modalId) {
@@ -304,6 +346,124 @@ class PaytmApp {
     setTimeout(() => {
       window.location.href = 'ai-hub.html';
     }, 450);
+  }
+
+  simulateRecharge(event) {
+    if (event) event.preventDefault();
+    this.closeModal('recharge-modal');
+    this.playSound('paytm_success');
+    this.showToast('✅ Mobile Recharge of ₹299 Successful! Ref ID: PAYTM' + Math.floor(100000 + Math.random() * 900000), 'success', '📱');
+  }
+
+  simulateRechargeDirect(amount, op) {
+    this.closeModal('recharge-modal');
+    this.playSound('paytm_success');
+    this.showToast(`✅ ${op} Recharge of ₹${amount} Successful! Ref ID: PAYTM` + Math.floor(100000 + Math.random() * 900000), 'success', '📱');
+  }
+
+  simulateBillPay(event) {
+    if (event) event.preventDefault();
+    this.closeModal('bill-modal');
+    this.closeModal('electricity-modal');
+    this.playSound('paytm_success');
+    this.showToast('✅ Bill Payment Successful! Ref ID: BBPS' + Math.floor(100000 + Math.random() * 900000), 'success', '⚡');
+  }
+
+  selectRechargeOperator(op) {
+    this.selectedOperator = op;
+    this.playSound('click');
+    ['jio', 'airtel', 'vi', 'bsnl'].forEach(o => {
+      const btn = document.getElementById(`op-btn-${o}`);
+      if (btn) {
+        if (o === op) {
+          btn.className = 'py-2 px-3 rounded-xl border-2 border-[#00b9f1] bg-sky-50 text-[#002970] font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs';
+        } else {
+          btn.className = 'py-2 px-3 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold flex items-center justify-center gap-1.5 transition-all';
+        }
+      }
+    });
+    this.renderPlansCatalog();
+  }
+
+  filterPlanCategory(category) {
+    this.selectedCategory = category;
+    this.playSound('click');
+    const pills = document.querySelectorAll('#plan-category-tabs .category-pill');
+    pills.forEach(pill => {
+      if (pill.getAttribute('onclick')?.includes(`'${category}'`)) {
+        pill.className = 'category-pill active shrink-0 px-3 py-1.5 rounded-full bg-[#002970] text-white shadow-xs';
+      } else {
+        pill.className = 'category-pill shrink-0 px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200';
+      }
+    });
+    this.renderPlansCatalog();
+  }
+
+  rechargeWithAi(operator, planQuery) {
+    this.playSound('chime');
+    this.closeModal('recharge-modal');
+    this.showToast(`🤖 Handing over to Paytm AI Hub: ${operator} ${planQuery}...`, 'ai', '🚀');
+    setTimeout(() => {
+      window.location.href = `ai-workspace.html?q=${encodeURIComponent('Recharge ' + operator + ' ' + planQuery)}`;
+    }, 400);
+  }
+
+  renderPlansCatalog() {
+    const catalog = document.getElementById('recharge-plans-catalog');
+    if (!catalog) return;
+
+    const op = this.selectedOperator || 'jio';
+    const cat = this.selectedCategory || 'recommended';
+    const plans = FRONTEND_PLANS[op] || FRONTEND_PLANS['jio'];
+
+    let filtered = plans;
+    if (cat === 'recommended') {
+      filtered = plans.slice(0, 4);
+    } else if (cat === 'daily') {
+      filtered = plans.filter(p => p.data.includes('1.5') || p.data.includes('2 GB') || p.data.includes('2.5'));
+    } else if (cat === '5g') {
+      filtered = plans.filter(p => p.network.includes('5G') || p.badge.includes('5G'));
+    } else if (cat === 'ott') {
+      filtered = plans.filter(p => (p.ott && p.ott.length > 0) || p.has_netflix);
+    } else if (cat === 'annual') {
+      filtered = plans.filter(p => p.validity.includes('365') || p.validity.includes('Year') || p.validity.includes('150') || p.validity.includes('84'));
+    }
+
+    if (!filtered || filtered.length === 0) filtered = plans;
+
+    catalog.innerHTML = filtered.map(plan => `
+      <div class="p-3.5 bg-slate-50/90 hover:bg-white rounded-2xl border border-slate-200 hover:border-[#00b9f1] transition-all shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="text-lg font-black text-[#002970]">₹${plan.price}</span>
+            <span class="text-xs font-bold text-slate-500 bg-white px-2 py-0.5 rounded-md border border-slate-200">• ${plan.validity}</span>
+            <span class="text-[11px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">${plan.badge}</span>
+          </div>
+          <div class="text-xs font-bold text-[#00b9f1] flex items-center gap-2">
+            <span>📊 ${plan.data}</span>
+            <span class="text-slate-400">•</span>
+            <span class="text-slate-600">📞 ${plan.calls}</span>
+          </div>
+          <div class="text-[11px] text-slate-500">
+            ${plan.ott && plan.ott.length ? '✨ Perks: ' + plan.ott.join(', ') : plan.description}
+          </div>
+          <div class="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
+            <span>🎁</span> <span>${plan.cashback}</span>
+          </div>
+        </div>
+
+        <div class="flex sm:flex-col gap-2 w-full sm:w-auto shrink-0">
+          <button type="button" onclick="paytm.rechargeWithAi('${op.toUpperCase()}', '${plan.price} plan (${plan.data}, ${plan.validity})')"
+                  class="interactive-btn flex-1 sm:flex-none py-2 px-3.5 rounded-xl bg-gradient-to-r from-[#002970] to-[#00b9f1] text-white font-bold text-xs hover:brightness-110 shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
+            <span>🤖 AI Auto-Pay</span>
+          </button>
+          <button type="button" onclick="paytm.simulateRechargeDirect(${plan.price}, '${op.toUpperCase()}')"
+                  class="interactive-btn flex-1 sm:flex-none py-1.5 px-3 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center cursor-pointer">
+            <span>Direct Pay ₹${plan.price}</span>
+          </button>
+        </div>
+      </div>
+    `).join('');
   }
 }
 

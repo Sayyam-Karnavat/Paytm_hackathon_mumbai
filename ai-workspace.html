@@ -62,7 +62,6 @@
       overflow: hidden;
     }
 
-    /* Crisp High-Res Background Image */
     .dashboard-img {
       position: absolute;
       inset: 0;
@@ -77,7 +76,6 @@
       opacity: 0.95;
     }
 
-    /* Interactive Overlay Container */
     .workspace-overlay {
       position: absolute;
       inset: 0;
@@ -97,7 +95,6 @@
       border-radius: 9999px;
     }
 
-    /* Mic Pulse Indicator */
     .mic-active {
       background: #ef4444 !important;
       color: white !important;
@@ -109,13 +106,12 @@
       50% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
     }
 
-    /* Keypad Buttons */
     .keypad-btn {
-      width: 60px;
-      height: 48px;
-      border-radius: 12px;
+      width: 62px;
+      height: 50px;
+      border-radius: 14px;
       background: #f8fafc;
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 800;
       color: #0f172a;
       display: flex;
@@ -132,6 +128,25 @@
       transform: scale(0.92);
       background: #cbd5e1;
     }
+
+    /* Paytm Moving Green Progress Line */
+    .progress-bar-container {
+      width: 100%;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-line {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #10b981 0%, #00b9f1 100%);
+      border-radius: 9999px;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.8);
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
   </style>
 </head>
 <body class="px-2 sm:px-6">
@@ -147,13 +162,13 @@
     </a>
     
     <div class="flex items-center gap-2">
-      <!-- Live Sponsor Integrations Badges -->
+      <!-- Live Sponsor Badges -->
       <div class="hidden sm:flex items-center gap-1.5 bg-white/90 backdrop-blur-xs px-3 py-1.5 rounded-full border border-white/80 shadow-xs text-[11px] font-bold text-[#002970]">
         <span class="text-cyan-500">⚡ Groq LLM</span>
         <span class="text-slate-300">•</span>
         <span class="text-blue-500">🔍 SerpApi</span>
         <span class="text-slate-300">•</span>
-        <span class="text-purple-500">📚 You.com</span>
+        <span class="text-purple-500">🎙️ Sarvam AI</span>
         <span class="text-slate-300">•</span>
         <span class="text-emerald-500">💬 Nexconn</span>
       </div>
@@ -167,57 +182,57 @@
   <!-- MAIN CONTAINED CANVAS -->
   <div class="dashboard-wrapper">
     
-    <!-- High-Res Crisp Canvas Backdrop -->
     <img src="assets/ai_chat_bg_clean.png" alt="Paytm AI Hub Canvas" class="dashboard-img">
 
-    <!-- Interactive Workspace Overlay -->
     <div class="workspace-overlay">
       
       <!-- 1. Top Controls Bar -->
       <div class="flex items-center justify-between gap-3 bg-white/85 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-sm border border-white/90">
-        <!-- Logo -->
         <div class="flex items-center gap-2">
           <span class="text-lg font-black tracking-tight text-[#002970]">paytm</span>
           <span class="text-[10px] bg-[#00b9f1] text-[#002970] font-black px-2 py-0.5 rounded uppercase tracking-wider">ONE</span>
-          <span class="text-xs text-slate-400 font-medium hidden sm:inline">| Action & Resolve OS</span>
+          <span class="text-xs text-slate-400 font-medium hidden sm:inline">| Action & Resolve Squad</span>
         </div>
 
-        <!-- Language Selector & Live Voice Mic -->
         <div class="flex items-center gap-2">
+          <!-- Language Selector -->
           <div class="flex items-center bg-slate-100/90 rounded-full p-0.5 text-xs font-bold text-slate-600">
             <button onclick="changeLang('hi-IN')" id="lang-hi" class="px-2.5 py-1 rounded-full bg-[#002970] text-white shadow-xs">हिंदी</button>
             <button onclick="changeLang('en-IN')" id="lang-en" class="px-2.5 py-1 rounded-full text-slate-600 hover:text-slate-900">English</button>
             <button onclick="changeLang('mr-IN')" id="lang-mr" class="px-2.5 py-1 rounded-full text-slate-600 hover:text-slate-900">मराठी</button>
           </div>
 
-          <button onclick="paytm.toggleVoiceRecognition()" 
-                  id="header-mic-btn"
+          <!-- Live Mic Voice Button -->
+          <button onclick="triggerWorkspaceMic()" 
+                  id="workspace-mic-btn"
                   class="voice-mic-btn interactive-btn p-2 rounded-full bg-cyan-500 hover:bg-cyan-600 text-white shadow-md transition-all flex items-center justify-center text-sm"
-                  title="Speak now (Hindi / English / Marathi)">
+                  title="Speak now (Auto-Executes immediately)">
             🎙️
           </button>
         </div>
       </div>
 
-      <!-- 2. Dynamic Agent Execution Area (Plan Card, Filters, Human Approval) -->
+      <!-- 2. Dynamic Agent Execution Area -->
       <div id="workspace-dynamic-content" class="my-3 space-y-4">
         <div class="text-center py-12">
           <div class="w-12 h-12 border-4 border-cyan-400 border-t-[#002970] rounded-full animate-spin mx-auto mb-3"></div>
-          <p class="text-sm font-bold text-[#002970]">Groq AI + SerpApi + You.com Analyzing Your Request...</p>
+          <p class="text-sm font-bold text-[#002970]">Paytm Multi-Agent Squad Activated...</p>
         </div>
       </div>
 
-      <!-- 3. Bottom Voice & Prompt Bar (Real-time Speech Display) -->
+      <!-- 3. Bottom Voice & Prompt Bar -->
       <div class="bg-white/90 backdrop-blur-md p-2 rounded-2xl shadow-lg border border-white/90 flex items-center gap-2">
-        <button onclick="paytm.toggleVoiceRecognition()" 
-                class="voice-mic-btn interactive-btn w-10 h-10 rounded-xl bg-cyan-50 text-cyan-700 hover:bg-cyan-100 flex items-center justify-center text-lg shrink-0 border border-cyan-200">
+        <button onclick="triggerWorkspaceMic()" 
+                id="bottom-mic-btn"
+                class="voice-mic-btn interactive-btn w-10 h-10 rounded-xl bg-cyan-50 text-cyan-700 hover:bg-cyan-100 flex items-center justify-center text-lg shrink-0 border border-cyan-200"
+                title="Click to speak">
           🎙️
         </button>
 
         <input type="text" 
                id="user-chat-prompt"
                class="flex-1 bg-transparent border-none outline-none text-xs sm:text-sm text-slate-800 placeholder-slate-400 font-medium px-2"
-               placeholder="बोलिए या टाइप करें (उदा. Jio 300 का 2GB daily data और Netflix रिचार्ज, या पैसे कट गए...)"
+               placeholder="बोलिए या टाइप करें... (उदा. Jio 300 का 2GB daily data, Airtel 349, या पैसे कट गए...)"
                onkeydown="if(event.key === 'Enter') sendNewQuery();">
 
         <button onclick="sendNewQuery()" 
@@ -231,60 +246,139 @@
 
   </div>
 
-  <!-- ==================== PAYTM UPI PIN SHEET / MODAL ==================== -->
+  <!-- ==================== PAYTM AUTHENTIC UPI PAYMENT MODAL ==================== -->
   <div id="upi-pin-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-100 text-center relative animate-in zoom-in-95 duration-200">
+    <div id="upi-card-container" class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-100 text-center relative animate-in zoom-in-95 duration-200">
       
+      <!-- Close Button -->
       <button onclick="window.agentEngine.closePinModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg font-bold">
         ✕
       </button>
 
-      <div class="flex items-center justify-center gap-1.5 mb-1">
-        <span class="text-xl font-black text-[#002970]">paytm</span>
-        <span class="text-xs bg-[#00b9f1] text-[#002970] font-black px-1.5 py-0.5 rounded uppercase">UPI</span>
-      </div>
-      <p class="text-[11px] text-slate-400">NPCI 256-bit Secure Gateway</p>
+      <!-- PHASE 1: ENTER UPI PIN -->
+      <div id="pin-entry-phase">
+        <div class="flex items-center justify-center gap-1.5 mb-1">
+          <span class="text-xl font-black text-[#002970]">paytm</span>
+          <span class="text-xs bg-[#00b9f1] text-[#002970] font-black px-1.5 py-0.5 rounded uppercase">UPI</span>
+        </div>
+        <p class="text-[11px] text-slate-400">NPCI 256-bit Secure Gateway</p>
 
-      <div class="mt-4 bg-slate-50 p-3 rounded-2xl border border-slate-100">
-        <div id="modal-pay-amount" class="text-3xl font-black text-[#002970]">₹299</div>
-        <div id="modal-operator-name" class="text-xs font-semibold text-slate-600 mt-0.5">Jio Prepaid Recharge (28 Days)</div>
-        <div class="text-[10px] text-slate-400 mt-1">From: SBI •••• 4821</div>
-      </div>
+        <div class="mt-4 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+          <div id="modal-pay-amount" class="text-3xl font-black text-[#002970]">₹299</div>
+          <div id="modal-operator-name" class="text-xs font-semibold text-slate-600 mt-0.5">Jio Prepaid Recharge (28 Days)</div>
+          <div class="text-[10px] text-slate-400 mt-1">From: State Bank of India •••• 4821</div>
+        </div>
 
-      <div class="mt-5">
-        <div class="text-xs font-bold text-slate-700">Enter 4-Digit UPI PIN</div>
-        
-        <div class="flex items-center justify-center gap-3 my-4">
-          <div class="pin-dot w-3.5 h-3.5 rounded-full bg-slate-200 transition-all"></div>
-          <div class="pin-dot w-3.5 h-3.5 rounded-full bg-slate-200 transition-all"></div>
-          <div class="pin-dot w-3.5 h-3.5 rounded-full bg-slate-200 transition-all"></div>
-          <div class="pin-dot w-3.5 h-3.5 rounded-full bg-slate-200 transition-all"></div>
+        <div class="mt-4">
+          <div class="text-xs font-bold text-slate-700">Enter 4-Digit UPI PIN</div>
+          <div class="flex items-center justify-center gap-3 my-3">
+            <div class="pin-dot w-3.5 h-3.5 rounded-full bg-slate-200 transition-all"></div>
+            <div class="pin-dot w-3.5 h-3.5 rounded-full bg-slate-200 transition-all"></div>
+            <div class="pin-dot w-3.5 h-3.5 rounded-full bg-slate-200 transition-all"></div>
+            <div class="pin-dot w-3.5 h-3.5 rounded-full bg-slate-200 transition-all"></div>
+          </div>
+        </div>
+
+        <!-- Keypad -->
+        <div class="grid grid-cols-3 gap-2 mt-3 max-w-[220px] mx-auto">
+          <button onclick="window.agentEngine.handlePinKeypad('1')" class="keypad-btn">1</button>
+          <button onclick="window.agentEngine.handlePinKeypad('2')" class="keypad-btn">2</button>
+          <button onclick="window.agentEngine.handlePinKeypad('3')" class="keypad-btn">3</button>
+          <button onclick="window.agentEngine.handlePinKeypad('4')" class="keypad-btn">4</button>
+          <button onclick="window.agentEngine.handlePinKeypad('5')" class="keypad-btn">5</button>
+          <button onclick="window.agentEngine.handlePinKeypad('6')" class="keypad-btn">6</button>
+          <button onclick="window.agentEngine.handlePinKeypad('7')" class="keypad-btn">7</button>
+          <button onclick="window.agentEngine.handlePinKeypad('8')" class="keypad-btn">8</button>
+          <button onclick="window.agentEngine.handlePinKeypad('9')" class="keypad-btn">9</button>
+          <button onclick="window.agentEngine.handlePinKeypad('back')" class="keypad-btn text-base text-red-500">⌫</button>
+          <button onclick="window.agentEngine.handlePinKeypad('0')" class="keypad-btn">0</button>
+          <button onclick="submitPinManually()" class="keypad-btn text-base text-emerald-600 font-bold">✓</button>
         </div>
       </div>
 
-      <div class="grid grid-cols-3 gap-2 mt-4 max-w-[220px] mx-auto">
-        <button onclick="window.agentEngine.handlePinKeypad('1')" class="keypad-btn">1</button>
-        <button onclick="window.agentEngine.handlePinKeypad('2')" class="keypad-btn">2</button>
-        <button onclick="window.agentEngine.handlePinKeypad('3')" class="keypad-btn">3</button>
-        <button onclick="window.agentEngine.handlePinKeypad('4')" class="keypad-btn">4</button>
-        <button onclick="window.agentEngine.handlePinKeypad('5')" class="keypad-btn">5</button>
-        <button onclick="window.agentEngine.handlePinKeypad('6')" class="keypad-btn">6</button>
-        <button onclick="window.agentEngine.handlePinKeypad('7')" class="keypad-btn">7</button>
-        <button onclick="window.agentEngine.handlePinKeypad('8')" class="keypad-btn">8</button>
-        <button onclick="window.agentEngine.handlePinKeypad('9')" class="keypad-btn">9</button>
-        <button onclick="window.agentEngine.handlePinKeypad('back')" class="keypad-btn text-base text-red-500">⌫</button>
-        <button onclick="window.agentEngine.handlePinKeypad('0')" class="keypad-btn">0</button>
-        <button onclick="window.agentEngine.executeRechargePayment()" class="keypad-btn text-base text-emerald-600">✓</button>
+      <!-- PHASE 2: PROCESSING / PENDING ANIMATION (Moving Green Progress Line) -->
+      <div id="payment-processing-phase" class="hidden py-6 space-y-4 text-center">
+        <!-- Amber Clock / Pending Icon -->
+        <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto text-3xl text-amber-600 animate-pulse">
+          ⏳
+        </div>
+        
+        <div>
+          <h3 class="text-lg font-black text-[#002970]">Processing Payment...</h3>
+          <p class="text-xs text-slate-500 mt-1">Routing via NPCI Telecom Gateway</p>
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-xs text-slate-600 space-y-1">
+          <div class="flex justify-between font-bold">
+            <span>Status:</span> <span class="text-amber-600">Pending Bank Confirmation</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Account:</span> <span>SBI •••• 4821</span>
+          </div>
+        </div>
+
+        <!-- The Animated Moving Green Progress Line -->
+        <div class="progress-bar-container mt-4">
+          <div id="payment-progress-line" class="progress-bar-line"></div>
+        </div>
+      </div>
+
+      <!-- PHASE 3: PAYMENT SUCCESS (Big Animated Green Tick + Receipt + Scratch Card) -->
+      <div id="payment-success-phase" class="hidden py-4 space-y-4 text-center animate-in zoom-in-95 duration-300">
+        <!-- Big Animated Green Checkmark -->
+        <div class="w-18 h-18 bg-emerald-100 rounded-full flex items-center justify-center mx-auto text-4xl text-emerald-600 shadow-md animate-bounce">
+          ✓
+        </div>
+
+        <div>
+          <h3 class="text-xl font-black text-emerald-600">Paid Successfully!</h3>
+          <p id="success-paid-desc" class="text-xs font-semibold text-slate-700 mt-0.5">₹299 paid to Reliance Jio Prepaid</p>
+        </div>
+
+        <!-- Receipt Box -->
+        <div class="bg-slate-50 rounded-2xl p-3 text-left text-[11px] space-y-1.5 border border-slate-200">
+          <div class="flex justify-between border-b border-slate-200/60 pb-1">
+            <span class="text-slate-400">UPI Ref ID:</span>
+            <span id="success-txn-id" class="font-bold text-slate-800 font-mono">#PTM982019481</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-200/60 pb-1">
+            <span class="text-slate-400">Date & Time:</span>
+            <span id="success-time" class="font-bold text-slate-800 font-mono">Today, 12:30 PM</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">Payment Mode:</span>
+            <span class="font-bold text-[#002970]">Paytm UPI • SBI 4821</span>
+          </div>
+        </div>
+
+        <!-- Scratch Card -->
+        <div onclick="scratchModalCard(this)" 
+             class="interactive-btn bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 rounded-2xl p-4 text-white shadow-md cursor-pointer transform hover:scale-102 transition-all">
+          <div id="modal-scratch-front">
+            <span class="text-xl">🎁</span>
+            <div class="text-xs font-black mt-0.5">Tap to Scratch Cashback Card!</div>
+          </div>
+          <div id="modal-scratch-revealed" class="hidden">
+            <span class="text-2xl">🎉</span>
+            <div class="text-lg font-black mt-0.5">₹25 Cashback Won!</div>
+            <div class="text-[10px] text-amber-100">Credited to Paytm Wallet</div>
+          </div>
+        </div>
+
+        <!-- Return Button -->
+        <button onclick="finishPaymentAndReturn()" 
+                class="interactive-btn w-full py-3 bg-[#002970] hover:bg-blue-900 text-white font-bold text-xs rounded-xl shadow-md transition-all">
+          Done • Back to AI Platform ↩
+        </button>
       </div>
 
     </div>
   </div>
 
-  <!-- ==================== NEXCONN CHAT SDK LIVE SUPPORT MODAL ==================== -->
+  <!-- ==================== NEXCONN CHAT SDK MODAL ==================== -->
   <div id="nexconn-chat-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 flex flex-col h-[520px] overflow-hidden relative animate-in zoom-in-95 duration-200">
       
-      <!-- Nexconn Header -->
       <div class="bg-gradient-to-r from-[#002970] to-[#00b9f1] p-4 text-white flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-white/20 border border-white/40 flex items-center justify-center text-lg font-bold">
@@ -304,7 +398,6 @@
         </button>
       </div>
 
-      <!-- Chat Messages Container -->
       <div id="nexconn-chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50">
         <div class="text-center">
           <span class="text-[10px] bg-slate-200 text-slate-600 px-2.5 py-0.5 rounded-full font-mono">
@@ -320,7 +413,6 @@
         </div>
       </div>
 
-      <!-- Message Input -->
       <div class="p-3 bg-white border-t border-slate-200 flex items-center gap-2">
         <input type="text" 
                id="nexconn-msg-input"
@@ -339,7 +431,7 @@
   <script src="app.js"></script>
   <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const initialQuery = urlParams.get('q') || 'Jio 300 budget 2gb daily data aur netflix recharge';
+    const initialQuery = urlParams.get('q') || 'Jio 299 recharge 2gb daily data';
 
     window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('user-chat-prompt').value = initialQuery;
@@ -358,6 +450,50 @@
       }
     }
 
+    function triggerWorkspaceMic() {
+      const micBtns = document.querySelectorAll('.voice-mic-btn');
+      const input = document.getElementById('user-chat-prompt');
+      paytm.playSound('chime');
+
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRec) {
+        const rec = new SpeechRec();
+        rec.lang = paytm.currentLanguage || 'hi-IN';
+        rec.interimResults = true;
+        rec.continuous = false;
+
+        rec.onstart = () => {
+          micBtns.forEach(b => b.classList.add('mic-active'));
+          paytm.showToast('🎙️ Sun raha hoon... (Listening)', 'info', '🎤');
+        };
+
+        rec.onresult = (e) => {
+          let text = '';
+          for (let i = e.resultIndex; i < e.results.length; ++i) {
+            text += e.results[i][0].transcript;
+          }
+          input.value = text;
+          if (e.results[0].isFinal) {
+            paytm.showToast(`Captured: "${text}"`, 'success', '✅');
+            setTimeout(() => sendNewQuery(), 400); // Auto-execute immediately!
+          }
+        };
+
+        rec.onerror = () => {
+          micBtns.forEach(b => b.classList.remove('mic-active'));
+        };
+
+        rec.onend = () => {
+          micBtns.forEach(b => b.classList.remove('mic-active'));
+        };
+
+        rec.start();
+      } else {
+        input.value = 'Jio 300 2gb daily data recharge';
+        sendNewQuery();
+      }
+    }
+
     function changeLang(langCode) {
       paytm.currentLanguage = langCode;
       ['hi', 'en', 'mr'].forEach(l => {
@@ -372,6 +508,77 @@
       });
       paytm.playSound('click');
       sendNewQuery();
+    }
+
+    function submitPinManually() {
+      if (!window.agentEngine.enteredPin || window.agentEngine.enteredPin.length < 4) {
+        window.agentEngine.enteredPin = '1234';
+      }
+      executePaymentSequence();
+    }
+
+    // AUTHENTIC PAYTM UPI EXECUTION SEQUENCE
+    function executePaymentSequence() {
+      paytm.playSound('click');
+      const phase1 = document.getElementById('pin-entry-phase');
+      const phase2 = document.getElementById('payment-processing-phase');
+      const phase3 = document.getElementById('payment-success-phase');
+      const progressLine = document.getElementById('payment-progress-line');
+
+      // 1. Move from PIN to Processing
+      phase1.classList.add('hidden');
+      phase2.classList.remove('hidden');
+
+      // 2. Animate the Green Progress Line across bottom
+      setTimeout(() => {
+        progressLine.style.width = '100%';
+      }, 50);
+
+      // 3. After 1.3s, complete payment!
+      setTimeout(() => {
+        paytm.playSound('paytm_success'); // Iconic Paytm chime!
+        phase2.classList.add('hidden');
+        phase3.classList.remove('hidden');
+
+        document.getElementById('success-txn-id').textContent = '#PTM' + Math.floor(100000000 + Math.random() * 900000000);
+        const now = new Date();
+        document.getElementById('success-time').textContent = now.toLocaleDateString() + ', ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+        const currentPlan = window.agentEngine.activePlan;
+        if (currentPlan) {
+          document.getElementById('success-paid-desc').textContent = `₹${currentPlan.price} paid to Reliance Jio Prepaid (${currentPlan.validity})`;
+        }
+      }, 1350);
+    }
+
+    function scratchModalCard(elem) {
+      paytm.playSound('chime');
+      elem.querySelector('#modal-scratch-front').classList.add('hidden');
+      elem.querySelector('#modal-scratch-revealed').classList.remove('hidden');
+      elem.classList.remove('from-amber-400', 'to-amber-500');
+      elem.classList.add('from-emerald-500', 'to-teal-600');
+    }
+
+    function finishPaymentAndReturn() {
+      paytm.playSound('click');
+      const modal = document.getElementById('upi-pin-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+
+      // Reset modal phases for next time
+      document.getElementById('pin-entry-phase').classList.remove('hidden');
+      document.getElementById('payment-processing-phase').classList.add('hidden');
+      document.getElementById('payment-success-phase').classList.add('hidden');
+      document.getElementById('payment-progress-line').style.width = '0%';
+      window.agentEngine.enteredPin = '';
+
+      paytm.showToast('✅ Transaction completed. Returned to AI Platform.', 'success', '🤖');
+    }
+
+    // Override executeRechargePayment in agentEngine to use the authentic sequence
+    if (window.agentEngine) {
+      window.agentEngine.executeRechargePayment = executePaymentSequence;
     }
   </script>
 </body>
