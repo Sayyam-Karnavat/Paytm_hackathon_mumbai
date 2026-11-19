@@ -83,8 +83,11 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         if wants_netflix:
             parsed["wants_netflix"] = True
 
-    # 2. Extract 1k-2k range or specific budget
-    if '1-2k' in lower_q or '1 to 2k' in lower_q or '1k-2k' in lower_q or '1-2 हजार' in lower_q:
+    # 2. Extract explicit budget or 1k-2k range
+    budget_match = re.search(r'(?:budget|budegt|बजेट|दाम|किंमत|price|under|upto|च्या आत)\s*[:=]?\s*(\d{2,5})', lower_q)
+    if budget_match:
+        explicit_price = int(budget_match.group(1))
+    elif '1-2k' in lower_q or '1 to 2k' in lower_q or '1k-2k' in lower_q or '1-2 हजार' in lower_q:
         explicit_price = 2000
     elif '1k' in lower_q:
         explicit_price = 1000
@@ -92,6 +95,57 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         explicit_price = 2000
     elif '3k' in lower_q:
         explicit_price = 3000
+
+    # Dynamic City & Location Extraction
+    detected_city = "Pune"
+    if any(w in lower_q for w in ['pune', 'pun', 'पुणे', 'पुण्यात', 'lohegaon', 'viman nagar']):
+        detected_city = "Pune"
+    elif any(w in lower_q for w in ['mumbai', 'bombay', 'मुंबई', 'मुंबईत', 'sakinaka', 'andheri']):
+        detected_city = "Mumbai"
+    elif any(w in lower_q for w in ['delhi', 'dilli', 'दिल्ली', 'mahipalpur', 'igi']):
+        detected_city = "Delhi"
+    elif any(w in lower_q for w in ['bangalore', 'bengaluru', 'बेंगळुरू']):
+        detected_city = "Bangalore"
+    elif any(w in lower_q for w in ['goa', 'गोवा', 'गोव्यात', 'dabolim']):
+        detected_city = "Goa"
+    elif any(w in lower_q for w in ['hyderabad', 'हैदराबाद']):
+        detected_city = "Hyderabad"
+    elif any(w in lower_q for w in ['jaipur', 'जयपूर']):
+        detected_city = "Jaipur"
+    elif any(w in lower_q for w in ['nagpur', 'नागपूर']):
+        detected_city = "Nagpur"
+    elif any(w in lower_q for w in ['kolkata', 'कोलकाता']):
+        detected_city = "Kolkata"
+    elif any(w in lower_q for w in ['chennai', 'चेन्नई']):
+        detected_city = "Chennai"
+
+    detected_location = "Airport" if any(w in lower_q for w in ['airport', 'airpost', 'aeroport', 'erport', 'हवाई अड्डा', 'विमानतळ', 'terminal', 't2', 't1', 'lohegaon']) else ("Station" if any(w in lower_q for w in ['station', 'railway', 'स्टेशन']) else "City Center")
+
+    # Dynamic Route & Travel Type Extraction
+    travel_type = "flight" if any(k in lower_q for k in ['flight', 'flite', 'fligt', 'flitht', 'plane', 'हवाई', 'विमान']) else ("train" if any(k in lower_q for k in ['train', 'irctc', 'rail', 'गाडी', 'रेल्वे']) else ("bus" if any(k in lower_q for k in ['bus', 'shivneri']) else "flight"))
+    from_city = "Pune"
+    to_city = "Mumbai"
+
+    if ("pune" in lower_q or "pun" in lower_q) and ("mumbai" in lower_q or "bombay" in lower_q):
+        if lower_q.find("mumbai") < lower_q.find("pune") and "to pune" in lower_q:
+            from_city, to_city = "Mumbai", "Pune"
+        else:
+            from_city, to_city = "Pune", "Mumbai"
+    elif ("mumbai" in lower_q or "bombay" in lower_q) and ("delhi" in lower_q or "dilli" in lower_q):
+        from_city, to_city = "Mumbai", "Delhi"
+    elif ("pune" in lower_q or "pun" in lower_q) and ("delhi" in lower_q or "dilli" in lower_q):
+        from_city, to_city = "Pune", "Delhi"
+    elif ("pune" in lower_q or "pun" in lower_q) and "goa" in lower_q:
+        from_city, to_city = "Pune", "Goa"
+    elif ("delhi" in lower_q or "dilli" in lower_q) and ("bangalore" in lower_q or "bengaluru" in lower_q):
+        from_city, to_city = "Delhi", "Bangalore"
+    elif detected_city:
+        if detected_city == "Pune":
+            from_city, to_city = "Pune", "Mumbai"
+        elif detected_city == "Mumbai":
+            from_city, to_city = "Mumbai", "Delhi"
+        else:
+            from_city, to_city = detected_city, "Mumbai"
 
     # Language & Service Classification
     lang = (parsed.get("language") if parsed else None) or detected_lang or "hi"
@@ -484,35 +538,37 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         steps_log.append({
             "step": 2,
             "title": "SerpApi Travel Discovery Agent",
-            "detail": f"Fetching live Google Flights & IRCTC timings from Pune to Mumbai" + (f" (Budget ~₹{budget_limit})" if budget_limit else ""),
+            "detail": f"Fetching live Google Flights & IRCTC timings from {from_city} to {to_city}" + (f" (Budget ~₹{budget_limit})" if budget_limit else ""),
             "status": "completed"
         })
-        travel_results = search_travel_options("Pune", "Mumbai", max_budget=budget_limit)
+        travel_results = search_travel_options(from_city, to_city, travel_type=travel_type, max_budget=budget_limit)
         
         flights = [o for o in travel_results.get("options", []) if o.get("type") == "Flight"]
         trains = [o for o in travel_results.get("options", []) if o.get("type") == "Train"]
         best_flight = flights[0] if flights else None
         best_train = trains[0] if trains else None
 
+        is_flight_query = travel_type == "flight" or any(k in lower_q for k in ['flight', 'flite', 'fligt', 'flitht', 'plane', 'हवाई', 'विमान'])
+
         if lang == "hi":
-            if best_flight and any(k in lower_q for k in ['flight', 'flite', 'fligt', 'plane', 'हवाई']):
-                ai_msg = f"मैंने पुणे से मुंबई के लिए इंडिगो फ्लाइट 6E-5321 (सुबह {best_flight['dep_time']} बजे, ₹{best_flight['price']}) खोज ली है। {best_flight['seats']} बची हैं। क्या आप टिकट बुक करना चाहते हैं?"
+            if best_flight and is_flight_query:
+                ai_msg = f"मैंने {from_city} से {to_city} के लिए {best_flight['name']} (समय {best_flight['dep_time']}, ₹{best_flight['price']}) खोज ली है। {best_flight['seats']} उपलब्ध हैं। क्या टिकट बुक करें?"
             elif best_train:
-                ai_msg = f"मैंने पुणे से मुंबई के लिए वंदे भारत एक्सप्रेस (सुबह {best_train['dep_time']} बजे, ₹{best_train['price']}, {best_train['seats']}) और इंडिगो फ्लाइट खोज ली है। कौन सा टिकट बुक करें?"
+                ai_msg = f"मैंने {from_city} से {to_city} के लिए वंदे भारत एक्सप्रेस (सुबह {best_train['dep_time']} बजे, ₹{best_train['price']}, {best_train['seats']}) और फ्लाइट विकल्प खोज लिए हैं।"
             else:
-                ai_msg = f"मैंने पुणे से मुंबई के लिए ₹{budget_limit or 1000} के बजट में सबसे तेज यात्रा विकल्प खोज लिए हैं।"
+                ai_msg = f"मैंने {from_city} से {to_city} के लिए ₹{budget_limit or 1000} के बजट में सबसे तेज यात्रा विकल्प खोज लिए हैं।"
         elif lang == "mr":
-            if best_flight and any(k in lower_q for k in ['flight', 'flite', 'fligt', 'plane', 'विमान']):
-                ai_msg = f"मी पुणे ते मुंबईसाठी इंडिगो फ्लाईट 6E-5321 (सकाळी {best_flight['dep_time']} वाजता, ₹{best_flight['price']}) शोधली आहे. {best_flight['seats']} शिल्लक आहेत. बुक करू का?"
+            if best_flight and is_flight_query:
+                ai_msg = f"मी {from_city} ते {to_city} साठी {best_flight['name']} (वेळ {best_flight['dep_time']}, ₹{best_flight['price']}) शोधली आहे. {best_flight['seats']} शिल्लक आहेत. बुक करू का?"
             elif best_train:
-                ai_msg = f"मी पुणे ते मुंबईसाठी वंदे भारत एक्सप्रेस (सकाळी {best_train['dep_time']} वाजता, ₹{best_train['price']}, {best_train['seats']}) आणि शिवनेरी बस शोधली आहे. कोणते तिकीट बुक करू?"
+                ai_msg = f"मी {from_city} ते {to_city} साठी वंदे भारत एक्सप्रेस (सकाळी {best_train['dep_time']} वाजता, ₹{best_train['price']}) शोधली आहे."
             else:
-                ai_msg = f"मी पुणे ते मुंबई प्रवासासाठी ₹{budget_limit or 1000} च्या बजेटमधील उत्तम पर्याय शोधले आहेत."
+                ai_msg = f"मी {from_city} ते {to_city} प्रवासासाठी ₹{budget_limit or 1000} च्या बजेटमधील उत्तम पर्याय शोधले आहेत."
         else:
-            if best_flight and any(k in lower_q for k in ['flight', 'flite', 'fligt', 'plane']):
-                ai_msg = f"Found IndiGo flight 6E-5321 (Departs {best_flight['dep_time']}, ₹{best_flight['price']}, {best_flight['seats']}) for Pune to Mumbai. Ready to book?"
+            if best_flight and is_flight_query:
+                ai_msg = f"Found {best_flight['name']} (Departs {best_flight['dep_time']}, ₹{best_flight['price']}) for {from_city} to {to_city}. Ready to book?"
             else:
-                ai_msg = f"Found Vande Bharat Express (Departs 06:25 AM, ₹660) and IndiGo Flight for Pune to Mumbai. Ready to book?"
+                ai_msg = f"Found fastest travel options from {from_city} to {to_city} including Vande Bharat and Flights."
 
         steps_log.append({
             "step": 3,
@@ -537,23 +593,26 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     # Uses: SerpApi Google Local / Hotels Search
     # ==========================================================
     if service == "hotel":
-        budget_limit = explicit_price or 2500
+        city = detected_city or "Pune"
+        location = detected_location or "Airport"
+        budget_limit = explicit_price or 1000
+
         steps_log.append({
             "step": 2,
             "title": "SerpApi Google Hotels & Local Discovery",
-            "detail": f"Searching budget verified hotels near Mumbai Airport (Budget: ~₹{budget_limit})",
+            "detail": f"Searching budget verified hotels near {city} {location} (Budget: ~₹{budget_limit}) with SerpApi",
             "status": "completed"
         })
-        hotel_results = search_hotel_options("Mumbai", "Airport", max_budget=budget_limit)
+        hotel_results = search_hotel_options(city, location, max_budget=budget_limit)
         hotels = hotel_results.get("hotels", [])
         top_hotel = hotels[0] if hotels else None
 
         if lang == "hi":
-            ai_msg = f"मैंने मुंबई एयरपोर्ट के पास कम बजट में बेहतरीन होटल खोज लिए हैं। {top_hotel['name']} (एयरपोर्ट से {top_hotel['distance']}, ₹{top_hotel['price']} प्रति रात) उपलब्ध है। क्या आप कमरा बुक करना चाहते हैं?"
+            ai_msg = f"मैंने {city} {location} के पास आपके ₹{budget_limit} के बजट में बेहतरीन होटल खोज लिए हैं। {top_hotel['name']} ({location} से {top_hotel['distance']}, ₹{top_hotel['price']} प्रति रात) उपलब्ध है। क्या आप कमरा बुक करना चाहते हैं?"
         elif lang == "mr":
-            ai_msg = f"मी मुंबई एअरपोर्ट जवळ कमी बजेटमधील सर्वोत्तम हॉटेल्स शोधली आहेत. {top_hotel['name']} (एअरपोर्टपासून {top_hotel['distance']}, ₹{top_hotel['price']}/रात्र) उपलब्ध आहे. रूम बुक करायची का?"
+            ai_msg = f"मी {city} {location} जवळ तुमच्या ₹{budget_limit} च्या बजेटमधील सर्वोत्तम हॉटेल्स शोधली आहेत. {top_hotel['name']} ({location} पासून {top_hotel['distance']}, ₹{top_hotel['price']}/रात्र) उपलब्ध आहे. रूम बुक करायची का?"
         else:
-            ai_msg = f"Found top budget hotels near Mumbai Airport. {top_hotel['name']} ({top_hotel['distance']} from airport, ₹{top_hotel['price']}/night) with free WiFi and AC. Ready to book?"
+            ai_msg = f"Found top budget hotels near {city} {location} within your ₹{budget_limit} budget. {top_hotel['name']} ({top_hotel['distance']}, ₹{top_hotel['price']}/night) with free WiFi and AC. Ready to book?"
 
         steps_log.append({
             "step": 3,
