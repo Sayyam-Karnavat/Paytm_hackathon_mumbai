@@ -6,7 +6,13 @@ Produces step-by-step thinking & action execution trace (Astra-style).
 import re
 from backend.agents.groq_agent import parse_query_with_groq
 from backend.agents.recharge_agent import find_matching_recharge_plan
-from backend.agents.serp_agent import search_recharge_live_with_serp, search_travel_options, search_hotel_options
+from backend.agents.serp_agent import (
+    search_recharge_live_with_serp,
+    search_travel_options,
+    search_hotel_options,
+    search_shopping_deals,
+    search_movie_options
+)
 from backend.agents.you_agent import fetch_refund_policy_citations
 from backend.agents.nexconn_agent import create_nexconn_dispute_room
 from backend.agents.sarvam_agent import generate_sarvam_speech
@@ -61,7 +67,9 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         'electricity', 'bijli', 'fastag', 'toll', 'dth', 'gold', 'soundbox', 'merchant',
         'refund', 'pending', 'dispute', 'complaint', 'तक्रार', 'रिफंड', 'अडकले', 'कापले', 'कटले',
         'jio', 'airtel', 'vi', 'bsnl', 'बस', 'ट्रेन', 'विमान', 'गाडी', 'तिकीट', 'टिकट',
-        'galti', 'गलत', 'wrong', 'transfer', 'recall', 'unpaid', 'not updated', 'चूक', 'चुकीच्या', 'दो बार', 'दोनदा', 'duplicate'
+        'galti', 'गलत', 'wrong', 'transfer', 'recall', 'unpaid', 'not updated', 'चूक', 'चुकीच्या', 'दो बार', 'दोनदा', 'duplicate',
+        'shopping', 'shoping', 'शॉपिंग', 'offer', 'offers', 'ऑफर', 'deal', 'deals', 'डील', 'discount', 'cashback', 'कॅशबॅक', 'कॅशबैक', 'mall', 'मॉल',
+        'movie', 'movies', 'cinema', 'theatre', 'theater', 'चित्रपट', 'सिनेमा', 'थिएटर'
     ]) or bool(re.search(r'\blight\b', lower_q))
 
     parsed = None
@@ -214,21 +222,45 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         )
     )
 
+    # Shopping, Deals, Cashback & Discounts
+    is_shopping = any(k in lower_q for k in [
+        'shopping', 'shoping', 'शॉपिंग', 'सौदा', 'offer', 'offers', 'ऑफर', 'deals', 'deal', 'डील', 'सवलत',
+        'discount', 'discounts', 'डिस्काउंट', 'cashback', 'कॅशबॅक', 'कॅशबैक', 'सेल', 'sale',
+        'mall', 'मॉल', 'market', 'मार्केट', 'croma', 'reliance digital', 'zomato', 'swiggy', 'myntra',
+        'खरेदी', 'सामान'
+    ]) and not is_dispute
+
+    # Movies & Multiplex Entertainment
+    is_movie = any(k in lower_q for k in [
+        'movie', 'movies', 'cinema', 'theatre', 'theater', 'multiplex', 'चित्रपट', 'सिनेमा',
+        'थिएटर', 'मल्टीप्लेक्स', 'शो', 'showtime', 'showtimes', 'pvr', 'inox', 'cinepolis',
+        'फिल्म', 'पिक्चर', 'पुष्पा', 'pushpa', 'stree', 'kantara'
+    ]) and not is_dispute
+
     # Merchant & Soundbox QR (Kirana, store, merchant, soundbox)
-    is_merchant = any(k in lower_q for k in ['soundbox', 'merchant', 'qr', 'shop', 'store', 'kirana', 'दुकानदार', 'व्यापारी', 'साउंडबॉक्स']) and not is_dispute
+    is_merchant = any(k in lower_q for k in ['soundbox', 'merchant', 'qr', 'shop', 'store', 'kirana', 'दुकानदार', 'व्यापारी', 'साउंडबॉक्स']) and not is_dispute and not is_shopping
 
     # Hotel & Stays
-    is_hotel = any(k in lower_q for k in ['hotel', 'hotle', 'lodge', 'room', 'stay', 'resort', 'हॉटेल', 'होटल', 'कमरा', 'राहण्याची', 'थांबायला'])
+    is_hotel = any(k in lower_q for k in ['hotel', 'hotle', 'lodge', 'room', 'stay', 'resort', 'हॉटेल', 'होटल', 'कमरा', 'राहण्याची', 'थांबायला']) and not is_shopping
 
-    # Travel & Tickets (Avoid 'dyayche' collision with 'aych')
-    has_travel_verb = bool(re.search(r'\b(?:travel|trip|ticket|tickets|tiket|booking|book|जाना|सफर|प्रवास|तिकीट|टिकट)\b', lower_q))
-    is_travel = is_bus or is_train or is_flight or has_travel_verb or (
-        (has_pune or has_mumbai or has_delhi or has_goa or has_blr) and not is_recharge and not is_merchant and not is_dispute and not is_hotel and not is_fastag and not is_dth
-    )
+    # Travel & Tickets: Must have explicit travel vehicle, ticket/travel verb, or two-city route
+    has_explicit_route = (has_pune and has_mumbai) or (has_mumbai and has_delhi) or (has_pune and has_delhi) or (has_pune and has_goa)
+    has_travel_verb = bool(re.search(r'\b(?:travel|trip|ticket|tickets|tiket|booking|book|जाना|सफर|प्रवास|तिकीट|टिकट|गाडी|flight|bus|train)\b', lower_q))
+    is_travel = (
+        is_bus or is_train or is_flight or has_travel_verb or (
+            has_explicit_route and any(w in lower_q for w in ['to', 'se', 'te', 'ते', 'से', 'travel', 'trip', 'जाना'])
+        )
+    ) and not is_shopping and not is_movie and not is_hotel and not is_recharge and not is_merchant and not is_dispute and not is_fastag and not is_dth and not is_electricity and not is_gold
 
     if is_dispute:
         service = "dispute"
         mode = "RESOLVE"
+    elif is_shopping:
+        service = "shopping"
+        mode = "ACTION"
+    elif is_movie:
+        service = "movie"
+        mode = "ACTION"
     elif is_fastag:
         service = "fastag"
         mode = "ACTION"
@@ -253,7 +285,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     elif is_recharge:
         service = "recharge"
         mode = "ACTION"
-    elif groq_service in ['hotel', 'travel', 'electricity', 'fastag', 'dth', 'merchant', 'gold', 'dispute']:
+    elif groq_service in ['hotel', 'travel', 'electricity', 'fastag', 'dth', 'merchant', 'gold', 'shopping', 'movie', 'dispute']:
         service = groq_service
         mode = "RESOLVE" if service == "dispute" else "ACTION"
     else:
@@ -728,6 +760,88 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "language": lang,
             "ai_message": ai_msg,
             "hotel_data": hotel_results,
+            "steps_log": steps_log,
+            "audio_base64": audio_b64
+        }
+
+    # ==========================================================
+    # BRANCH 9: SHOPPING & DEALS MODE (PAYTM DEALS & CASHBACK)
+    # Uses: SerpApi Google Shopping & Local Deals + Partner Vouchers
+    # ==========================================================
+    if service == "shopping":
+        city = detected_city or "Pune"
+        steps_log.append({
+            "step": 2,
+            "title": "SerpApi Shopping Deals Intelligence",
+            "detail": f"Scanning top mall discounts, electronics & cashback offers in {city}",
+            "status": "completed"
+        })
+        shopping_data = search_shopping_deals(city, query=query, max_budget=explicit_price or 0)
+        deals = shopping_data.get("deals", [])
+        top_deal = deals[0] if deals else None
+
+        if lang == "hi":
+            ai_msg = f"मैंने {city} में बेस्ट शॉपिंग ऑफर्स और डिस्काउंट डील्स खोज लिए हैं। {top_deal['brand']} ({top_deal['mall']}) पर {top_deal['title']} मिल रहा है। कूपन कोड: {top_deal['code']}"
+        elif lang == "mr":
+            ai_msg = f"मी {city} मधील सर्वोत्तम शॉपिंग ऑफर्स आणि डिस्काउंट डील्स शोधल्या आहेत. {top_deal['brand']} वर {top_deal['title']} उपलब्ध आहे. कूपन कोड: {top_deal['code']}"
+        else:
+            ai_msg = f"Found top shopping deals and cashback offers in {city}. {top_deal['brand']} is offering {top_deal['title']} with code {top_deal['code']}."
+
+        steps_log.append({
+            "step": 3,
+            "title": "Sarvam AI Voice Synthesis",
+            "detail": "Generating natural human voice audio response",
+            "status": "completed"
+        })
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+
+        return {
+            "mode": "ACTION",
+            "service": "shopping",
+            "language": lang,
+            "ai_message": ai_msg,
+            "shopping_data": shopping_data,
+            "steps_log": steps_log,
+            "audio_base64": audio_b64
+        }
+
+    # ==========================================================
+    # BRANCH 10: MOVIE TICKETS MODE (PAYTM MOVIES & ENTERTAINMENT)
+    # Uses: Multiplex Showtimes & Seat Availability
+    # ==========================================================
+    if service == "movie":
+        city = detected_city or "Pune"
+        steps_log.append({
+            "step": 2,
+            "title": "Paytm Entertainment Multiplex Discovery",
+            "detail": f"Fetching live showtimes for PVR, INOX & Cinepolis in {city}",
+            "status": "completed"
+        })
+        movie_data = search_movie_options(city)
+        movies = movie_data.get("movies", [])
+        top_movie = movies[0] if movies else None
+
+        if lang == "hi":
+            ai_msg = f"मैंने {city} में लेटेस्ट मूवीज और शोटाइम खोज लिए हैं। {top_movie['title']} ({top_movie['theatre']}) के टिकट ₹{top_movie['price']} से शुरू हैं। क्या टिकट बुक करें?"
+        elif lang == "mr":
+            ai_msg = f"मी {city} मधील चित्रपट आणि शोटाइम शोधले आहेत. {top_movie['title']} ({top_movie['theatre']}) चे तिकीट ₹{top_movie['price']} पासून सुरू आहे. बुक करू का?"
+        else:
+            ai_msg = f"Found live movie showtimes in {city}. {top_movie['title']} at {top_movie['theatre']} starts at ₹{top_movie['price']}. Ready to book?"
+
+        steps_log.append({
+            "step": 3,
+            "title": "Sarvam AI Voice Synthesis",
+            "detail": "Generating natural human voice audio response",
+            "status": "completed"
+        })
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+
+        return {
+            "mode": "ACTION",
+            "service": "movie",
+            "language": lang,
+            "ai_message": ai_msg,
+            "movie_data": movie_data,
             "steps_log": steps_log,
             "audio_base64": audio_b64
         }

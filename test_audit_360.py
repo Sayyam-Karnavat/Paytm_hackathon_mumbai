@@ -34,7 +34,11 @@ test_cases = [
     ("Refund not received yet 4 days passed", "RESOLVE", "dispute", None),
     ("Merchant claims payment not received but money debited", "RESOLVE", "dispute", None),
     ("MSEDCL bill paid but showing unpaid on portal", "RESOLVE", "dispute", None),
-    ("Galti se dusre number par UPI transfer ho gaya", "RESOLVE", "dispute", None)
+    ("Galti se dusre number par UPI transfer ho gaya", "RESOLVE", "dispute", None),
+    
+    # 7. Shopping & Mall Deals (The user's query!)
+    ("मुझे शॉपिंग करनी हे बेस्ट ऑफर देखो पुणे में।", "ACTION", "shopping", None),
+    ("Pushpa 2 movie tickets in Pune", "ACTION", "movie", None)
 ]
 
 passed = 0

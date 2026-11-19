@@ -531,6 +531,10 @@ class PaytmAgentOrchestrator {
           this.renderTravelMode(data);
         } else if (data.service === 'hotel') {
           this.renderHotelMode(data);
+        } else if (data.service === 'shopping' || data.service === 'deals') {
+          this.renderShoppingMode(data);
+        } else if (data.service === 'movie' || data.service === 'movies') {
+          this.renderMovieMode(data);
         } else {
           this.renderRechargeMode(data);
         }
@@ -1158,6 +1162,134 @@ class PaytmAgentOrchestrator {
                       class="interactive-btn mt-3.5 w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
                 <span>🏨</span>
                 <span>Book Room ₹${h.price} via Paytm UPI</span>
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  // 3C. Render Shopping Mode (Paytm Deals & Mall Discounts)
+  renderShoppingMode(data) {
+    const deals = data.shopping_data?.deals || [];
+    const city = data.shopping_data?.city || 'Pune';
+    const liveMatches = data.shopping_data?.live_matches || [];
+    const container = document.getElementById('workspace-dynamic-content');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-pink-300 text-left animate-in fade-in duration-300">
+        <div class="flex items-center justify-between mb-3 border-b border-pink-100 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-pink-100 flex items-center justify-center text-2xl">🛍️</div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-[#002970]">Paytm Shopping Deals & Cashback</h3>
+              <span class="text-xs text-pink-700 font-bold">Top Verified Offers & Mall Discounts in ${city}</span>
+            </div>
+          </div>
+          <span class="text-xs font-bold bg-pink-100 text-pink-800 px-3 py-1 rounded-full">Paytm UPI Offers</span>
+        </div>
+
+        <p class="text-xs sm:text-sm text-slate-800 font-medium mb-4">${data.ai_message}</p>
+
+        <!-- Live Web SerpApi Matches -->
+        ${liveMatches.length > 0 ? `
+          <div class="mb-4 p-3 bg-pink-50/70 rounded-xl border border-pink-200">
+            <div class="text-[10px] uppercase font-bold text-pink-800 mb-1 flex items-center gap-1">
+              <span>🔍</span> <span>SerpApi Live Google Shopping Insights (${city})</span>
+            </div>
+            <div class="space-y-1">
+              ${liveMatches.map(m => `
+                <div class="text-xs text-slate-700 flex items-start gap-1.5">
+                  <span class="text-pink-600 font-bold">•</span>
+                  <span class="truncate font-medium">${m.title} - <span class="text-slate-500 text-[11px]">${m.snippet}</span></span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Deals Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          ${deals.map((d, idx) => `
+            <div class="p-4 bg-slate-50/90 hover:bg-white rounded-2xl border-2 ${idx === 0 ? 'border-pink-500 shadow-md ring-2 ring-pink-100' : 'border-slate-200 hover:border-pink-300'} flex flex-col justify-between transition-all text-left">
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-[11px] font-bold bg-pink-100 text-pink-800 px-2 py-0.5 rounded-full">${d.badge}</span>
+                  <span class="text-xs font-mono font-bold text-slate-400">${d.rating}</span>
+                </div>
+                <div class="font-black text-base text-[#002970]">${d.brand}</div>
+                <div class="text-xs text-slate-500 font-medium mt-0.5">📍 ${d.mall}</div>
+                
+                <div class="mt-2.5 p-2.5 bg-white rounded-xl border border-pink-100">
+                  <div class="text-xs font-black text-pink-600">${d.discount}</div>
+                  <div class="text-[11px] text-slate-600 mt-0.5">${d.title}</div>
+                  <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>${d.min_purchase}</span>
+                    <span class="font-mono font-bold text-[#002970] bg-slate-100 px-1.5 py-0.5 rounded">CODE: ${d.code}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button onclick="window.agentEngine.openPinModal(100, '${d.brand} (${d.code})', '${d.mall}')"
+                      class="interactive-btn mt-3.5 w-full py-2.5 bg-gradient-to-r from-pink-600 to-rose-600 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>🎁</span>
+                <span>Claim Offer with Paytm UPI</span>
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  // 3D. Render Movie Mode (Paytm Movies & Multiplex Entertainment)
+  renderMovieMode(data) {
+    const movies = data.movie_data?.movies || [];
+    const city = data.movie_data?.city || 'Pune';
+    const container = document.getElementById('workspace-dynamic-content');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-indigo-300 text-left animate-in fade-in duration-300">
+        <div class="flex items-center justify-between mb-3 border-b border-indigo-100 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-2xl">🎬</div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-[#002970]">Paytm Movies & Multiplexes</h3>
+              <span class="text-xs text-indigo-700 font-bold">Now Showing in Theatres (${city})</span>
+            </div>
+          </div>
+          <span class="text-xs font-bold bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full">Instant M-Ticket</span>
+        </div>
+
+        <p class="text-xs sm:text-sm text-slate-800 font-medium mb-4">${data.ai_message}</p>
+
+        <!-- Movies Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          ${movies.map((m, idx) => `
+            <div class="p-4 bg-slate-50/90 hover:bg-white rounded-2xl border-2 ${idx === 0 ? 'border-indigo-600 shadow-md ring-2 ring-indigo-100' : 'border-slate-200 hover:border-indigo-300'} flex flex-col justify-between transition-all text-left">
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-[11px] font-bold bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded-full">${m.badge}</span>
+                  <span class="text-lg font-black text-[#002970]">₹${m.price}</span>
+                </div>
+                <div class="font-black text-base text-[#002970]">${m.title}</div>
+                <div class="text-xs text-slate-500 font-medium mt-0.5">🏛️ ${m.theatre}</div>
+                <div class="text-[11px] text-slate-400 font-semibold mt-0.5">🗣️ ${m.language} • <span class="text-emerald-600 font-bold">${m.seats}</span></div>
+
+                <div class="flex flex-wrap gap-1.5 mt-3">
+                  ${(m.times || []).map(t => `
+                    <span class="text-xs font-mono font-bold bg-white text-indigo-700 px-2.5 py-1 rounded-lg border border-indigo-200">${t}</span>
+                  `).join('')}
+                </div>
+              </div>
+
+              <button onclick="window.agentEngine.openPinModal(${m.price}, '${m.title} (Movie Ticket)', '${m.theatre}')"
+                      class="interactive-btn mt-3.5 w-full py-2.5 bg-gradient-to-r from-indigo-600 to-[#002970] text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>🎟️</span>
+                <span>Book Ticket ₹${m.price} via Paytm UPI</span>
               </button>
             </div>
           `).join('')}
