@@ -14,47 +14,76 @@ from backend.agents.sarvam_agent import generate_sarvam_speech
 
 def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     steps_log = []
+    lower_q = query.lower()
     
+    # 1. Deterministic Extraction from raw user speech/text
+    # Operator detection
+    op_detected = "jio"
+    if "airtel" in lower_q: op_detected = "airtel"
+    elif any(k in lower_q for k in ["vi", "vodafone", "idea"]): op_detected = "vi"
+    elif "bsnl" in lower_q: op_detected = "bsnl"
+    
+    # Price / budget extraction (supports standalone numbers like 666, 349, 198, 239, 299, 857, 1099, etc.)
+    nums = [int(n) for n in re.findall(r'\b\d{2,4}\b', lower_q) if int(n) not in [28, 56, 70, 84, 90, 100, 365] and 50 <= int(n) <= 3999]
+    explicit_price = nums[0] if nums else None
+
+    # Language detection
+    detected_lang = "hi"
+    if any(w in lower_q for w in ['mala', 'karaycha', 'karayche', 'ahe', 'pahije', 'kiti', 'cha', 'chi', 'kraych', 'dakhva', 'tula']):
+        detected_lang = "mr"
+    elif any(w in lower_q for w in ['mujhe', 'karna', 'hai', 'chahiye', 'karo', 'bhai', 'paise', 'mera', 'apna', 'dikhao']):
+        detected_lang = "hi"
+    elif any(w in lower_q for w in ['please', 'recharge', 'refund', 'check', 'book', 'flight', 'ticket', 'plan']):
+        detected_lang = "en"
+
+    # Daily data
+    detected_data = ""
+    if "1.5" in lower_q: detected_data = "1.5 GB / Day"
+    elif "2.5" in lower_q: detected_data = "2.5 GB / Day"
+    elif "2" in lower_q and ("gb" in lower_q or "data" in lower_q): detected_data = "2 GB / Day"
+    elif "1" in lower_q and ("gb" in lower_q or "data" in lower_q): detected_data = "1 GB / Day"
+
+    wants_netflix = "netflix" in lower_q
+
     # STEP 1: Intent & Language Analysis
     steps_log.append({
         "step": 1,
         "title": "Natural Language & Intent Detection",
-        "detail": "Analyzing user speech/text input via Groq Fast Inference",
+        "detail": f"Detected query intent ({detected_lang.upper()}) • Target: {op_detected.upper()}" + (f" ~₹{explicit_price}" if explicit_price else ""),
         "status": "completed"
     })
 
     parsed = parse_query_with_groq(query)
     
     if not parsed:
-        lower = query.lower()
-        lang = "hi" if any(w in lower for w in ['mujhe', 'karna', 'hai', 'chahiye', 'karo', 'bhai', 'paise']) else (
-            "mr" if any(w in lower for w in ['mala', 'karaycha', 'ahe', 'pahije']) else "en"
-        )
-        is_resolve = any(k in lower for k in ['cut', 'pending', 'failed', 'refund', 'issue', 'complaint', 'कट', 'अडकले'])
-        
-        # operator detection
-        op = "jio"
-        if "airtel" in lower: op = "airtel"
-        elif "vi" in lower or "vodafone" in lower: op = "vi"
-        elif "bsnl" in lower: op = "bsnl"
-
-        # budget extraction
-        nums = [int(n) for n in re.findall(r'\b\d{3,4}\b', query) if 100 <= int(n) <= 3600]
-        budget = nums[0] if nums else 299
+        is_resolve = any(k in lower_q for k in ['cut', 'pending', 'failed', 'refund', 'issue', 'complaint', 'कट', 'अडकले', 'वापस', 'तक्रार'])
+        is_travel = any(k in lower_q for k in ['flight', 'bus', 'train', 'ticket', 'pune', 'mumbai', 'delhi', 'goa'])
 
         parsed = {
-            "language": lang,
+            "language": detected_lang,
             "mode": "RESOLVE" if is_resolve else "ACTION",
-            "service": "dispute" if is_resolve else "recharge",
-            "operator": op,
-            "budget": budget,
-            "data_daily": "2 GB / Day",
-            "wants_netflix": "netflix" in lower,
+            "service": "dispute" if is_resolve else ("travel" if is_travel else "recharge"),
+            "operator": op_detected,
+            "budget": explicit_price or 299,
+            "data_daily": detected_data,
+            "wants_netflix": wants_netflix,
             "response_hi": "Maine aapka plan khoj liya hai.",
             "response_en": "I have found the matching plan for you."
         }
+    else:
+        # Override with explicit values if found in user's prompt
+        if explicit_price:
+            parsed["budget"] = explicit_price
+        if op_detected:
+            parsed["operator"] = op_detected
+        if detected_lang:
+            parsed["language"] = detected_lang
+        if detected_data:
+            parsed["data_daily"] = detected_data
+        if wants_netflix:
+            parsed["wants_netflix"] = True
 
-    lang = parsed.get("language", "hi")
+    lang = parsed.get("language", detected_lang)
     mode = parsed.get("mode", "ACTION")
     service = parsed.get("service", "recharge")
 
@@ -155,10 +184,10 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     # BRANCH 3: RECHARGE MODE (FLAGSHIP PAYTM ONE)
     # Uses: Plan Matcher + SerpApi Live Search + Sarvam AI Audio
     # ==========================================================
-    operator = parsed.get("operator", "jio")
-    budget = parsed.get("budget", 300)
-    data_daily = parsed.get("data_daily", "")
-    wants_netflix = parsed.get("wants_netflix", False)
+    operator = (parsed.get("operator") or op_detected or "jio").lower()
+    budget = int(parsed.get("budget") or explicit_price or 299)
+    data_daily = parsed.get("data_daily") or detected_data or ""
+    wants_netflix = bool(parsed.get("wants_netflix") or wants_netflix)
 
     steps_log.append({
         "step": 2,

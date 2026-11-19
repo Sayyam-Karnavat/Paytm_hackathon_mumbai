@@ -424,42 +424,52 @@ def find_matching_recharge_plan(operator: str = "jio", budget: int = 300, data_d
     op = operator.lower() if operator else "jio"
     plans = TELECOM_PLANS.get(op, TELECOM_PLANS["jio"])
 
-    # 1. If Netflix is explicitly requested
+    target_budget = budget or 299
+
+    # 1. Exact price match takes absolute highest priority
+    if budget and budget > 0:
+        exact_matches = [p for p in plans if p["price"] == budget]
+        if exact_matches:
+            best = exact_matches[0]
+            alts = [p for p in plans if p["id"] != best["id"]][:5]
+            return {
+                "best": best,
+                "alternatives": alts
+            }
+
+    # 2. If Netflix is explicitly requested
     if wants_netflix:
         netflix_matches = [p for p in plans if p.get("has_netflix")]
         if netflix_matches:
-            best_netflix = min(netflix_matches, key=lambda x: abs(x["price"] - (budget or 398)))
+            best_netflix = min(netflix_matches, key=lambda x: abs(x["price"] - target_budget))
+            alts = [p for p in plans if p["id"] != best_netflix["id"]][:5]
             return {
                 "best": best_netflix,
-                "alternatives": [p for p in plans if p["id"] != best_netflix["id"]][:4]
+                "alternatives": alts
             }
 
-    # 2. Filter by daily data if specified (e.g. "2 GB", "1.5 GB", "2.5 GB")
+    # 3. Budget & Feature Scored Match
     scored_plans = []
-    target_budget = budget or 300
-
     for p in plans:
         score = 0
-        
-        # Price closeness (within 100 is high score)
         diff = abs(p["price"] - target_budget)
-        score += max(0, 100 - (diff / 5))
+        
+        # Price closeness gives up to 500 points
+        score += max(0, 500 - (diff * 2))
 
         # Data match
         if data_daily and data_daily.lower().replace(" ", "") in p["data"].lower().replace(" ", ""):
-            score += 50
-        elif "2" in str(data_daily) and "2 GB" in p["data"]:
-            score += 40
+            score += 80
 
         # Validity match
         if validity_days > 0 and str(validity_days) in p["validity"]:
-            score += 60
+            score += 100
 
         scored_plans.append((score, p))
 
     scored_plans.sort(key=lambda x: x[0], reverse=True)
     best_candidate = scored_plans[0][1]
-    alternatives = [item[1] for item in scored_plans if item[1]["id"] != best_candidate["id"]][:4]
+    alternatives = [item[1] for item in scored_plans if item[1]["id"] != best_candidate["id"]][:5]
 
     return {
         "best": best_candidate,

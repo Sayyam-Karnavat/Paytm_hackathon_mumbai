@@ -8,12 +8,12 @@ from dotenv import load_dotenv
 
 load_dotenv('C:/Users/hp/paytmone/backend/.env', override=True)
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL = "openai/gpt-oss-20b"
+GROQ_MODEL = "qwen/qwen3.8-27b"
 
 
 def call_groq_llm(prompt: str, system_prompt: str = "") -> str:
     """
-    Calls Groq OpenAI-compatible chat completion endpoint.
+    Calls Groq OpenAI-compatible chat completion endpoint with strict JSON mode.
     """
     if not GROQ_API_KEY:
         return ""
@@ -33,8 +33,9 @@ def call_groq_llm(prompt: str, system_prompt: str = "") -> str:
         payload = {
             "model": GROQ_MODEL,
             "messages": messages,
-            "temperature": 0.3,
-            "max_tokens": 450
+            "response_format": {"type": "json_object"},
+            "temperature": 0.1,
+            "max_tokens": 400
         }
         resp = requests.post(url, headers=headers, json=payload, timeout=8)
         if resp.status_code == 200:

@@ -676,36 +676,45 @@ class PaytmAgentOrchestrator {
 
           <div class="flex flex-col sm:flex-row items-center gap-3">
             <button onclick="window.agentEngine.openPinModal(${best.price}, '${(data.operator || 'Jio').toUpperCase()}', '${best.validity}')"
-                    class="interactive-btn w-full sm:flex-1 py-3.5 px-6 rounded-xl font-black text-sm text-white bg-gradient-to-r from-[#002970] via-[#0047a1] to-[#00b9f1] hover:brightness-110 shadow-lg shadow-blue-900/25 flex items-center justify-center gap-2">
+                    class="interactive-btn w-full sm:flex-1 py-3.5 px-6 rounded-xl font-black text-sm text-white bg-gradient-to-r from-[#002970] via-[#0047a1] to-[#00b9f1] hover:brightness-110 shadow-lg shadow-blue-900/25 flex items-center justify-center gap-2 cursor-pointer">
               <span>✅</span>
               <span>${data.language === 'hi' ? 'स्वीकार करें और ₹' + best.price + ' भरें (Pay)' : (data.language === 'mr' ? 'मंजूर करा आणि ₹' + best.price + ' भरा' : 'Approve & Pay ₹' + best.price)}</span>
             </button>
 
-            <button onclick="window.agentEngine.showAlternativePlans()"
-                    class="interactive-btn w-full sm:w-auto py-3.5 px-5 rounded-xl font-bold text-xs sm:text-sm text-slate-600 bg-white hover:bg-slate-100 border border-slate-200 shadow-sm flex items-center justify-center gap-1.5">
-              <span>🔄</span>
-              <span>${data.language === 'hi' ? 'अन्य प्लान्स देखें' : 'View Alternatives'}</span>
-            </button>
+            <div class="text-[11px] font-bold text-slate-500 bg-slate-100/90 py-2.5 px-4 rounded-xl border border-slate-200 flex items-center gap-1.5">
+              <span>💡</span>
+              <span>${data.language === 'mr' ? 'खालील टॉप 5 पैकी कोणताही प्लॅन क्लिक करून बदला' : (data.language === 'hi' ? 'नीचे दिए गए 5 प्लान्स में से किसी पर भी क्लिक करके चुनें' : 'Click any of top 5 plans below to switch instantly')}</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- More Alternatives Grid -->
-      <div id="alternative-plans-row" class="hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
+      <!-- Top 5 Alternatives Row (Always Visible in a Clean Line) -->
+      <div id="alternative-plans-row" class="animate-in fade-in slide-in-from-bottom-2 duration-200">
         <div class="text-xs font-bold text-[#002970] mb-2 flex items-center justify-between">
-          <span>More Matching Plans for ${(data.operator || 'Jio').toUpperCase()}:</span>
-          <span class="text-[11px] text-slate-400">Click to switch plan instantly</span>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-[#00b9f1]"></span>
+            <span>${data.language === 'mr' ? 'इतर टॉप 5 शोधलेले प्लॅन्स (' + (data.operator || 'Jio').toUpperCase() + '):' : 'Top 5 Matching Telecom Plans (' + (data.operator || 'Jio').toUpperCase() + '):'}</span>
+          </div>
+          <span class="text-[11px] text-slate-500 font-medium">🎯 Click any plan card to select</span>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
-          ${alternatives.map(alt => `
+
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+          ${alternatives.slice(0, 5).map(alt => `
             <div onclick="window.agentEngine.switchPlan('${alt.id}', ${alt.price}, '${data.operator || 'jio'}')"
-                 class="interactive-btn p-3 bg-white/95 rounded-xl border border-slate-200 hover:border-[#00b9f1] cursor-pointer shadow-xs transition-all text-left">
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-base font-black text-[#002970]">₹${alt.price}</span>
-                <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">${alt.validity}</span>
+                 class="interactive-btn p-3 bg-white/95 hover:bg-sky-50/80 rounded-2xl border-2 ${alt.price === best.price ? 'border-[#002970] shadow-md ring-2 ring-blue-300' : 'border-slate-200 hover:border-[#00b9f1]'} cursor-pointer shadow-xs transition-all text-left flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-base font-black text-[#002970]">₹${alt.price}</span>
+                  <span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200">${alt.validity}</span>
+                </div>
+                <div class="text-xs font-bold text-[#00b9f1]">${alt.data}</div>
+                <div class="text-[11px] text-slate-500 truncate mt-1">${alt.ott?.join(', ') || alt.badge || ''}</div>
               </div>
-              <div class="text-xs font-bold text-[#00b9f1]">${alt.data}</div>
-              <div class="text-[11px] text-slate-500 truncate mt-1">${alt.ott?.join(', ') || ''}</div>
+              <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold">
+                <span class="text-emerald-600">Select ➔</span>
+                <span class="text-slate-400">5G Data</span>
+              </div>
             </div>
           `).join('')}
         </div>
@@ -716,14 +725,46 @@ class PaytmAgentOrchestrator {
   showAlternativePlans() {
     const row = document.getElementById('alternative-plans-row');
     if (row) {
-      row.classList.toggle('hidden');
+      row.scrollIntoView({ behavior: 'smooth' });
       paytm.playSound('click');
     }
   }
 
   switchPlan(planId, price, operator) {
     paytm.playSound('chime');
-    this.processQuery(`${operator} ${price} plan recharge`);
+    if (!this.currentData || !this.currentData.plan_data) {
+      this.processQuery(`${operator} ${price} plan recharge`);
+      return;
+    }
+    const op = (operator || 'jio').toLowerCase();
+    const allPlans = [
+      this.currentData.plan_data.best,
+      ...(this.currentData.plan_data.alternatives || [])
+    ];
+    const catalog = FRONTEND_PLANS[op] || [];
+    const found = allPlans.find(p => p.id === planId || p.price === price) || catalog.find(p => p.id === planId || p.price === price);
+
+    if (found) {
+      const newAlts = catalog.filter(p => p.id !== found.id).slice(0, 5);
+      this.currentData.plan_data.best = found;
+      this.currentData.plan_data.alternatives = newAlts;
+      this.currentData.budget = found.price;
+      this.activePlan = found;
+
+      if (this.activeLanguage === 'hi') {
+        this.currentData.ai_message = `मैंने आपका प्लान बदलकर ${op.toUpperCase()} ₹${found.price} (${found.data}, ${found.validity}) कर दिया है। क्या आप इसे अप्रूव करना चाहते हैं?`;
+      } else if (this.activeLanguage === 'mr') {
+        this.currentData.ai_message = `मी तुमचा प्लॅन बदलून ${op.toUpperCase()} चा बेस्ट ₹${found.price} (${found.data}, ${found.validity}) निवडला आहे. मंजूर करायचा का?`;
+      } else {
+        this.currentData.ai_message = `Switched to ${op.toUpperCase()} ₹${found.price} plan with ${found.data} and ${found.validity} validity. Ready to approve?`;
+      }
+
+      this.renderRechargeMode(this.currentData);
+      paytm.showToast(`✅ Selected ₹${found.price} Plan (${found.data}, ${found.validity})`, 'success', '📱');
+      paytm.speakTextFallback(this.currentData.ai_message);
+    } else {
+      this.processQuery(`${operator} ${price} plan recharge`);
+    }
   }
 
   // 2. Render Resolve Mode (Paytm Resolve Squad)
