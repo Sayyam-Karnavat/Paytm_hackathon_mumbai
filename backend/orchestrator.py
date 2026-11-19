@@ -56,8 +56,8 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     parsed = parse_query_with_groq(query)
     
     if not parsed:
-        is_resolve = any(k in lower_q for k in ['cut', 'pending', 'failed', 'refund', 'issue', 'complaint', 'कट', 'अडकले', 'वापस', 'तक्रार'])
-        is_travel = any(k in lower_q for k in ['flight', 'bus', 'train', 'ticket', 'pune', 'mumbai', 'delhi', 'goa'])
+        is_resolve = any(k in lower_q for k in ['pending', 'failed', 'refund', 'complaint', 'तक्रार', 'रिफंड', 'अडकले', 'वापस', 'paise cut', 'cut gaye', 'कट गये', 'कट गए', 'पैसे कट'])
+        is_travel = any(k in lower_q for k in ['flight', 'bus', 'train', 'ticket', 'pune', 'mumbai', 'delhi', 'goa', 'बस', 'ट्रेन', 'फ्लाइट', 'विमान', 'रेल्वे', 'गाडी', 'तिकीट', 'टिकट', 'पुणे', 'मुंबई'])
 
         parsed = {
             "language": detected_lang,
@@ -122,22 +122,40 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     detected_location = "Airport" if any(w in lower_q for w in ['airport', 'airpost', 'aeroport', 'erport', 'हवाई अड्डा', 'विमानतळ', 'terminal', 't2', 't1', 'lohegaon']) else ("Station" if any(w in lower_q for w in ['station', 'railway', 'स्टेशन']) else "City Center")
 
     # Dynamic Route & Travel Type Extraction
-    travel_type = "flight" if any(k in lower_q for k in ['flight', 'flite', 'fligt', 'flitht', 'plane', 'हवाई', 'विमान']) else ("train" if any(k in lower_q for k in ['train', 'irctc', 'rail', 'गाडी', 'रेल्वे']) else ("bus" if any(k in lower_q for k in ['bus', 'shivneri']) else "flight"))
+    is_bus = any(k in lower_q for k in ['bus', 'buses', 'बस', 'व्हॉल्व्हो', 'वॉल्वो', 'shivneri', 'neeta', 'zingbus'])
+    is_train = any(k in lower_q for k in ['train', 'trains', 'irctc', 'rail', 'railway', 'गाडी', 'रेल्वे', 'ट्रेन', 'vande bharat', 'tejas'])
+    is_flight = any(k in lower_q for k in ['flight', 'flite', 'fligt', 'flitht', 'plane', 'air', 'हवाई', 'विमान', 'फ्लाइट', 'air india', 'indigo', 'akasa'])
+
+    if is_bus:
+        travel_type = "bus"
+    elif is_train:
+        travel_type = "train"
+    elif is_flight:
+        travel_type = "flight"
+    else:
+        travel_type = "travel"
+
     from_city = "Pune"
     to_city = "Mumbai"
 
-    if ("pune" in lower_q or "pun" in lower_q) and ("mumbai" in lower_q or "bombay" in lower_q):
-        if lower_q.find("mumbai") < lower_q.find("pune") and "to pune" in lower_q:
+    has_pune = any(w in lower_q for w in ['pune', 'pun', 'पुणे', 'पुण्यात', 'lohegaon'])
+    has_mumbai = any(w in lower_q for w in ['mumbai', 'bombay', 'मुंबई', 'मुंबईत'])
+    has_delhi = any(w in lower_q for w in ['delhi', 'dilli', 'दिल्ली'])
+    has_goa = any(w in lower_q for w in ['goa', 'गोवा', 'गोव्यात'])
+    has_blr = any(w in lower_q for w in ['bangalore', 'bengaluru', 'बेंगळुरू'])
+
+    if has_pune and has_mumbai:
+        if ('mumbai se pune' in lower_q or 'mumbai to pune' in lower_q or 'मुंबई से पुणे' in lower_q or 'मुंबई ते पुणे' in lower_q):
             from_city, to_city = "Mumbai", "Pune"
         else:
             from_city, to_city = "Pune", "Mumbai"
-    elif ("mumbai" in lower_q or "bombay" in lower_q) and ("delhi" in lower_q or "dilli" in lower_q):
+    elif has_mumbai and has_delhi:
         from_city, to_city = "Mumbai", "Delhi"
-    elif ("pune" in lower_q or "pun" in lower_q) and ("delhi" in lower_q or "dilli" in lower_q):
+    elif has_pune and has_delhi:
         from_city, to_city = "Pune", "Delhi"
-    elif ("pune" in lower_q or "pun" in lower_q) and "goa" in lower_q:
+    elif has_pune and has_goa:
         from_city, to_city = "Pune", "Goa"
-    elif ("delhi" in lower_q or "dilli" in lower_q) and ("bangalore" in lower_q or "bengaluru" in lower_q):
+    elif has_delhi and has_blr:
         from_city, to_city = "Delhi", "Bangalore"
     elif detected_city:
         if detected_city == "Pune":
@@ -151,13 +169,22 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     lang = (parsed.get("language") if parsed else None) or detected_lang or "hi"
     groq_service = (parsed.get("service") if parsed else "") or ""
     
-    if any(k in lower_q for k in ['hotel', 'hotle', 'lodge', 'room', 'stay', 'resort', 'हॉटेल', 'होटल', 'कमरा', 'राहण्याची']):
+    # Accurate Intent Resolution: Travel > Hotel > Electricity/Bills > Disputes > Recharge
+    # NOTE: Never check standalone 'कट' because it appears inside 'टिकट' (Ticket)!
+    if any(k in lower_q for k in ['hotel', 'hotle', 'lodge', 'room', 'stay', 'resort', 'हॉटेल', 'होटल', 'कमरा', 'राहण्याची', 'थांबायला']):
         service = "hotel"
         mode = "ACTION"
-    elif any(k in lower_q for k in ['flight', 'flite', 'fligt', 'plane', 'air', 'train', 'irctc', 'rail', 'railway', 'bus', 'shivneri', 'vande bharat', 'ticket', 'tiket', 'booking', 'book', 'pune', 'mumbai', 'delhi', 'goa', 'bangalore', 'jaayche', 'aych', 'udaych', 'विमान', 'रेल्वे', 'गाडी', 'तिकीट', 'प्रवास']):
+    elif is_bus or is_train or is_flight or any(k in lower_q for k in [
+        'travel', 'trip', 'ticket', 'tickets', 'tiket', 'booking', 'book',
+        'pune', 'mumbai', 'delhi', 'goa', 'bangalore', 'jaayche', 'aych', 'udaych',
+        'बस', 'ट्रेन', 'फ्लाइट', 'विमान', 'रेल्वे', 'गाडी', 'तिकीट', 'टिकट', 'प्रवास', 'सफर', 'जाना', 'जाना है', 'जायचं', 'जायचे', 'बुकिंग', 'बुक'
+    ]):
         service = "travel"
         mode = "ACTION"
-    elif any(k in lower_q for k in ['cut', 'pending', 'failed', 'refund', 'issue', 'complaint', 'कट', 'अडकले', 'वापस', 'तक्रार']):
+    elif any(k in lower_q for k in [
+        'pending', 'failed', 'refund', 'complaint', 'तक्रार', 'रिफंड', 'अडकले', 'वापस',
+        'paise cut', 'cut gaye', 'कट गये', 'कट गए', 'पैसे कट', 'रुपये कट', 'अमाउंट कट', 'कटले', 'कापले'
+    ]):
         service = "dispute"
         mode = "RESOLVE"
     elif any(k in lower_q for k in ['electricity', 'light', 'bijli', 'power', 'mahavitaran', 'msedcl', 'adani', 'bses', 'वीज', 'लाईट']):
@@ -545,30 +572,39 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         
         flights = [o for o in travel_results.get("options", []) if o.get("type") == "Flight"]
         trains = [o for o in travel_results.get("options", []) if o.get("type") == "Train"]
+        buses = [o for o in travel_results.get("options", []) if o.get("type") == "Bus"]
         best_flight = flights[0] if flights else None
         best_train = trains[0] if trains else None
+        best_bus = buses[0] if buses else None
 
-        is_flight_query = travel_type == "flight" or any(k in lower_q for k in ['flight', 'flite', 'fligt', 'flitht', 'plane', 'हवाई', 'विमान'])
+        is_flight_query = travel_type == "flight" or any(k in lower_q for k in ['flight', 'flite', 'fligt', 'flitht', 'plane', 'हवाई', 'विमान', 'फ्लाइट'])
+        is_bus_query = travel_type == "bus" or any(k in lower_q for k in ['bus', 'buses', 'बस', 'व्हॉल्व्हो', 'वॉल्वो', 'shivneri'])
 
         if lang == "hi":
-            if best_flight and is_flight_query:
+            if is_bus_query and best_bus:
+                ai_msg = f"मैंने {from_city} से {to_city} के लिए {best_bus['name']} ({best_bus['dep_time']}, ₹{best_bus['price']}) खोज ली है। {best_bus['seats']} उपलब्ध हैं। क्या टिकट बुक करें?"
+            elif best_flight and is_flight_query:
                 ai_msg = f"मैंने {from_city} से {to_city} के लिए {best_flight['name']} (समय {best_flight['dep_time']}, ₹{best_flight['price']}) खोज ली है। {best_flight['seats']} उपलब्ध हैं। क्या टिकट बुक करें?"
             elif best_train:
-                ai_msg = f"मैंने {from_city} से {to_city} के लिए वंदे भारत एक्सप्रेस (सुबह {best_train['dep_time']} बजे, ₹{best_train['price']}, {best_train['seats']}) और फ्लाइट विकल्प खोज लिए हैं।"
+                ai_msg = f"मैंने {from_city} से {to_city} के लिए वंदे भारत एक्सप्रेस (सुबह {best_train['dep_time']} बजे, ₹{best_train['price']}, {best_train['seats']}) और अन्य यात्रा विकल्प खोज लिए हैं।"
             else:
-                ai_msg = f"मैंने {from_city} से {to_city} के लिए ₹{budget_limit or 1000} के बजट में सबसे तेज यात्रा विकल्प खोज लिए हैं।"
+                ai_msg = f"मैंने {from_city} से {to_city} के लिए ₹{budget_limit or 500} के बजट में सबसे तेज यात्रा विकल्प खोज लिए हैं।"
         elif lang == "mr":
-            if best_flight and is_flight_query:
+            if is_bus_query and best_bus:
+                ai_msg = f"मी {from_city} ते {to_city} प्रवासासाठी {best_bus['name']} ({best_bus['dep_time']}, ₹{best_bus['price']}) शोधली आहे. {best_bus['seats']} शिल्लक आहेत. बुक करू का?"
+            elif best_flight and is_flight_query:
                 ai_msg = f"मी {from_city} ते {to_city} साठी {best_flight['name']} (वेळ {best_flight['dep_time']}, ₹{best_flight['price']}) शोधली आहे. {best_flight['seats']} शिल्लक आहेत. बुक करू का?"
             elif best_train:
                 ai_msg = f"मी {from_city} ते {to_city} साठी वंदे भारत एक्सप्रेस (सकाळी {best_train['dep_time']} वाजता, ₹{best_train['price']}) शोधली आहे."
             else:
-                ai_msg = f"मी {from_city} ते {to_city} प्रवासासाठी ₹{budget_limit or 1000} च्या बजेटमधील उत्तम पर्याय शोधले आहेत."
+                ai_msg = f"मी {from_city} ते {to_city} प्रवासासाठी ₹{budget_limit or 500} च्या बजेटमधील उत्तम पर्याय शोधले आहेत."
         else:
-            if best_flight and is_flight_query:
+            if is_bus_query and best_bus:
+                ai_msg = f"Found {best_bus['name']} ({best_bus['dep_time']}, ₹{best_bus['price']}) for {from_city} to {to_city}. Ready to book?"
+            elif best_flight and is_flight_query:
                 ai_msg = f"Found {best_flight['name']} (Departs {best_flight['dep_time']}, ₹{best_flight['price']}) for {from_city} to {to_city}. Ready to book?"
             else:
-                ai_msg = f"Found fastest travel options from {from_city} to {to_city} including Vande Bharat and Flights."
+                ai_msg = f"Found fastest travel options from {from_city} to {to_city} including buses, trains, and flights."
 
         steps_log.append({
             "step": 3,

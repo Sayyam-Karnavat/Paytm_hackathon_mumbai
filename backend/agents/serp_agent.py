@@ -168,21 +168,71 @@ def search_travel_options(from_city: str = "Pune", to_city: str = "Mumbai", trav
             "name": f"Shivneri AC Volvo ({fc} ➔ {tc})",
             "from_code": fc,
             "to_code": tc,
-            "dep_time": "Every 30 Mins (07:00, 07:30...)",
-            "arr_time": "3h 45m via Expressway",
-            "duration": "3h 45m",
+            "dep_time": "Every 30 Mins (07:00, 07:30, 08:00 AM...)",
+            "arr_time": "3h 30m via Expressway",
+            "duration": "3h 30m",
             "price": 495,
-            "seats": "Instant M-Ticket",
+            "seats": "18 Seats Left (Instant M-Ticket)",
             "badge": "Paytm Assured Bus 🚌",
+            "refundable": True
+        },
+        {
+            "id": "tr-bus-2",
+            "type": "Bus",
+            "name": f"Neeta Multi-Axle Volvo AC Sleeper ({fc} ➔ {tc})",
+            "from_code": fc,
+            "to_code": tc,
+            "dep_time": "08:30 AM / 11:30 PM",
+            "arr_time": "3h 45m (Dadar / Borivali)",
+            "duration": "3h 45m",
+            "price": 550,
+            "seats": "12 AC Sleeper Left",
+            "badge": "Super Luxury Sleeper 🛌",
+            "refundable": True
+        },
+        {
+            "id": "tr-bus-3",
+            "type": "Bus",
+            "name": f"Purple Travels Scania AC ({fc} ➔ {tc})",
+            "from_code": fc,
+            "to_code": tc,
+            "dep_time": "09:15 AM / 04:30 PM",
+            "arr_time": "3h 40m (Vashi / Bandra)",
+            "duration": "3h 40m",
+            "price": 450,
+            "seats": "14 Seats Left",
+            "badge": "Top Rated Bus ⭐",
+            "refundable": True
+        },
+        {
+            "id": "tr-bus-4",
+            "type": "Bus",
+            "name": f"Zingbus Plus Electric Luxury AC ({fc} ➔ {tc})",
+            "from_code": fc,
+            "to_code": tc,
+            "dep_time": "10:00 AM / 06:00 PM",
+            "arr_time": "3h 30m (Clean & On-time)",
+            "duration": "3h 30m",
+            "price": 399,
+            "seats": "8 Seats Left",
+            "badge": "Eco Electric AC ⚡",
             "refundable": True
         }
     ]
 
-    # If user explicitly asked for flight, prioritize flights first
-    if travel_type == "flight":
+    # Prioritize based on explicit travel_type
+    if travel_type == "bus":
+        bus_opts = [o for o in all_options if o["type"] == "Bus"]
+        other_opts = [o for o in all_options if o["type"] != "Bus"]
+        sorted_options = bus_opts + other_opts
+    elif travel_type == "flight":
         flight_opts = [o for o in all_options if o["type"] == "Flight"]
         other_opts = [o for o in all_options if o["type"] != "Flight"]
         sorted_options = flight_opts + other_opts
+    elif travel_type == "train":
+        train_opts = [o for o in all_options if o["type"] == "Train"]
+        other_opts = [o for o in all_options if o["type"] != "Train"]
+        sorted_options = train_opts + other_opts
     else:
         sorted_options = all_options
 

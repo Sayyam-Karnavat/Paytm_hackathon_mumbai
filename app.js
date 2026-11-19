@@ -874,13 +874,17 @@ class PaytmAgentOrchestrator {
     const container = document.getElementById('workspace-dynamic-content');
     if (!container) return;
 
+    const firstType = opts[0]?.type || 'Travel';
+    const travelIcon = firstType === 'Bus' ? '🚌' : (firstType === 'Train' ? '🚆' : '✈️');
+    const travelTitle = firstType === 'Bus' ? 'Paytm Bus Tickets (SerpApi Live)' : (firstType === 'Train' ? 'Paytm Trains & IRCTC' : 'Paytm Travel & Flights');
+
     container.innerHTML = `
       <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border border-blue-200 text-left animate-in fade-in duration-300">
         <div class="flex items-center justify-between mb-3 border-b pb-3">
           <div class="flex items-center gap-2.5">
-            <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-2xl">✈️</div>
+            <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-2xl">${travelIcon}</div>
             <div>
-              <h3 class="text-base sm:text-lg font-black text-[#002970]">Paytm Travel & Flights (SerpApi Live)</h3>
+              <h3 class="text-base sm:text-lg font-black text-[#002970]">${travelTitle}</h3>
               <span class="text-xs text-[#00b9f1] font-bold">${fromCity} ➔ ${toCity} • Live Timings & Fares</span>
             </div>
           </div>
