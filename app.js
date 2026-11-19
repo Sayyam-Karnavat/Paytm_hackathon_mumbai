@@ -779,89 +779,279 @@ class PaytmAgentOrchestrator {
     }
   }
 
-  // 2. Render Resolve Mode (Paytm Resolve Squad)
+  // 2. Render Resolve Mode (Paytm Resolve Autonomous Investigation Squad)
   renderResolveMode(data) {
-    const cit = data.citations || {};
-    const nex = data.nexconn_chat || {};
+    const res = data.resolve_data || {};
+    const cit = data.citations || res.citations || {};
+    const nex = data.nexconn_chat || res.nexconn_chat || {};
+    const recon = res.three_way_reconciliation || [];
+    const journey = res.refund_journey || [];
+    const draft = res.complaint_draft || {};
+    const evidence = res.evidence_bundle || {};
 
     const container = document.getElementById('workspace-dynamic-content');
     if (!container) return;
 
     container.innerHTML = `
-      <!-- Astra Execution Trace -->
-      <div class="bg-slate-900/90 text-white backdrop-blur-md rounded-2xl p-3.5 sm:p-4 shadow-xl border border-slate-700/80 text-left text-xs space-y-2 animate-in fade-in duration-200">
+      <!-- Quick Resolve Scenario Pills -->
+      <div class="mb-3.5 p-3 bg-red-50/80 rounded-2xl border border-red-200">
+        <div class="text-[11px] font-black uppercase text-red-800 tracking-wider mb-2 flex items-center justify-between">
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
+            <span>🚨 Select Dispute Scenario (Instant Multi-Agent Investigation):</span>
+          </span>
+          <span class="text-[10px] text-red-600 font-mono font-bold">Paytm Resolve Core</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <button onclick="window.agentEngine.processQuery('पैसे कट झाले पण Jio Recharge झाला नाही')"
+                  class="p-2 text-left bg-white hover:bg-red-100/50 rounded-xl border border-red-200 text-xs font-bold text-slate-800 transition-all flex items-center gap-1.5 cursor-pointer">
+            <span>⚡</span> <span class="truncate">Recharge Pending (₹599)</span>
+          </button>
+          <button onclick="window.agentEngine.processQuery('माझा ₹1200 चा refund अजून आला नाही')"
+                  class="p-2 text-left bg-white hover:bg-red-100/50 rounded-xl border border-red-200 text-xs font-bold text-slate-800 transition-all flex items-center gap-1.5 cursor-pointer">
+            <span>💰</span> <span class="truncate">Refund Tracking (₹1,200)</span>
+          </button>
+          <button onclick="window.agentEngine.processQuery('दुकानदार म्हणतो पैसे मिळाले नाहीत पण बँकेतून कट झाले')"
+                  class="p-2 text-left bg-white hover:bg-red-100/50 rounded-xl border border-red-200 text-xs font-bold text-slate-800 transition-all flex items-center gap-1.5 cursor-pointer">
+            <span>🏪</span> <span class="truncate">Merchant Reconciliation</span>
+          </button>
+          <button onclick="window.agentEngine.processQuery('Electricity bill paid पण अजून unpaid दिसते')"
+                  class="p-2 text-left bg-white hover:bg-red-100/50 rounded-xl border border-red-200 text-xs font-bold text-slate-800 transition-all flex items-center gap-1.5 cursor-pointer">
+            <span>📄</span> <span class="truncate">Bill Settlement Delay</span>
+          </button>
+          <button onclick="window.agentEngine.processQuery('मी चुकून चुकीच्या UPI ID वर पैसे पाठवले')"
+                  class="p-2 text-left bg-white hover:bg-red-100/50 rounded-xl border border-red-200 text-xs font-bold text-slate-800 transition-all flex items-center gap-1.5 cursor-pointer">
+            <span>🔄</span> <span class="truncate">Wrong UPI Transfer</span>
+          </button>
+          <button onclick="window.agentEngine.processQuery('दोनदा पैसे debit झाले duplicate payment')"
+                  class="p-2 text-left bg-white hover:bg-red-100/50 rounded-xl border border-red-200 text-xs font-bold text-slate-800 transition-all flex items-center gap-1.5 cursor-pointer">
+            <span>⚠️</span> <span class="truncate">Duplicate Debit Reversal</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Astra Autonomous Squad Execution Trace -->
+      <div class="bg-slate-900/95 text-white backdrop-blur-md rounded-2xl p-4 shadow-xl border border-slate-700/80 text-left text-xs space-y-2.5 animate-in fade-in duration-200">
         <div class="flex items-center justify-between border-b border-slate-700/60 pb-2">
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping"></span>
-            <span class="font-black text-red-400 tracking-wide uppercase text-[11px]">Paytm Resolve Dispute Squad Active</span>
+            <span class="font-black text-red-400 tracking-wide uppercase text-[11px]">Paytm Resolve Multi-Agent Investigation Squad Active</span>
           </div>
-          <span class="text-[10px] text-slate-400 font-mono">You.com Cited Research + Nexconn Live SDK</span>
+          <span class="text-[10px] text-slate-400 font-mono">You.com Live Research + Nexconn SDK Singapore</span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-mono text-[11px]">
           <div class="flex items-center gap-1.5 text-emerald-300">
-            <span>✓</span> <span>Step 1: Problem Classification (Failed/Pending Payment)</span>
+            <span>✓</span> <span>Agent 1: Transaction Detective</span>
           </div>
           <div class="flex items-center gap-1.5 text-cyan-300">
-            <span>✓</span> <span>Step 2: You.com Live Regulatory Citation Search</span>
+            <span>✓</span> <span>Agent 2: 3-Way Reconciliation</span>
           </div>
           <div class="flex items-center gap-1.5 text-blue-300">
-            <span>✓</span> <span>Step 3: Nexconn Real-Time Support Room Spawned</span>
+            <span>✓</span> <span>Agent 3: You.com Policy Research</span>
+          </div>
+          <div class="flex items-center gap-1.5 text-amber-300">
+            <span>✓</span> <span>Agent 4: Evidence & SHA-256 Seal</span>
           </div>
           <div class="flex items-center gap-1.5 text-purple-300">
-            <span>✓</span> <span>Step 4: Sarvam AI Voice Synthesized</span>
+            <span>✓</span> <span>Agent 5: Nexconn Chat SDK Session</span>
+          </div>
+          <div class="flex items-center gap-1.5 text-pink-300">
+            <span>✓</span> <span>Agent 6: Complaint Builder</span>
           </div>
         </div>
       </div>
 
-      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border border-red-200 text-left animate-in fade-in duration-300">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="text-2xl">🛡️</span>
-          <div>
-            <h3 class="text-base sm:text-lg font-black text-[#002970]">Paytm Resolve Intelligence Squad</h3>
-            <span class="text-xs text-red-600 font-bold">Investigation Active: Pending Payment Reversal</span>
+      <!-- Main Case Dossier Container -->
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-red-300 text-left space-y-5 animate-in fade-in duration-300">
+        
+        <!-- Case Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+          <div class="flex items-start gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-red-600 to-rose-500 flex items-center justify-center text-white text-2xl shadow-md shrink-0">
+              🛡️
+            </div>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs font-black tracking-wider text-red-600 uppercase font-mono">${res.case_id || '#CASE-PTM-10829'}</span>
+                <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full border border-amber-300">
+                  ${res.status_badge || 'Under Investigation'}
+                </span>
+                <span class="text-[10px] font-mono text-slate-400">NPCI SLA: 24h</span>
+              </div>
+              <h2 class="text-base sm:text-lg font-black text-[#002970] mt-0.5">${res.case_title || 'Payment Investigation'}</h2>
+              <p class="text-xs text-slate-500 font-medium">${res.service_name || 'Paytm Transaction'} • 19 Nov 2026, 10:42 AM IST</p>
+            </div>
+          </div>
+
+          <div class="text-left sm:text-right">
+            <span class="text-xs uppercase text-slate-400 font-bold block">Disputed Amount</span>
+            <span class="text-3xl font-black text-red-600">₹${res.amount || 599}</span>
+            <span class="text-[10px] text-emerald-600 font-bold block">✓ 100% Escrow Protected</span>
           </div>
         </div>
 
-        <div class="bg-red-50/70 rounded-xl p-4 border border-red-100 text-xs text-slate-700 space-y-2">
-          <div class="flex justify-between font-bold text-slate-800">
-            <span>TXN #PTM7890124 (Jio ₹599)</span>
-            <span class="text-amber-600">Status: Pending at Telecom Switch</span>
+        <!-- AI Investigation Verbal Finding -->
+        <div class="p-4 bg-gradient-to-r from-red-50 via-rose-50 to-orange-50 rounded-2xl border-2 border-red-200">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-sm">🤖</span>
+            <span class="text-xs font-black uppercase tracking-wider text-[#002970]">Paytm Resolve Commander Finding</span>
           </div>
-          <p>Bank debited ₹599. Operator confirmation pending. NPCI SLA: Auto-reversal within 24 hours.</p>
+          <p class="text-xs sm:text-sm text-slate-800 font-semibold leading-relaxed">${data.ai_message || res.finding}</p>
         </div>
 
-        <!-- You.com Live Citation Box -->
-        <div class="mt-4 p-3 bg-blue-50/80 rounded-xl border border-blue-200 text-xs text-slate-700">
-          <div class="font-bold text-[#002970] flex items-center justify-between mb-1">
-            <span class="flex items-center gap-1.5">
-              <span>🔍 You.com Live Policy Verification</span>
-              <span class="text-[10px] bg-blue-200 text-blue-900 px-2 py-0.5 rounded-full font-mono">Live Citation</span>
-            </span>
-            <a href="${cit.url || 'https://www.npci.org.in'}" target="_blank" class="text-blue-600 hover:underline font-bold text-[11px]">
-              View Source ↗
-            </a>
+        <!-- MODULE 1: 3-WAY RECONCILIATION MATRIX -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-xs font-black text-[#002970] uppercase tracking-wider flex items-center gap-1.5">
+              <span>⚖️</span> <span>3-Way Transaction Reconciliation Matrix (Live Evidence)</span>
+            </h4>
+            <span class="text-[10px] bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded-full">Discrepancy Isolated</span>
           </div>
-          <p class="italic text-slate-700">"${cit.snippet || 'Under NPCI guidelines, failed UPI transactions are auto-reconciled within T+1 days.'}"</p>
-          <div class="mt-1 text-[10px] text-slate-400">Cited from: ${cit.source_title || 'NPCI Circular'}</div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            ${recon.map(r => `
+              <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] uppercase font-bold text-slate-400">${r.role}</span>
+                  <span class="text-[10px] font-mono text-slate-400">${r.timestamp}</span>
+                </div>
+                <div class="font-black text-xs text-[#002970]">${r.party}</div>
+                <div class="text-[11px] font-mono text-slate-600 mt-0.5">${r.reference}</div>
+                <div class="mt-2 text-[10px] font-bold ${r.badge_color === 'emerald' ? 'text-emerald-700 bg-emerald-100' : (r.badge_color === 'cyan' ? 'text-blue-700 bg-blue-100' : 'text-amber-800 bg-amber-100')} px-2 py-0.5 rounded-md inline-block">
+                  ${r.status}
+                </div>
+                <p class="text-[10px] text-slate-500 mt-1">${r.detail}</p>
+              </div>
+            `).join('')}
+          </div>
         </div>
 
-        <!-- Nexconn Support -->
-        <div class="mt-5 p-4 bg-emerald-50/80 rounded-xl border border-emerald-200 text-xs text-slate-700">
+        <!-- MODULE 2: REFUND LIFECYCLE TRACKER (4 STAGES) -->
+        <div class="p-4 bg-slate-50/90 rounded-2xl border border-slate-200">
+          <h4 class="text-xs font-black text-[#002970] uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <span>🔄</span> <span>Refund & Reversal Lifecycle Journey</span>
+          </h4>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            ${journey.map(j => `
+              <div class="p-2.5 rounded-xl ${j.status === 'completed' ? 'bg-emerald-50 border border-emerald-300 text-emerald-900' : (j.status === 'active' ? 'bg-amber-50 border-2 border-amber-400 text-amber-900 shadow-sm animate-pulse' : 'bg-white border border-slate-200 text-slate-400')}">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] font-bold uppercase">Stage ${j.step}</span>
+                  <span class="text-xs">${j.status === 'completed' ? '✓' : (j.status === 'active' ? '🔄' : '⏳')}</span>
+                </div>
+                <div class="text-xs font-bold">${j.title}</div>
+                <div class="text-[10px] font-mono mt-0.5">${j.time}</div>
+                <div class="text-[9px] mt-1 opacity-80">${j.desc || ''}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- MODULE 3: EVIDENCE BUNDLE & YOU.COM REGULATORY CITATIONS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <!-- Evidence Bundle -->
+          <div class="p-3.5 bg-blue-50/70 rounded-2xl border border-blue-200 text-xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-[#002970] flex items-center gap-1.5 uppercase text-[11px]">
+                <span>🗂️</span> <span>Verified Evidence Bundle</span>
+              </span>
+              <span class="text-[10px] font-mono bg-blue-100 text-blue-900 px-2 py-0.5 rounded">SHA-256 Sealed</span>
+            </div>
+            <div class="space-y-1.5 font-mono text-[11px] text-slate-700">
+              <div class="flex justify-between">
+                <span class="text-slate-500">Receipt Ref:</span>
+                <span class="font-bold text-[#002970]">${evidence.receipt_id || 'RCPT-PTM-10829'}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Bank UTR:</span>
+                <span class="font-bold text-[#002970]">${evidence.utr || '432890182741'}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Terminal RRN:</span>
+                <span class="font-bold text-[#002970]">${evidence.rrn || '9982019472'}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Audit Hash:</span>
+                <span class="text-[9px] text-slate-400 truncate max-w-[140px]">${evidence.sha256 || 'e3b0c442...'}</span>
+              </div>
+            </div>
+            <button onclick="paytm.showToast('📄 Downloaded Signed Evidence Receipt PDF', 'success', '🗂️')"
+                    class="mt-3 w-full py-2 bg-white hover:bg-blue-100 text-[#002970] font-bold rounded-xl border border-blue-300 text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+              <span>📥</span> <span>Download Digital Proof Receipt</span>
+            </button>
+          </div>
+
+          <!-- You.com Live Policy Verification -->
+          <div class="p-3.5 bg-purple-50/70 rounded-2xl border border-purple-200 text-xs">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-black text-purple-900 flex items-center gap-1.5 uppercase text-[11px]">
+                <span>🔍</span> <span>You.com Policy Research</span>
+              </span>
+              <span class="text-[10px] bg-purple-200 text-purple-900 px-2 py-0.5 rounded-full font-mono">Live Cited</span>
+            </div>
+            <p class="italic text-slate-700 text-xs leading-relaxed">"${cit.snippet || 'Under NPCI Harmonisation Circular No. 81, failed UPI debits must be reversed within T+1 days with ₹100/day penalty for delay.'}"</p>
+            <div class="mt-2 pt-2 border-t border-purple-200 flex items-center justify-between text-[10px]">
+              <span class="text-slate-500 font-bold">${cit.source_title || 'NPCI Official Guidelines'}</span>
+              <a href="${cit.url || 'https://www.npci.org.in'}" target="_blank" class="text-purple-700 font-black hover:underline">
+                View Source Circular ↗
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE 4: AUTOMATED FORMAL COMPLAINT BUILDER -->
+        <div class="p-4 bg-slate-900 text-white rounded-2xl border border-slate-700">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-1.5">
+              <span class="text-amber-400">📝</span>
+              <span class="font-black text-xs uppercase tracking-wide text-amber-400">Automated Grievance Complaint Draft (Ready to File)</span>
+            </div>
+            <span class="text-[10px] text-slate-400 font-mono">RBI Ombudsman Compliant</span>
+          </div>
+
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1.5">
+            <div class="font-bold text-cyan-300">${draft.subject || 'Subject: Transaction Grievance'}</div>
+            <div class="text-[10px] text-slate-400 whitespace-pre-wrap leading-relaxed max-h-28 overflow-y-auto">${draft.body || 'Draft body...'}</div>
+          </div>
+
+          <div class="mt-3 flex flex-col sm:flex-row items-center gap-2">
+            <button onclick="navigator.clipboard.writeText('${(draft.body || '').replace(/\n/g, '\\n')}'); paytm.showToast('📋 Complaint Draft Copied to Clipboard!', 'success', '📝')"
+                    class="interactive-btn w-full sm:flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-600 flex items-center justify-center gap-1.5 cursor-pointer">
+              <span>📋</span> <span>Copy Complaint Draft</span>
+            </button>
+            <button onclick="paytm.showToast('🚀 Grievance Registered with Paytm Ombudsman (Ref: ${res.case_id})', 'success', '🛡️')"
+                    class="interactive-btn w-full sm:flex-1 py-2.5 bg-gradient-to-r from-red-600 to-rose-600 hover:brightness-110 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer">
+              <span>🚀</span> <span>File Official Escalation</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- MODULE 5: NEXCONN CHAT SDK LIVE HUMAN SUPPORT -->
+        <div class="p-4 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl border-2 border-emerald-300">
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-              <span class="font-bold text-emerald-900">Nexconn Chat SDK Active (AppKey: ${nex.app_key || 'm7ua80gbmcxrm'})</span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
+              <span class="font-black text-xs uppercase text-emerald-950 tracking-wider">Nexconn Chat SDK Active (Singapore Cluster)</span>
             </div>
-            <span class="text-[10px] bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded font-mono">Singapore Cluster</span>
+            <span class="text-[10px] font-mono bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded">AppKey: ${nex.app_key || 'm7ua80gbmcxrm'}</span>
           </div>
-          <p class="text-slate-600">Assigned Agent: <strong>${nex.assigned_agent?.name || 'Priya Sharma (Paytm Support)'}</strong></p>
+
+          <div class="flex items-center gap-3 my-2">
+            <img src="${nex.assigned_agent?.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop'}"
+                 alt="Priya Sharma" class="w-10 h-10 rounded-full border-2 border-emerald-500 object-cover shrink-0 shadow-xs">
+            <div>
+              <div class="text-xs font-black text-slate-800">${nex.assigned_agent?.name || 'Priya Sharma (Senior Resolution Specialist)'}</div>
+              <div class="text-[11px] text-emerald-700 font-medium">Online Now • Direct Session: <span class="font-mono font-bold">${nex.room_id || 'room_ptm_10829'}</span></div>
+            </div>
+          </div>
+
           <button onclick="window.agentEngine.openNexconnChatModal()"
-                  class="interactive-btn mt-3 w-full py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md flex items-center justify-center gap-2">
+                  class="interactive-btn mt-2.5 w-full py-3 px-4 rounded-xl font-black text-xs text-white bg-gradient-to-r from-emerald-600 via-teal-600 to-[#00b9f1] hover:brightness-110 shadow-md flex items-center justify-center gap-2 cursor-pointer">
             <span>💬</span>
-            <span>Open Real-Time Support Chat (Nexconn SDK)</span>
+            <span>Open Real-Time Resolution Chat with Priya (Nexconn SDK)</span>
           </button>
         </div>
+
       </div>
     `;
   }
