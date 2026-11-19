@@ -3,11 +3,25 @@ Paytm AI Hub Master Multi-Agent Orchestrator:
 Coordinates Groq LLM, SerpApi Search, You.com Cited Research, and Nexconn Real-Time Chat.
 Prioritizes Hindi and English communication.
 """
-from backend.agents.groq_agent import parse_query_with_groq
-from backend.agents.recharge_agent import find_matching_recharge_plan
-from backend.agents.serp_agent import search_recharge_live_with_serp, search_travel_options
-from backend.agents.you_agent import fetch_refund_policy_citations
-from backend.agents.nexconn_agent import create_nexconn_dispute_room
+import sys
+from pathlib import Path
+
+backend_dir = Path(__file__).resolve().parent
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
+
+try:
+    from groq_agent import parse_query_with_groq
+    from recharge_agent import find_matching_recharge_plan
+    from serp_agent import search_recharge_live_with_serp, search_travel_options
+    from you_agent import fetch_refund_policy_citations
+    from nexconn_agent import create_nexconn_dispute_room
+except ImportError:
+    from backend.groq_agent import parse_query_with_groq
+    from backend.recharge_agent import find_matching_recharge_plan
+    from backend.serp_agent import search_recharge_live_with_serp, search_travel_options
+    from backend.you_agent import fetch_refund_policy_citations
+    from backend.nexconn_agent import create_nexconn_dispute_room
 
 
 def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
@@ -37,10 +51,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     mode = parsed.get("mode", "ACTION")
     service = parsed.get("service", "recharge")
 
-    # ==========================================================
-    # BRANCH 1: RESOLVE MODE (PAYTM RESOLVE INTELLIGENCE)
-    # Uses: You.com Live Citations + Nexconn Live Chat
-    # ==========================================================
+    # BRANCH 1: RESOLVE MODE
     if mode == "RESOLVE" or service == "dispute":
         you_citation = fetch_refund_policy_citations(query)
         nexconn_chat = create_nexconn_dispute_room(user_id, query)
@@ -69,10 +80,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             }
         }
 
-    # ==========================================================
-    # BRANCH 2: TRAVEL MODE (PAYTM TRAVEL)
-    # Uses: SerpApi Live Flight & Bus Search
-    # ==========================================================
+    # BRANCH 2: TRAVEL MODE
     if service == "travel":
         travel_results = search_travel_options("Pune", "Mumbai")
         ai_msg = (
@@ -89,22 +97,16 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "travel_data": travel_results
         }
 
-    # ==========================================================
-    # BRANCH 3: RECHARGE MODE (FLAGSHIP PAYTM ONE)
-    # Uses: Accurate Telecom DB + SerpApi Verification
-    # ==========================================================
+    # BRANCH 3: RECHARGE MODE
     operator = parsed.get("operator", "jio")
     budget = parsed.get("budget", 300)
     wants_netflix = parsed.get("wants_netflix", False)
 
-    # 1. Internal accurate telecom plans
     matched_plans = find_matching_recharge_plan(operator=operator, budget=budget, wants_netflix=wants_netflix)
     best_plan = matched_plans["best"]
 
-    # 2. Live SerpApi Verification
     serp_data = search_recharge_live_with_serp(operator, budget, query)
 
-    # 3. Verbal AI Message in Hindi / English / Marathi
     if lang == "hi":
         ai_msg = (
             f"मैंने आपके लिए {operator.upper()} का बेस्ट ₹{best_plan['price']} का {best_plan['data']} प्लान चुना है! "

@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #0a0b0d;
+    background-color: #ffffff;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+}
+
+/* Custom subtle scrollbars matching Coinbase institutional design */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f7f7f7;
+}
+::-webkit-scrollbar-thumb {
+  background: #dee1e6;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a8acb3;
+}
+
+/* Micro-interactions: Pill press states */
+.btn-pill {
+  border-radius: 100px;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+.btn-pill:active {
+  transform: scale(0.98);
+}
+
+/* Tabular numbers for financial stats */
+.font-number {
+  font-family: 'JetBrains Mono', 'Geist Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
