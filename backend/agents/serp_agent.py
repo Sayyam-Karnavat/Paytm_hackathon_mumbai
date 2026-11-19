@@ -63,7 +63,17 @@ def search_recharge_live_with_serp(operator: str, budget: int, query: str = ""):
     }
 
 
-def search_travel_options(from_city: str = "Pune", to_city: str = "Mumbai", travel_type: str = "flight", max_budget: int = 0):
+def search_travel_options(
+    from_city: str = "Pune",
+    to_city: str = "Mumbai",
+    travel_type: str = "flight",
+    max_budget: int = 0,
+    is_cheapest: bool = False,
+    is_fastest: bool = False,
+    is_ac_only: bool = False,
+    is_morning: bool = False,
+    is_night: bool = False
+):
     """
     Uses SerpApi Google Search engine to verify live flights, trains (Vande Bharat/IRCTC), and AC buses with real departure/arrival timings.
     Supports dynamic routes across any Indian cities.
@@ -220,6 +230,12 @@ def search_travel_options(from_city: str = "Pune", to_city: str = "Mumbai", trav
         }
     ]
 
+    # Smart preference modifiers: AC Only filter
+    if is_ac_only:
+        ac_opts = [o for o in all_options if any(k in o.get("name", "").lower() or k in o.get("badge", "").lower() for k in ["ac", "volvo", "air", "indigo", "akasa", "tejas", "electric", "express"])]
+        if ac_opts:
+            all_options = ac_opts
+
     # Prioritize based on explicit travel_type
     if travel_type == "bus":
         bus_opts = [o for o in all_options if o["type"] == "Bus"]
@@ -235,6 +251,19 @@ def search_travel_options(from_city: str = "Pune", to_city: str = "Mumbai", trav
         sorted_options = train_opts + other_opts
     else:
         sorted_options = all_options
+
+    # Smart preference: Cheapest first
+    if is_cheapest:
+        sorted_options = sorted(sorted_options, key=lambda x: x["price"])
+    # Smart preference: Fastest first (Flights & Vande Bharat first)
+    elif is_fastest:
+        sorted_options = sorted(sorted_options, key=lambda x: (0 if x["type"] == "Flight" else (1 if "Vande Bharat" in x["name"] else (2 if x["type"] == "Train" else 3))))
+    # Smart preference: Morning departures first
+    elif is_morning:
+        sorted_options = sorted(sorted_options, key=lambda x: (0 if "AM" in x.get("dep_time", "") else 1))
+    # Smart preference: Night departures first
+    elif is_night:
+        sorted_options = sorted(sorted_options, key=lambda x: (0 if "PM" in x.get("dep_time", "") or "Night" in x.get("dep_time", "") else 1))
 
     # Filter by budget if specified
     if max_budget and max_budget > 0:
@@ -539,6 +568,21 @@ def search_shopping_deals(city: str = "Pune", query: str = "", max_budget: int =
             "rating": "5.0 ⭐"
         }
     ]
+
+    # Dynamic smart re-ranking based on user query intent
+    lq = query.lower() if query else ""
+    if any(k in lq for k in ["tech", "electronic", "electronics", "mobile", "laptop", "croma", "phone", "tv"]):
+        deals = sorted(deals, key=lambda d: 0 if "Electronics" in d["category"] else 1)
+        deals[0]["badge"] = "🎯 Top Tech Match 🔥"
+    elif any(k in lq for k in ["fashion", "cloth", "clothes", "dress", "myntra", "zara", "कपडे", "स्टाइल"]):
+        deals = sorted(deals, key=lambda d: 0 if "Clothing" in d["category"] or "Apparels" in d["category"] else 1)
+        deals[0]["badge"] = "👗 Top Fashion Match 🌟"
+    elif any(k in lq for k in ["food", "dining", "restaurant", "zomato", "swiggy", "खाना", "जेवण", "नाश्ता"]):
+        deals = sorted(deals, key=lambda d: 0 if "Dining" in d["category"] else 1)
+        deals[0]["badge"] = "🍔 Top Foodie Deal ⭐"
+    elif any(k in lq for k in ["kirana", "grocery", "ration", "store", "supermarket", "दुकान", "किराणा"]):
+        deals = sorted(deals, key=lambda d: 0 if "Grocery" in d["category"] else 1)
+        deals[0]["badge"] = "🏪 Top Kirana Cashback 🌟"
 
     return {
         "source": "SerpApi Shopping Deals Intelligence",

@@ -19,10 +19,63 @@ from backend.agents.sarvam_agent import generate_sarvam_speech
 from backend.agents.resolve_agent import investigate_dispute
 
 
+def normalize_indian_speech_text(text: str) -> str:
+    """
+    Normalizes phonetic transliterations, informal chat spellings, and common typos
+    in Marathi, Hindi, and Hinglish.
+    """
+    t = text.lower()
+    replacements = [
+        # Travel / Tickets
+        (r'\b(tikect|tikct|tikit|tiket|tikite|tikita|tikts)\b', 'ticket'),
+        (r'\b(flth|flite|fligt|flt)\b', 'flight'),
+        (r'\b(tran|trai|trin)\b', 'train'),
+        (r'\b(hotle|hotl|lotel)\b', 'hotel'),
+        
+        # Recharge / Telecom
+        (r'\b(rechr|rechrge|rechrg|rechar|rechage)\b', 'recharge'),
+        (r'\b(artel|airtl)\b', 'airtel'),
+        (r'\b(vodafon|ide)\b', 'vi'),
+        
+        # Shopping / Deals
+        (r'\b(shoping|shopin|shping)\b', 'shopping'),
+        (r'\b(ofers|ofr|offr)\b', 'offer'),
+        (r'\b(discont|dicount|discunt)\b', 'discount'),
+        (r'\b(cashbak|casback|cshback)\b', 'cashback'),
+        
+        # Disputes / Problems
+        (r'\b(refnd|rfund)\b', 'refund'),
+        (r'\b(pendng|pnding)\b', 'pending'),
+        (r'\b(complent|complant|cmplaint)\b', 'complaint'),
+        (r'\b(adakle|adkale|adtakle|atkle)\b', 'अडकले'),
+        (r'\b(katle|kaple|ktle)\b', 'कटले'),
+        (r'\b(takrar|tkrar)\b', 'तक्रार'),
+        (r'\b(paise|pese|paese|paisa)\b', 'paise'),
+        
+        # Marathi verbs / phrases
+        (r'\b(karaych|kraych|karayche|kryche)\b', 'karayche'),
+        (r'\b(dakhva|dakhwa|dakhawa|dakhav)\b', 'dakhva'),
+        (r'\b(pahije|phije|pahje)\b', 'pahije'),
+        (r'\b(sang|sanga|saang)\b', 'sang')
+    ]
+    for pattern, repl in replacements:
+        t = re.sub(pattern, repl, t)
+    return t
+
+
 def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     steps_log = []
-    lower_q = query.lower()
+    # Normalize typos and informal Hinglish/Marathi speech
+    lower_q = normalize_indian_speech_text(query)
     
+    # Smart Preference & Filter Modifiers
+    is_cheapest = any(w in lower_q for w in ['cheapest', 'cheap', 'lowest', 'कम दाम', 'सगळ्यात स्वस्त', 'स्वस्त', 'कमी किंमत', 'सस्ता', 'कमी पैशात', 'budget'])
+    is_fastest = any(w in lower_q for w in ['fastest', 'fast', 'लवकर', 'जलद', 'जल्दी', 'कम समय', 'पहिला', 'पहिली', 'लवकरात लवकर', 'express'])
+    is_ac_only = any(w in lower_q for w in ['ac', 'volvo', 'व्हॉल्व्हो', 'वॉल्वो', 'एसी', 'स्लीपर', 'sleeper', 'luxury'])
+    is_morning = any(w in lower_q for w in ['morning', 'सकाळी', 'सुबह', 'लवकर सकाळी'])
+    is_night = any(w in lower_q for w in ['night', 'evening', 'रात्री', 'संध्याकाळी', 'शाम', 'रात'])
+    is_top_rated = any(w in lower_q for w in ['best', 'top', 'चांगले', 'उत्तम', 'टॉप', 'रेटेड', 'स्टार', 'rating', 'star'])
+
     # 1. Deterministic Extraction from raw user speech/text
     # Operator detection
     op_detected = "jio"
@@ -342,12 +395,19 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         })
         audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
 
+        dispute_suggestions = (
+            ["तक्रार ड्राफ्ट कॉपी करा 📋", "डिजिटल पुरावा डाऊनलोड 📥", "लाईव्ह स्पेशालिस्टशी बोला 💬", "NPCI रिफंड नियम 🛡️"] if lang == "mr"
+            else (["शिकायत ड्राफ्ट कॉपी करें 📋", "डिजिटल रसीद डाउनलोड 📥", "सपोर्ट स्पेशलिस्ट से चैट 💬", "NPCI रिफंड नियम 🛡️"] if lang == "hi"
+            else ["Copy Grievance Draft 📋", "Download Evidence Receipt 📥", "Chat with Live Specialist 💬", "NPCI SLA Guidelines 🛡️"])
+        )
+
         return {
             "mode": "RESOLVE",
             "service": "dispute",
             "language": lang,
             "ai_message": ai_msg,
             "resolve_data": resolve_data,
+            "suggested_replies": dispute_suggestions,
             "citations": resolve_data["citations"],
             "nexconn_chat": resolve_data["nexconn_chat"],
             "steps_log": steps_log,
@@ -664,7 +724,16 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "detail": f"Fetching live Google Flights & IRCTC timings from {from_city} to {to_city}" + (f" (Budget ~₹{budget_limit})" if budget_limit else ""),
             "status": "completed"
         })
-        travel_results = search_travel_options(from_city, to_city, travel_type=travel_type, max_budget=budget_limit)
+        travel_results = search_travel_options(
+            from_city, to_city,
+            travel_type=travel_type,
+            max_budget=budget_limit,
+            is_cheapest=is_cheapest,
+            is_fastest=is_fastest,
+            is_ac_only=is_ac_only,
+            is_morning=is_morning,
+            is_night=is_night
+        )
         
         flights = [o for o in travel_results.get("options", []) if o.get("type") == "Flight"]
         trains = [o for o in travel_results.get("options", []) if o.get("type") == "Train"]
@@ -710,12 +779,19 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         })
         audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
 
+        travel_suggestions = (
+            ["सगळ्यात स्वस्त दाखवा 💰", "फक्त शिवनेरी बस 🚌", "फास्टेस्ट फ्लाईट ✈️", "उद्या सकाळी 🌅"] if lang == "mr"
+            else (["सबसे सस्ता दिखाओ 💰", "सिर्फ बस दिखाओ 🚌", "फास्टेस्ट फ्लाइट ✈️", "सुबह का सफर 🌅"] if lang == "hi"
+            else ["Cheapest Option 💰", "Buses Only 🚌", "Fastest Flight ✈️", "Morning Travel 🌅"])
+        )
+
         return {
             "mode": "ACTION",
             "service": "travel",
             "language": lang,
             "ai_message": ai_msg,
             "travel_data": travel_results,
+            "suggested_replies": travel_suggestions,
             "steps_log": steps_log,
             "audio_base64": audio_b64
         }
@@ -754,12 +830,19 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         })
         audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
 
+        hotel_suggestions = (
+            ["₹1000 च्या आतील हॉटेल्स 🏷️", "टॉप ४.५+ स्टार रेटिंग ⭐", "विमानतळाच्या जवळ 📍", "फ्री ब्रेकफास्ट ☕"] if lang == "mr"
+            else (["₹1000 के अंदर होटल 🏷️", "टॉप रेटेड 4.5+ ⭐", "एयरपोर्ट के सबसे पास 📍", "फ्री ब्रेकफास्ट ☕"] if lang == "hi"
+            else ["Under ₹1000 🏷️", "Top Rated 4.5+ ⭐", "Closest to Airport 📍", "Free Breakfast ☕"])
+        )
+
         return {
             "mode": "ACTION",
             "service": "hotel",
             "language": lang,
             "ai_message": ai_msg,
             "hotel_data": hotel_results,
+            "suggested_replies": hotel_suggestions,
             "steps_log": steps_log,
             "audio_base64": audio_b64
         }
@@ -795,12 +878,19 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         })
         audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
 
+        shopping_suggestions = (
+            ["इलेक्ट्रॉनिक्स कॅशबॅक 📱", "झोमॅटो ५०% डिस्काउंट 🍔", "फॅशन व कपडे डील्स 👗", "किराणा ५% कॅशबॅक 🏪"] if lang == "mr"
+            else (["इलेक्ट्रॉनिक्स कैशबैक 📱", "ज़ोमेटो 50% छूट 🍔", "फैशन और मॉल ऑफर्स 👗", "किराना 5% कैशबैक 🏪"] if lang == "hi"
+            else ["Electronics Cashback 📱", "Food 50% Off 🍔", "Fashion & Mall Deals 👗", "Kirana 5% Back 🏪"])
+        )
+
         return {
             "mode": "ACTION",
             "service": "shopping",
             "language": lang,
             "ai_message": ai_msg,
             "shopping_data": shopping_data,
+            "suggested_replies": shopping_suggestions,
             "steps_log": steps_log,
             "audio_base64": audio_b64
         }
@@ -836,12 +926,19 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         })
         audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
 
+        movie_suggestions = (
+            ["पुष्पा २ PVR शो 💥", "स्त्री २ आज संध्याकाळी 👻", "मराठी चित्रपट 🚩", "कांतारा 4DX 🌲"] if lang == "mr"
+            else (["पुष्पा 2 PVR शो 💥", "स्त्री 2 शाम का शो 👻", "कंतारा 4DX 🌲", "नजदीकी सिनेमा 🎬"] if lang == "hi"
+            else ["Pushpa 2 IMAX 💥", "Stree 2 Evening 👻", "Kantara 4DX 🌲", "Nearest Multiplex 🎬"])
+        )
+
         return {
             "mode": "ACTION",
             "service": "movie",
             "language": lang,
             "ai_message": ai_msg,
             "movie_data": movie_data,
+            "suggested_replies": movie_suggestions,
             "steps_log": steps_log,
             "audio_base64": audio_b64
         }
@@ -909,6 +1006,12 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         "status": "waiting_approval"
     })
 
+    recharge_suggestions = (
+        [f"{operator.upper()} 2GB Daily Data", f"{operator.upper()} 84 Days Plan", "Netflix Hotstar OTT Pack", "Annual 365 Days Plan"] if lang == "mr"
+        else ([f"{operator.upper()} 2GB डेली डेटा", f"{operator.upper()} 84 दिन का प्लान", "Netflix OTT पैक", "सालाना ₹2999 प्लान"] if lang == "hi"
+        else [f"{operator.upper()} 2GB Daily Data", f"{operator.upper()} 84 Days Plan", "Netflix Disney Pack", "Annual 365 Days Plan"])
+    )
+
     return {
         "mode": "ACTION",
         "service": "recharge",
@@ -918,6 +1021,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         "wants_netflix": wants_netflix,
         "ai_message": ai_msg,
         "plan_data": matched_plans,
+        "suggested_replies": recharge_suggestions,
         "serp_verification": serp_data,
         "steps_log": steps_log,
         "audio_base64": audio_b64

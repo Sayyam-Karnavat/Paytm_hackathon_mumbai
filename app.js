@@ -482,6 +482,70 @@ class PaytmAgentOrchestrator {
     this.enteredPin = '';
   }
 
+  renderSuggestedChips(suggestions) {
+    if (!suggestions || suggestions.length === 0) return '';
+    return `
+      <div class="mt-4 pt-3 border-t border-slate-200/80">
+        <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2 flex items-center gap-1.5">
+          <span>💡</span> <span>Smart AI Suggestions (One-Tap Follow-Up):</span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          ${suggestions.map(s => `
+            <button onclick="window.agentEngine.processQuery('${s.replace(/['"]/g, '')}')"
+                    class="px-3 py-1.5 bg-slate-100/90 hover:bg-sky-50 text-slate-700 hover:text-[#002970] text-xs font-bold rounded-xl border border-slate-200 hover:border-sky-300 transition-all cursor-pointer flex items-center gap-1 shadow-2xs">
+              <span>${s}</span>
+              <span class="text-[10px] text-slate-400">↗</span>
+            </button>
+          `).join('')}
+        </div>
+
+        ${this.renderSuggestedChips(data.suggested_replies)}
+      </div>
+    `;
+  }
+
+  filterTravelCards(type, btn) {
+    paytm.playSound('click');
+    document.querySelectorAll('.travel-filter-btn').forEach(b => {
+      b.classList.remove('bg-[#002970]', 'text-white');
+      b.classList.add('bg-slate-100', 'text-slate-700');
+    });
+    if (btn) {
+      btn.classList.add('bg-[#002970]', 'text-white');
+      btn.classList.remove('bg-slate-100', 'text-slate-700');
+    }
+    const cards = document.querySelectorAll('.travel-card-item');
+    cards.forEach(c => {
+      const cardType = c.getAttribute('data-type');
+      if (type === 'all' || cardType === type) {
+        c.classList.remove('hidden');
+      } else {
+        c.classList.add('hidden');
+      }
+    });
+  }
+
+  filterShoppingCards(category, btn) {
+    paytm.playSound('click');
+    document.querySelectorAll('.shop-filter-btn').forEach(b => {
+      b.classList.remove('bg-pink-600', 'text-white');
+      b.classList.add('bg-slate-100', 'text-slate-700');
+    });
+    if (btn) {
+      btn.classList.add('bg-pink-600', 'text-white');
+      btn.classList.remove('bg-slate-100', 'text-slate-700');
+    }
+    const cards = document.querySelectorAll('.shopping-card-item');
+    cards.forEach(c => {
+      const cardCat = c.getAttribute('data-category') || '';
+      if (category === 'all' || cardCat.includes(category)) {
+        c.classList.remove('hidden');
+      } else {
+        c.classList.add('hidden');
+      }
+    });
+  }
+
   async processQuery(query) {
     const container = document.getElementById('workspace-dynamic-content');
     if (container) {
@@ -734,6 +798,8 @@ class PaytmAgentOrchestrator {
             </div>
           `).join('')}
         </div>
+
+        ${this.renderSuggestedChips(data.suggested_replies)}
       </div>
     `;
   }
@@ -1056,6 +1122,7 @@ class PaytmAgentOrchestrator {
           </button>
         </div>
 
+        ${this.renderSuggestedChips(data.suggested_replies)}
       </div>
     `;
   }
@@ -1085,12 +1152,20 @@ class PaytmAgentOrchestrator {
           <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">100% Refund Shield</span>
         </div>
 
-        <p class="text-xs sm:text-sm text-slate-800 font-medium mb-4">${data.ai_message}</p>
+        <p class="text-xs sm:text-sm text-slate-800 font-medium mb-3">${data.ai_message}</p>
+
+        <!-- Interactive Filter Tabs -->
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3 scrollbar-none text-xs font-bold">
+          <button onclick="window.agentEngine.filterTravelCards('all', this)" class="travel-filter-btn px-3 py-1 rounded-full bg-[#002970] text-white shadow-2xs shrink-0 cursor-pointer">All Options (${opts.length})</button>
+          <button onclick="window.agentEngine.filterTravelCards('Bus', this)" class="travel-filter-btn px-3 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0 cursor-pointer">🚌 Buses Only</button>
+          <button onclick="window.agentEngine.filterTravelCards('Flight', this)" class="travel-filter-btn px-3 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0 cursor-pointer">✈️ Flights Only</button>
+          <button onclick="window.agentEngine.filterTravelCards('Train', this)" class="travel-filter-btn px-3 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0 cursor-pointer">🚆 Trains Only</button>
+        </div>
 
         <!-- Travel Cards Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           ${opts.map((o, idx) => `
-            <div class="p-3.5 bg-slate-50/90 hover:bg-white rounded-2xl border-2 ${idx === 0 ? 'border-[#002970] shadow-md ring-2 ring-blue-200' : 'border-slate-200 hover:border-[#00b9f1]'} flex flex-col justify-between transition-all">
+            <div data-type="${o.type}" class="travel-card-item p-3.5 bg-slate-50/90 hover:bg-white rounded-2xl border-2 ${idx === 0 ? 'border-[#002970] shadow-md ring-2 ring-blue-200' : 'border-slate-200 hover:border-[#00b9f1]'} flex flex-col justify-between transition-all">
               <div>
                 <div class="flex items-center justify-between mb-1">
                   <span class="text-xs font-bold bg-blue-100 text-blue-900 px-2 py-0.5 rounded-full">${o.type === 'Flight' ? '✈️ Flight' : (o.type === 'Train' ? '🚆 Train' : '🚌 Bus')}</span>
@@ -1112,8 +1187,11 @@ class PaytmAgentOrchestrator {
             </div>
           `).join('')}
         </div>
+
+        ${this.renderSuggestedChips(data.suggested_replies)}
       </div>
     `;
+  }
   }
 
   // 3B. Render Hotel Mode (SerpApi Budget Hotels Near Airport)
@@ -1166,6 +1244,8 @@ class PaytmAgentOrchestrator {
             </div>
           `).join('')}
         </div>
+
+        ${this.renderSuggestedChips(data.suggested_replies)}
       </div>
     `;
   }
@@ -1191,7 +1271,16 @@ class PaytmAgentOrchestrator {
           <span class="text-xs font-bold bg-pink-100 text-pink-800 px-3 py-1 rounded-full">Paytm UPI Offers</span>
         </div>
 
-        <p class="text-xs sm:text-sm text-slate-800 font-medium mb-4">${data.ai_message}</p>
+        <p class="text-xs sm:text-sm text-slate-800 font-medium mb-3">${data.ai_message}</p>
+
+        <!-- Interactive Category Filter Tabs -->
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3 scrollbar-none text-xs font-bold">
+          <button onclick="window.agentEngine.filterShoppingCards('all', this)" class="shop-filter-btn px-3 py-1 rounded-full bg-pink-600 text-white shadow-2xs shrink-0 cursor-pointer">All Offers (${deals.length})</button>
+          <button onclick="window.agentEngine.filterShoppingCards('Electronics', this)" class="shop-filter-btn px-3 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0 cursor-pointer">📱 Electronics</button>
+          <button onclick="window.agentEngine.filterShoppingCards('Clothing', this)" class="shop-filter-btn px-3 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0 cursor-pointer">👗 Fashion & Malls</button>
+          <button onclick="window.agentEngine.filterShoppingCards('Dining', this)" class="shop-filter-btn px-3 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0 cursor-pointer">🍔 Food 50% Off</button>
+          <button onclick="window.agentEngine.filterShoppingCards('Grocery', this)" class="shop-filter-btn px-3 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0 cursor-pointer">🏪 Kirana 5% Back</button>
+        </div>
 
         <!-- Live Web SerpApi Matches -->
         ${liveMatches.length > 0 ? `
@@ -1213,7 +1302,7 @@ class PaytmAgentOrchestrator {
         <!-- Deals Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           ${deals.map((d, idx) => `
-            <div class="p-4 bg-slate-50/90 hover:bg-white rounded-2xl border-2 ${idx === 0 ? 'border-pink-500 shadow-md ring-2 ring-pink-100' : 'border-slate-200 hover:border-pink-300'} flex flex-col justify-between transition-all text-left">
+            <div data-category="${d.category}" class="shopping-card-item p-4 bg-slate-50/90 hover:bg-white rounded-2xl border-2 ${idx === 0 ? 'border-pink-500 shadow-md ring-2 ring-pink-100' : 'border-slate-200 hover:border-pink-300'} flex flex-col justify-between transition-all text-left">
               <div>
                 <div class="flex items-center justify-between mb-1.5">
                   <span class="text-[11px] font-bold bg-pink-100 text-pink-800 px-2 py-0.5 rounded-full">${d.badge}</span>
@@ -1240,6 +1329,15 @@ class PaytmAgentOrchestrator {
             </div>
           `).join('')}
         </div>
+
+        ${this.renderSuggestedChips(data.suggested_replies)}
+      </div>
+    `;
+            </div>
+          `).join('')}
+        </div>
+
+        ${this.renderSuggestedChips(data.suggested_replies)}
       </div>
     `;
   }
@@ -1294,6 +1392,8 @@ class PaytmAgentOrchestrator {
             </div>
           `).join('')}
         </div>
+
+        ${this.renderSuggestedChips(data.suggested_replies)}
       </div>
     `;
   }
