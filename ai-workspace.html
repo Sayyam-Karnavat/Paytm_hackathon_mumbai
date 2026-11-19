@@ -18,7 +18,7 @@
       overflow-x: hidden;
     }
 
-    /* Top Sleek Nav Bar (Aligned with Card) */
+    /* Top Sleek Nav Bar */
     .top-nav-bar {
       width: min(980px, 94vw, calc((100vh - 85px) * 1.7818));
       margin: 10px auto 4px auto;
@@ -84,12 +84,11 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 18px 24px 16px 24px;
+      padding: 16px 22px 14px 22px;
       z-index: 10;
       overflow-y: auto;
     }
 
-    /* Custom Scrollbar */
     .workspace-overlay::-webkit-scrollbar {
       width: 5px;
     }
@@ -110,7 +109,7 @@
       50% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
     }
 
-    /* Numeric Keypad Buttons */
+    /* Keypad Buttons */
     .keypad-btn {
       width: 60px;
       height: 48px;
@@ -148,9 +147,15 @@
     </a>
     
     <div class="flex items-center gap-2">
-      <div class="text-xs font-semibold text-[#002970]/80 flex items-center gap-1.5 bg-white/80 backdrop-blur-xs px-3 py-1.5 rounded-full border border-white/80 shadow-xs">
-        <span class="w-2 h-2 rounded-full bg-cyan-500 animate-ping"></span>
-        <span id="header-status-badge">Paytm ONE Agent Ready</span>
+      <!-- Live Sponsor Integrations Badges -->
+      <div class="hidden sm:flex items-center gap-1.5 bg-white/90 backdrop-blur-xs px-3 py-1.5 rounded-full border border-white/80 shadow-xs text-[11px] font-bold text-[#002970]">
+        <span class="text-cyan-500">⚡ Groq LLM</span>
+        <span class="text-slate-300">•</span>
+        <span class="text-blue-500">🔍 SerpApi</span>
+        <span class="text-slate-300">•</span>
+        <span class="text-purple-500">📚 You.com</span>
+        <span class="text-slate-300">•</span>
+        <span class="text-emerald-500">💬 Nexconn</span>
       </div>
 
       <a href="index.html" class="home-back-btn interactive-btn">
@@ -159,38 +164,36 @@
     </div>
   </div>
 
-  <!-- MAIN CONTAINED CANVAS (Matches AI Hub Dimensions & Razor Sharp) -->
+  <!-- MAIN CONTAINED CANVAS -->
   <div class="dashboard-wrapper">
     
-    <!-- High-Res Crisp Abstract Blue Wave Canvas -->
+    <!-- High-Res Crisp Canvas Backdrop -->
     <img src="assets/ai_chat_bg_clean.png" alt="Paytm AI Hub Canvas" class="dashboard-img">
 
     <!-- Interactive Workspace Overlay -->
     <div class="workspace-overlay">
       
-      <!-- 1. Top Controls Bar inside Canvas -->
+      <!-- 1. Top Controls Bar -->
       <div class="flex items-center justify-between gap-3 bg-white/85 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-sm border border-white/90">
-        <!-- Left: Logo & Assistant Identity -->
+        <!-- Logo -->
         <div class="flex items-center gap-2">
           <span class="text-lg font-black tracking-tight text-[#002970]">paytm</span>
           <span class="text-[10px] bg-[#00b9f1] text-[#002970] font-black px-2 py-0.5 rounded uppercase tracking-wider">ONE</span>
           <span class="text-xs text-slate-400 font-medium hidden sm:inline">| Action & Resolve OS</span>
         </div>
 
-        <!-- Right: Language Selector & Voice Mic -->
+        <!-- Language Selector & Live Voice Mic -->
         <div class="flex items-center gap-2">
-          <!-- Language Toggle -->
           <div class="flex items-center bg-slate-100/90 rounded-full p-0.5 text-xs font-bold text-slate-600">
-            <button onclick="changeLang('mr-IN')" id="lang-mr" class="px-2.5 py-1 rounded-full bg-[#002970] text-white shadow-xs">मराठी</button>
-            <button onclick="changeLang('hi-IN')" id="lang-hi" class="px-2.5 py-1 rounded-full text-slate-600 hover:text-slate-900">हिंदी</button>
+            <button onclick="changeLang('hi-IN')" id="lang-hi" class="px-2.5 py-1 rounded-full bg-[#002970] text-white shadow-xs">हिंदी</button>
             <button onclick="changeLang('en-IN')" id="lang-en" class="px-2.5 py-1 rounded-full text-slate-600 hover:text-slate-900">English</button>
+            <button onclick="changeLang('mr-IN')" id="lang-mr" class="px-2.5 py-1 rounded-full text-slate-600 hover:text-slate-900">मराठी</button>
           </div>
 
-          <!-- Live Mic Voice Button -->
           <button onclick="paytm.toggleVoiceRecognition()" 
                   id="header-mic-btn"
                   class="voice-mic-btn interactive-btn p-2 rounded-full bg-cyan-500 hover:bg-cyan-600 text-white shadow-md transition-all flex items-center justify-center text-sm"
-                  title="Speak now (Voice Command)">
+                  title="Speak now (Hindi / English / Marathi)">
             🎙️
           </button>
         </div>
@@ -198,32 +201,28 @@
 
       <!-- 2. Dynamic Agent Execution Area (Plan Card, Filters, Human Approval) -->
       <div id="workspace-dynamic-content" class="my-3 space-y-4">
-        <!-- Content will be injected dynamically by agentEngine.processQuery() -->
         <div class="text-center py-12">
-          <div class="w-12 h-12 border-3 border-cyan-400/40 border-t-cyan-500 rounded-full animate-spin mx-auto mb-3"></div>
-          <p class="text-sm font-bold text-[#002970]">Paytm AI Agents Analyzing Your Request...</p>
+          <div class="w-12 h-12 border-4 border-cyan-400 border-t-[#002970] rounded-full animate-spin mx-auto mb-3"></div>
+          <p class="text-sm font-bold text-[#002970]">Groq AI + SerpApi + You.com Analyzing Your Request...</p>
         </div>
       </div>
 
-      <!-- 3. Bottom Voice & Prompt Bar (Allows immediate continuous conversation) -->
+      <!-- 3. Bottom Voice & Prompt Bar (Real-time Speech Display) -->
       <div class="bg-white/90 backdrop-blur-md p-2 rounded-2xl shadow-lg border border-white/90 flex items-center gap-2">
-        <!-- Voice Button -->
         <button onclick="paytm.toggleVoiceRecognition()" 
                 class="voice-mic-btn interactive-btn w-10 h-10 rounded-xl bg-cyan-50 text-cyan-700 hover:bg-cyan-100 flex items-center justify-center text-lg shrink-0 border border-cyan-200">
           🎙️
         </button>
 
-        <!-- Live Input Field -->
         <input type="text" 
                id="user-chat-prompt"
                class="flex-1 bg-transparent border-none outline-none text-xs sm:text-sm text-slate-800 placeholder-slate-400 font-medium px-2"
-               placeholder="बोल किंवा टाईप करा (उदा. Jio 300 चा रिचार्ज, 2GB daily data, Netflix...)"
+               placeholder="बोलिए या टाइप करें (उदा. Jio 300 का 2GB daily data और Netflix रिचार्ज, या पैसे कट गए...)"
                onkeydown="if(event.key === 'Enter') sendNewQuery();">
 
-        <!-- Send Button -->
         <button onclick="sendNewQuery()" 
                 class="interactive-btn px-4 py-2 bg-gradient-to-r from-[#002970] to-[#00b9f1] text-white font-bold text-xs rounded-xl shadow-md flex items-center gap-1 shrink-0">
-          <span>पाठवा</span>
+          <span>भेजें</span>
           <span>➤</span>
         </button>
       </div>
@@ -236,30 +235,25 @@
   <div id="upi-pin-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
     <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-100 text-center relative animate-in zoom-in-95 duration-200">
       
-      <!-- Close Button -->
       <button onclick="window.agentEngine.closePinModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg font-bold">
         ✕
       </button>
 
-      <!-- Paytm UPI Brand Header -->
       <div class="flex items-center justify-center gap-1.5 mb-1">
         <span class="text-xl font-black text-[#002970]">paytm</span>
         <span class="text-xs bg-[#00b9f1] text-[#002970] font-black px-1.5 py-0.5 rounded uppercase">UPI</span>
       </div>
       <p class="text-[11px] text-slate-400">NPCI 256-bit Secure Gateway</p>
 
-      <!-- Pay Details -->
       <div class="mt-4 bg-slate-50 p-3 rounded-2xl border border-slate-100">
         <div id="modal-pay-amount" class="text-3xl font-black text-[#002970]">₹299</div>
         <div id="modal-operator-name" class="text-xs font-semibold text-slate-600 mt-0.5">Jio Prepaid Recharge (28 Days)</div>
         <div class="text-[10px] text-slate-400 mt-1">From: SBI •••• 4821</div>
       </div>
 
-      <!-- PIN Prompt -->
       <div class="mt-5">
         <div class="text-xs font-bold text-slate-700">Enter 4-Digit UPI PIN</div>
         
-        <!-- 4 PIN Dots -->
         <div class="flex items-center justify-center gap-3 my-4">
           <div class="pin-dot w-3.5 h-3.5 rounded-full bg-slate-200 transition-all"></div>
           <div class="pin-dot w-3.5 h-3.5 rounded-full bg-slate-200 transition-all"></div>
@@ -268,7 +262,6 @@
         </div>
       </div>
 
-      <!-- Virtual Numeric Keypad -->
       <div class="grid grid-cols-3 gap-2 mt-4 max-w-[220px] mx-auto">
         <button onclick="window.agentEngine.handlePinKeypad('1')" class="keypad-btn">1</button>
         <button onclick="window.agentEngine.handlePinKeypad('2')" class="keypad-btn">2</button>
@@ -287,13 +280,67 @@
     </div>
   </div>
 
+  <!-- ==================== NEXCONN CHAT SDK LIVE SUPPORT MODAL ==================== -->
+  <div id="nexconn-chat-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 flex flex-col h-[520px] overflow-hidden relative animate-in zoom-in-95 duration-200">
+      
+      <!-- Nexconn Header -->
+      <div class="bg-gradient-to-r from-[#002970] to-[#00b9f1] p-4 text-white flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-white/20 border border-white/40 flex items-center justify-center text-lg font-bold">
+            👩‍💼
+          </div>
+          <div>
+            <div class="font-bold text-sm">Priya Sharma</div>
+            <div class="text-[11px] text-cyan-200 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span>Online • Nexconn Chat SDK (Singapore)</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="window.agentEngine.closeNexconnChatModal()" class="text-white/80 hover:text-white text-xl font-bold">
+          ✕
+        </button>
+      </div>
+
+      <!-- Chat Messages Container -->
+      <div id="nexconn-chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50">
+        <div class="text-center">
+          <span class="text-[10px] bg-slate-200 text-slate-600 px-2.5 py-0.5 rounded-full font-mono">
+            Encrypted Session: AppKey m7ua80gbmcxrm
+          </span>
+        </div>
+
+        <div class="flex justify-start mb-2">
+          <div class="bg-white text-slate-800 px-3 py-2.5 rounded-2xl rounded-tl-xs text-xs max-w-[85%] shadow-xs border border-slate-200">
+            <span class="font-bold text-[10px] text-[#002970] block mb-0.5">Paytm Dispute Support:</span>
+            Namaste! I am Priya Sharma from Paytm Tier-2 Dispute Team. I can see your pending recharge for ₹599. Let me check the operator switch logs.
+          </div>
+        </div>
+      </div>
+
+      <!-- Message Input -->
+      <div class="p-3 bg-white border-t border-slate-200 flex items-center gap-2">
+        <input type="text" 
+               id="nexconn-msg-input"
+               class="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-[#00b9f1]" 
+               placeholder="Type your message to Priya..."
+               onkeydown="if(event.key === 'Enter') window.agentEngine.sendNexconnMessage();">
+        <button onclick="window.agentEngine.sendNexconnMessage()" 
+                class="interactive-btn px-4 py-2 bg-[#002970] text-white font-bold text-xs rounded-xl shadow-md">
+          Send
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <script src="app.js"></script>
   <script>
-    // Read initial query parameter
     const urlParams = new URLSearchParams(window.location.search);
-    const initialQuery = urlParams.get('q') || 'मला jio चं recharge करायचं आहे, 300 बजेट आहे, data 2gb daily पाहिजे आणि netflix subscription';
+    const initialQuery = urlParams.get('q') || 'Jio 300 budget 2gb daily data aur netflix recharge';
 
-    // Initialize agent query processing once page loads
     window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('user-chat-prompt').value = initialQuery;
       if (window.agentEngine) {
@@ -313,7 +360,7 @@
 
     function changeLang(langCode) {
       paytm.currentLanguage = langCode;
-      ['mr', 'hi', 'en'].forEach(l => {
+      ['hi', 'en', 'mr'].forEach(l => {
         const btn = document.getElementById(`lang-${l}`);
         if (langCode.includes(l)) {
           btn.classList.add('bg-[#002970]', 'text-white', 'shadow-xs');

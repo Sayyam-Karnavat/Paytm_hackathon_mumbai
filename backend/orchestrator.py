@@ -1,48 +1,66 @@
 """
-Paytm AI Hub Master Orchestrator:
-Routes queries between Paytm ONE (Action Mode) and Paytm Resolve (Dispute Mode)
+Paytm AI Hub Master Multi-Agent Orchestrator:
+Coordinates Groq LLM, SerpApi Search, You.com Cited Research, and Nexconn Real-Time Chat.
+Prioritizes Hindi and English communication.
 """
-import re
+from backend.agents.groq_agent import parse_query_with_groq
 from backend.agents.recharge_agent import find_matching_recharge_plan
-from backend.agents.serp_agent import search_travel_options
+from backend.agents.serp_agent import search_recharge_live_with_serp, search_travel_options
 from backend.agents.you_agent import fetch_refund_policy_citations
-from backend.agents.nexconn_agent import initiate_live_support_session
+from backend.agents.nexconn_agent import create_nexconn_dispute_room
 
 
-def detect_language(query: str) -> str:
-    lower = query.lower()
-    marathi_markers = ['मला', 'करायचं', 'आहे', 'पाहिजे', 'पैसे', 'कट', 'झाले', 'दाखव', 'करा', 'नाही', 'बजेट', 'दिवस']
-    hindi_markers = ['मुझे', 'करना', 'है', 'चाहिए', 'कट', 'गए', 'दिखाओ', 'रिचार्ज', 'दिन', 'बताओ']
+def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
+    # 1. Parse with Groq LLM
+    parsed = parse_query_with_groq(query)
+    
+    # Fallback heuristics if Groq returns None
+    if not parsed:
+        lower = query.lower()
+        lang = "hi" if any(w in lower for w in ['mujhe', 'karna', 'hai', 'chahiye', 'karo', 'bhai', 'paise']) else (
+            "mr" if any(w in lower for w in ['mala', 'karaycha', 'ahe', 'pahije']) else "en"
+        )
+        is_resolve = any(k in lower for k in ['cut', 'pending', 'failed', 'refund', 'issue', 'complaint', 'कट', 'अडकले'])
+        parsed = {
+            "language": lang,
+            "mode": "RESOLVE" if is_resolve else "ACTION",
+            "service": "dispute" if is_resolve else "recharge",
+            "operator": "jio" if "jio" in lower else ("airtel" if "airtel" in lower else "vi"),
+            "budget": 300,
+            "data_daily": "2 GB / Day",
+            "wants_netflix": "netflix" in lower,
+            "response_hi": "Maine aapka request process kar diya hai.",
+            "response_en": "I have processed your request."
+        }
 
-    if any(m in lower for m in marathi_markers):
-        return 'mr'
-    if any(m in lower for m in hindi_markers):
-        return 'hi'
-    return 'en'
+    lang = parsed.get("language", "hi")
+    mode = parsed.get("mode", "ACTION")
+    service = parsed.get("service", "recharge")
 
+    # ==========================================================
+    # BRANCH 1: RESOLVE MODE (PAYTM RESOLVE INTELLIGENCE)
+    # Uses: You.com Live Citations + Nexconn Live Chat
+    # ==========================================================
+    if mode == "RESOLVE" or service == "dispute":
+        you_citation = fetch_refund_policy_citations(query)
+        nexconn_chat = create_nexconn_dispute_room(user_id, query)
 
-def orchestrate_query(query: str, user_id: str = "guest_user"):
-    lower = query.lower()
-    lang = detect_language(query)
-
-    # 1. RESOLVE MODE CHECK
-    dispute_keywords = ['cut', 'कट', 'pending', 'failed', 'refund', 'अडकले', 'झाला नाही', 'issue', 'complaint', 'पैसे कट']
-    if any(k in lower for k in dispute_keywords):
-        citation_data = fetch_refund_policy_citations()
-        chat_data = initiate_live_support_session(user_id, query)
-
-        msg = "मी तुमचा पेंडिंग ट्रॅन्झॅक्शन तपासत आहे. You.com द्वारे NPCI रिफंड पॉलिसी शोधली आहे." if lang == 'mr' else (
-            "मैं आपका पेंडिंग ट्रांजैक्शन चेक कर रहा हूं। You.com द्वारा रिफंड पॉलिसी जांची गई है।" if lang == 'hi' else
-            "Investigating your pending transaction. Verified NPCI guidelines via You.com."
+        ai_msg = (
+            "मैंने आपके पेंडिंग पेमेंट की जांच शुरू कर दी है। You.com द्वारा NPCI पॉलिसी जांची गई है। आप नीचे लाइव सपोर्ट से भी बात कर सकते हैं।"
+            if lang == "hi" else (
+                "मी तुमच्या पेंडिंग पेमेंटची तपासणी सुरू केली आहे. You.com द्वारे NPCI पॉलिसी शोधली आहे."
+                if lang == "mr" else
+                "Investigating your pending payment. Verified official NPCI guidelines via You.com live research."
+            )
         )
 
         return {
             "mode": "RESOLVE",
             "service": "dispute",
-            "detected_language": lang,
-            "ai_message": msg,
-            "citations": citation_data,
-            "nexconn_chat": chat_data,
+            "language": lang,
+            "ai_message": ai_msg,
+            "citations": you_citation,
+            "nexconn_chat": nexconn_chat,
             "transaction": {
                 "id": "PTM7890124",
                 "amount": "₹599",
@@ -51,50 +69,66 @@ def orchestrate_query(query: str, user_id: str = "guest_user"):
             }
         }
 
-    # 2. TRAVEL MODE CHECK
-    travel_keywords = ['flight', 'train', 'bus', 'ticket', 'mumbai', 'pune', 'तिकीट', 'प्रवास']
-    if any(k in lower for k in travel_keywords):
+    # ==========================================================
+    # BRANCH 2: TRAVEL MODE (PAYTM TRAVEL)
+    # Uses: SerpApi Live Flight & Bus Search
+    # ==========================================================
+    if service == "travel":
         travel_results = search_travel_options("Pune", "Mumbai")
-        msg = "पुणे-मुंबई प्रवासासाठी SerpApi वरून स्वस्त पर्याय शोधले आहेत." if lang == 'mr' else (
-            "पुणे-मुंबई के लिए SerpApi से सस्ते विकल्प खोजे गए हैं।" if lang == 'hi' else
-            "Found live travel options for Pune-Mumbai via SerpApi."
+        ai_msg = (
+            "मैंने SerpApi का उपयोग करके पुणे से मुंबई के लिए सबसे सस्ती फ्लाइट और बस टिकट खोज ली हैं।"
+            if lang == "hi" else (
+                "Found live flights and bus options for Pune-Mumbai via SerpApi search engine."
+            )
         )
         return {
             "mode": "ACTION",
             "service": "travel",
-            "detected_language": lang,
-            "ai_message": msg,
+            "language": lang,
+            "ai_message": ai_msg,
             "travel_data": travel_results
         }
 
-    # 3. RECHARGE MODE (FLAGSHIP PAYTM ONE)
-    operator = "jio"
-    if "airtel" in lower or "एअरटेल" in lower:
-        operator = "airtel"
-    elif "vi" in lower or "vodafone" in lower or "व्होडाफोन" in lower:
-        operator = "vi"
+    # ==========================================================
+    # BRANCH 3: RECHARGE MODE (FLAGSHIP PAYTM ONE)
+    # Uses: Accurate Telecom DB + SerpApi Verification
+    # ==========================================================
+    operator = parsed.get("operator", "jio")
+    budget = parsed.get("budget", 300)
+    wants_netflix = parsed.get("wants_netflix", False)
 
-    budget = 300
-    prices = [int(p) for p in re.findall(r'\b\d{3,4}\b', query) if 100 <= int(p) <= 2000]
-    if prices:
-        budget = prices[0]
+    # 1. Internal accurate telecom plans
+    matched_plans = find_matching_recharge_plan(operator=operator, budget=budget, wants_netflix=wants_netflix)
+    best_plan = matched_plans["best"]
 
-    wants_netflix = "netflix" in lower or "नेटफ्लिक्स" in lower
-    plan_result = find_matching_recharge_plan(operator=operator, budget=budget, wants_netflix=wants_netflix)
+    # 2. Live SerpApi Verification
+    serp_data = search_recharge_live_with_serp(operator, budget, query)
 
-    best = plan_result["best"]
-    msg = f"मी तुमच्यासाठी {operator.upper()} चा बेस्ट ₹{best['price']} चा {best['data']} प्लॅन शोधला आहे! रिचार्ज मंजूर करायचा का?" if lang == 'mr' else (
-        f"मैंने आपके लिए {operator.upper()} का बेस्ट ₹{best['price']} का {best['data']} प्लान चुना है। क्या रिचार्ज कन्फर्म करें?" if lang == 'hi' else
-        f"Found best match {operator.upper()} ₹{best['price']} with {best['data']}. Ready to approve?"
-    )
+    # 3. Verbal AI Message in Hindi / English / Marathi
+    if lang == "hi":
+        ai_msg = (
+            f"मैंने आपके लिए {operator.upper()} का बेस्ट ₹{best_plan['price']} का {best_plan['data']} प्लान चुना है! "
+            f"इसमें Unlimited 5G और OTT बेनिफिट्स शामिल हैं। क्या आप रिचार्ज अप्रूव करना चाहते हैं?"
+        )
+    elif lang == "mr":
+        ai_msg = (
+            f"मी तुमच्यासाठी {operator.upper()} चा बेस्ट ₹{best_plan['price']} चा {best_plan['data']} प्लॅन शोधला आहे! "
+            f"रिचार्ज मंजूर करायचा का?"
+        )
+    else:
+        ai_msg = (
+            f"I found the best match {operator.upper()} ₹{best_plan['price']} plan featuring {best_plan['data']} "
+            f"and unlimited 5G. Ready to approve?"
+        )
 
     return {
         "mode": "ACTION",
         "service": "recharge",
-        "detected_language": lang,
+        "language": lang,
         "operator": operator,
         "budget": budget,
         "wants_netflix": wants_netflix,
-        "ai_message": msg,
-        "plan_data": plan_result
+        "ai_message": ai_msg,
+        "plan_data": matched_plans,
+        "serp_verification": serp_data
     }
