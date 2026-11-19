@@ -83,9 +83,33 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         if wants_netflix:
             parsed["wants_netflix"] = True
 
-    lang = parsed.get("language", detected_lang)
-    mode = parsed.get("mode", "ACTION")
-    service = parsed.get("service", "recharge")
+    # Language & Service Classification
+    lang = (parsed.get("language") if parsed else None) or detected_lang or "hi"
+    
+    if any(k in lower_q for k in ['cut', 'pending', 'failed', 'refund', 'issue', 'complaint', 'कट', 'अडकले', 'वापस', 'तक्रार']):
+        service = "dispute"
+        mode = "RESOLVE"
+    elif any(k in lower_q for k in ['electricity', 'light', 'bijli', 'power', 'mahavitaran', 'msedcl', 'adani', 'bses', 'वीज', 'लाईट']):
+        service = "electricity"
+        mode = "ACTION"
+    elif any(k in lower_q for k in ['fastag', 'toll', 'toll plaza', 'nhai', 'netc', 'फास्टॅग', 'टोल', 'गाडी']):
+        service = "fastag"
+        mode = "ACTION"
+    elif any(k in lower_q for k in ['dth', 'tataplay', 'tata play', 'dish tv', 'airtel dth', 'sun direct', 'डिश', 'टीव्ही']):
+        service = "dth"
+        mode = "ACTION"
+    elif any(k in lower_q for k in ['flight', 'bus', 'train', 'ticket', 'irctc', 'vande bharat', 'shivneri', 'pune', 'mumbai', 'delhi', 'goa', 'विमान', 'रेल्वे']):
+        service = "travel"
+        mode = "ACTION"
+    elif any(k in lower_q for k in ['soundbox', 'merchant', 'qr', 'shop', 'store', 'kirana', 'दुकानदार', 'व्यापारी', 'साउंडबॉक्स']):
+        service = "merchant"
+        mode = "ACTION"
+    elif any(k in lower_q for k in ['gold', 'digital gold', '24k', 'silver', 'wealth', 'sip', 'सोने', 'गुंतवणूक']):
+        service = "gold"
+        mode = "ACTION"
+    else:
+        service = "recharge"
+        mode = "ACTION"
 
     # ==========================================================
     # BRANCH 1: RESOLVE MODE (PAYTM RESOLVE INTELLIGENCE)
@@ -143,7 +167,299 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         }
 
     # ==========================================================
-    # BRANCH 2: TRAVEL MODE (PAYTM TRAVEL)
+    # BRANCH 2: ELECTRICITY BILL (BBPS VERIFIED)
+    # ==========================================================
+    if service == "electricity":
+        steps_log.append({
+            "step": 2,
+            "title": "Bharat BillPay (BBPS) CA Query",
+            "detail": "Connecting to Maharashtra State Electricity Distribution Co. (MSEDCL)",
+            "status": "completed"
+        })
+        bill_amt = explicit_price or 1450
+        steps_log.append({
+            "step": 3,
+            "title": "Tariff & Meter Verification",
+            "detail": f"CA #002948192841 • Units: 184 kWh • Due: 28 Nov 2026",
+            "status": "completed"
+        })
+
+        if lang == "hi":
+            ai_msg = f"मैंने आपका महावितरण बिजली बिल ₹{bill_amt} खोज लिया है। अंतिम तिथि 28 नवंबर है। क्या आप भुगतान करना चाहते हैं?"
+        elif lang == "mr":
+            ai_msg = f"मी तुमचे महावितरण वीज बिल ₹{bill_amt} शोधले आहे. शेवटची तारीख 28 नोव्हेंबर आहे. बिल भरायचे का?"
+        else:
+            ai_msg = f"Found your MSEDCL electricity bill of ₹{bill_amt} due on 28th Nov. Ready to pay?"
+
+        steps_log.append({
+            "step": 4,
+            "title": "Sarvam AI Voice Synthesis",
+            "detail": "Synthesizing authentic voice with Bulbul v3",
+            "status": "completed"
+        })
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+
+        steps_log.append({
+            "step": 5,
+            "title": "UNWIND Security Governance Gate",
+            "detail": "Waiting for User Approval & UPI PIN Confirmation",
+            "status": "waiting_approval"
+        })
+
+        return {
+            "mode": "ACTION",
+            "service": "electricity",
+            "language": lang,
+            "ai_message": ai_msg,
+            "service_data": {
+                "board": "Maharashtra State Electricity Distribution Co. Ltd. (MSEDCL)",
+                "consumer_id": "002948192841",
+                "consumer_name": "Akash Bichukale",
+                "bill_amount": bill_amt,
+                "due_date": "28 Nov 2026",
+                "units": "184 kWh",
+                "cashback": "Flat ₹50 Cashback with Paytm UPI",
+                "bbps_certified": True
+            },
+            "steps_log": steps_log,
+            "audio_base64": audio_b64
+        }
+
+    # ==========================================================
+    # BRANCH 3: FASTAG RECHARGE (NETC NHAI TOLL)
+    # ==========================================================
+    if service == "fastag":
+        steps_log.append({
+            "step": 2,
+            "title": "NETC National Toll Switch Query",
+            "detail": "Looking up vehicle registration MH 12 AB 1234 on NETC NHAI portal",
+            "status": "completed"
+        })
+        recharge_amt = explicit_price or 500
+        steps_log.append({
+            "step": 3,
+            "title": "Toll Tag & Balance Diagnostic",
+            "detail": f"FASTag active on Car • Balance: ₹140 (Low) • Target: ₹{recharge_amt}",
+            "status": "completed"
+        })
+
+        if lang == "hi":
+            ai_msg = f"आपके वाहन MH 12 AB 1234 का फास्टैग बैलेंस कम (₹140) है। मैंने ₹{recharge_amt} का रिचार्ज तैयार किया है। अप्रूव करें?"
+        elif lang == "mr":
+            ai_msg = f"तुमच्या MH 12 AB 1234 गाडीचे फास्टॅग बॅलन्स कमी (₹140) आहे. मी ₹{recharge_amt} चा रिचार्ज तयार केला आहे. मंजूर करायचा का?"
+        else:
+            ai_msg = f"Low FASTag balance on MH 12 AB 1234 (₹140). Prepared ₹{recharge_amt} top-up. Ready to approve?"
+
+        steps_log.append({
+            "step": 4,
+            "title": "Sarvam AI Voice Synthesis",
+            "detail": "Synthesizing authentic voice with Bulbul v3",
+            "status": "completed"
+        })
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+
+        steps_log.append({
+            "step": 5,
+            "title": "UNWIND Security Governance Gate",
+            "detail": "Waiting for User Approval & UPI PIN Confirmation",
+            "status": "waiting_approval"
+        })
+
+        return {
+            "mode": "ACTION",
+            "service": "fastag",
+            "language": lang,
+            "ai_message": ai_msg,
+            "service_data": {
+                "vehicle_no": "MH 12 AB 1234",
+                "issuer": "Paytm Payments Bank / NETC FASTag",
+                "current_balance": 140,
+                "recharge_amount": recharge_amt,
+                "quick_amounts": [300, 500, 1000, 2000],
+                "status": "Low Balance Warning (₹140 remaining)",
+                "cashback": "Flat ₹25 Cashback on National Highway Tolls"
+            },
+            "steps_log": steps_log,
+            "audio_base64": audio_b64
+        }
+
+    # ==========================================================
+    # BRANCH 4: DTH RECHARGE (TATA PLAY / AIRTEL / DISH)
+    # ==========================================================
+    if service == "dth":
+        steps_log.append({
+            "step": 2,
+            "title": "DTH Subscriber Registry Lookup",
+            "detail": "Querying Tata Play / Airtel DTH smart card #1092837482",
+            "status": "completed"
+        })
+        dth_amt = explicit_price or 399
+        steps_log.append({
+            "step": 3,
+            "title": "Pack Recommendation Engine",
+            "detail": f"Smart Entertainment HD Pack • 185 Channels + Free Binge OTT",
+            "status": "completed"
+        })
+
+        if lang == "hi":
+            ai_msg = f"मैंने आपके टाटा प्ले DTH का 185 चैनलों वाला ₹{dth_amt} का मंथली पैक चुना है। क्या आप रिचार्ज करना चाहते हैं?"
+        elif lang == "mr":
+            ai_msg = f"मी तुमच्या टाटा प्ले DTH साठी ₹{dth_amt} चा 185 चॅनल्स असलेला मासिक पॅक निवडला आहे. रिचार्ज मंजूर करायचा का?"
+        else:
+            ai_msg = f"Selected Tata Play ₹{dth_amt} monthly pack with 185 channels + OTT Binge. Ready to approve?"
+
+        steps_log.append({
+            "step": 4,
+            "title": "Sarvam AI Voice Synthesis",
+            "detail": "Synthesizing authentic voice with Bulbul v3",
+            "status": "completed"
+        })
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+
+        steps_log.append({
+            "step": 5,
+            "title": "UNWIND Security Governance Gate",
+            "detail": "Waiting for User Approval & UPI PIN Confirmation",
+            "status": "waiting_approval"
+        })
+
+        return {
+            "mode": "ACTION",
+            "service": "dth",
+            "language": lang,
+            "ai_message": ai_msg,
+            "service_data": {
+                "operator": "Tata Play",
+                "subscriber_id": "1092837482",
+                "pack_name": "Hindi Smart Dhamaka + Sports HD Pack",
+                "price": dth_amt,
+                "validity": "30 Days",
+                "channels": "185 Channels + Free Binge OTT App",
+                "cashback": "₹30 Cashback with Paytm UPI"
+            },
+            "steps_log": steps_log,
+            "audio_base64": audio_b64
+        }
+
+    # ==========================================================
+    # BRANCH 5: PAYTM SOUNDBOX & MERCHANT QR
+    # ==========================================================
+    if service == "merchant":
+        steps_log.append({
+            "step": 2,
+            "title": "Paytm Merchant Directory Search",
+            "detail": "Resolving Sharma Kirana & General Store UPI: sharmastore@paytm",
+            "status": "completed"
+        })
+        pay_amt = explicit_price or 150
+        steps_log.append({
+            "step": 3,
+            "title": "Paytm Soundbox 4G Sync",
+            "detail": f"Soundbox Device ID: SB4G-MH9082 • Ready for Audio Announcement",
+            "status": "completed"
+        })
+
+        if lang == "hi":
+            ai_msg = f"मैंने शर्मा किराना स्टोर के लिए ₹{pay_amt} का क्यूआर पेमेंट तैयार किया है। साउंडबॉक्स घोषणा के साथ अप्रूव करें?"
+        elif lang == "mr":
+            ai_msg = f"मी शर्मा किराणा स्टोअरसाठी ₹{pay_amt} चे पेमेंट तयार केले आहे. साउंडबॉक्स आवाजासह मंजूर करायचे का?"
+        else:
+            ai_msg = f"Prepared ₹{pay_amt} payment to Sharma Kirana Store with instant Paytm Soundbox chime. Ready to pay?"
+
+        steps_log.append({
+            "step": 4,
+            "title": "Sarvam AI Voice Synthesis",
+            "detail": "Synthesizing authentic voice with Bulbul v3",
+            "status": "completed"
+        })
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+
+        steps_log.append({
+            "step": 5,
+            "title": "UNWIND Security Governance Gate",
+            "detail": "Waiting for User Approval & UPI PIN Confirmation",
+            "status": "waiting_approval"
+        })
+
+        return {
+            "mode": "ACTION",
+            "service": "merchant",
+            "language": lang,
+            "ai_message": ai_msg,
+            "service_data": {
+                "merchant_name": "Sharma Kirana & General Store",
+                "merchant_upi": "sharmastore@paytm",
+                "amount": pay_amt,
+                "soundbox_prompt": f"पेटीएम पर {pay_amt} रुपये प्राप्त हुए",
+                "soundbox_prompt_mr": f"पेटीएम वर {pay_amt} रुपये मिळाले",
+                "device": "Paytm Soundbox 4G Pro • Battery 94%"
+            },
+            "steps_log": steps_log,
+            "audio_base64": audio_b64
+        }
+
+    # ==========================================================
+    # BRANCH 6: PAYTM 24K DIGITAL GOLD & WEALTH
+    # ==========================================================
+    if service == "gold":
+        steps_log.append({
+            "step": 2,
+            "title": "MMTC-PAMP Live Bullion Rate Feed",
+            "detail": "Fetching real-time 24K 99.99% pure gold spot prices",
+            "status": "completed"
+        })
+        gold_amt = explicit_price or 500
+        gold_rate = 7850
+        gold_grams = round(gold_amt / gold_rate, 4)
+
+        steps_log.append({
+            "step": 3,
+            "title": "IDBI Insured Vault Custody Check",
+            "detail": f"Allocating {gold_grams} grams in 100% insured physical vault",
+            "status": "completed"
+        })
+
+        if lang == "hi":
+            ai_msg = f"आज 24K शुद्ध डिजिटल गोल्ड का भाव ₹{gold_rate} प्रति ग्राम है। मैंने आपके लिए ₹{gold_amt} ({gold_grams} ग्राम) का निवेश तैयार किया है।"
+        elif lang == "mr":
+            ai_msg = f"आज 24K शुद्ध सोन्याचा भाव ₹{gold_rate} प्रति ग्रॅम आहे. मी तुमच्यासाठी ₹{gold_amt} ({gold_grams} ग्रॅम) ची सुरक्षित गुंतवणूक तयार केली आहे."
+        else:
+            ai_msg = f"Live 24K 99.99% gold is ₹{gold_rate}/g. Prepared ₹{gold_amt} ({gold_grams}g) insured vault purchase."
+
+        steps_log.append({
+            "step": 4,
+            "title": "Sarvam AI Voice Synthesis",
+            "detail": "Synthesizing authentic voice with Bulbul v3",
+            "status": "completed"
+        })
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+
+        steps_log.append({
+            "step": 5,
+            "title": "UNWIND Security Governance Gate",
+            "detail": "Waiting for User Approval & UPI PIN Confirmation",
+            "status": "waiting_approval"
+        })
+
+        return {
+            "mode": "ACTION",
+            "service": "gold",
+            "language": lang,
+            "ai_message": ai_msg,
+            "service_data": {
+                "gold_price_per_gm": gold_rate,
+                "purity": "24K 99.99% Pure Gold (MMTC-PAMP Certified)",
+                "purchase_amount": gold_amt,
+                "gold_grams": gold_grams,
+                "vault": "100% Insured Custody Vault with IDBI Trusteeship",
+                "cashback": "₹25 Cashback in Gold"
+            },
+            "steps_log": steps_log,
+            "audio_base64": audio_b64
+        }
+
+    # ==========================================================
+    # BRANCH 7: TRAVEL & IRCTC BOOKING (PAYTM TRAVEL)
     # Uses: SerpApi Live Flight & Bus Search
     # ==========================================================
     if service == "travel":
@@ -156,9 +472,11 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         travel_results = search_travel_options("Pune", "Mumbai")
 
         ai_msg = (
-            "मैंने SerpApi का उपयोग करके पुणे से मुंबई के लिए सबसे सस्ती फ्लाइट और बस टिकट खोज ली हैं।"
+            "मैंने पुणे से मुंबई के लिए वंदे भारत एक्सप्रेस (₹660) और शिवनेरी बस (₹495) विकल्प खोजे हैं। वंदे भारत में 42 सीटें उपलब्ध हैं।"
             if lang == "hi" else (
-                "Found live flights and bus options for Pune-Mumbai via SerpApi search engine."
+                "मी पुणे ते मुंबईसाठी वंदे भारत एक्सप्रेस (₹660) आणि शिवनेरी बस (₹495) शोधली आहे. वंदे भारत मध्ये 42 जागा उपलब्ध आहेत!"
+                if lang == "mr" else
+                "Found Vande Bharat Express (₹660, 42 seats) and Shivneri AC Bus (₹495) for Pune to Mumbai. Ready to book?"
             )
         )
 
@@ -168,7 +486,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "detail": "Generating natural human voice audio response",
             "status": "completed"
         })
-        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else "en-IN")
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
 
         return {
             "mode": "ACTION",

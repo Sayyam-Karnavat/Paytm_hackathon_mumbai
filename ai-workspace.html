@@ -212,6 +212,18 @@
         </div>
       </div>
 
+      <!-- Quick Paytm Super Services Bar -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs font-bold shrink-0 my-1">
+        <button onclick="executeServicePrompt('Recharge Jio 299')" class="px-3 py-1.5 rounded-full bg-white/95 text-[#002970] border border-blue-200 hover:bg-sky-50 shadow-xs shrink-0 flex items-center gap-1 cursor-pointer">📱 Mobile Recharge</button>
+        <button onclick="executeServicePrompt('Pay MSEDCL electricity bill 1450')" class="px-3 py-1.5 rounded-full bg-white/95 text-amber-800 border border-amber-200 hover:bg-amber-50 shadow-xs shrink-0 flex items-center gap-1 cursor-pointer">⚡ Electricity Bill</button>
+        <button onclick="executeServicePrompt('Recharge FASTag 500')" class="px-3 py-1.5 rounded-full bg-white/95 text-sky-800 border border-sky-200 hover:bg-sky-50 shadow-xs shrink-0 flex items-center gap-1 cursor-pointer">🚗 FASTag Toll</button>
+        <button onclick="executeServicePrompt('Tata Play DTH recharge 399')" class="px-3 py-1.5 rounded-full bg-white/95 text-indigo-800 border border-indigo-200 hover:bg-indigo-50 shadow-xs shrink-0 flex items-center gap-1 cursor-pointer">📡 DTH TV</button>
+        <button onclick="executeServicePrompt('Pay 150 to Sharma Kirana Store')" class="px-3 py-1.5 rounded-full bg-white/95 text-emerald-800 border border-emerald-200 hover:bg-emerald-50 shadow-xs shrink-0 flex items-center gap-1 cursor-pointer">🏪 Merchant Soundbox</button>
+        <button onclick="executeServicePrompt('Buy 500 digital gold')" class="px-3 py-1.5 rounded-full bg-white/95 text-yellow-800 border border-yellow-300 hover:bg-yellow-50 shadow-xs shrink-0 flex items-center gap-1 cursor-pointer">🪙 24K Gold</button>
+        <button onclick="executeServicePrompt('Pune to Mumbai Vande Bharat train')" class="px-3 py-1.5 rounded-full bg-white/95 text-blue-800 border border-blue-200 hover:bg-blue-50 shadow-xs shrink-0 flex items-center gap-1 cursor-pointer">🚆 IRCTC Train</button>
+        <button onclick="executeServicePrompt('Mere 599 rupees cut gaye par recharge pending hai')" class="px-3 py-1.5 rounded-full bg-white/95 text-red-800 border border-red-200 hover:bg-red-50 shadow-xs shrink-0 flex items-center gap-1 cursor-pointer">🛡️ Resolve Dispute</button>
+      </div>
+
       <!-- 2. Dynamic Agent Execution Area -->
       <div id="workspace-dynamic-content" class="my-3 space-y-4">
         <div class="text-center py-12">
@@ -574,6 +586,16 @@
       window.agentEngine.enteredPin = '';
 
       paytm.showToast('✅ Transaction completed. Returned to AI Platform.', 'success', '🤖');
+    }
+
+    function executeServicePrompt(text) {
+      const promptInput = document.getElementById('user-chat-prompt');
+      if (promptInput) promptInput.value = text;
+      paytm.playSound('chime');
+      paytm.showToast(`Launching ${text}...`, 'ai', '🚀');
+      if (window.agentEngine) {
+        window.agentEngine.processQuery(text);
+      }
     }
 
     // Override executeRechargePayment in agentEngine to use the authentic sequence

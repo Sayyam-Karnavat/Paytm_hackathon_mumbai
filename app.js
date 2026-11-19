@@ -517,6 +517,16 @@ class PaytmAgentOrchestrator {
 
         if (data.mode === 'RESOLVE' || data.service === 'dispute') {
           this.renderResolveMode(data);
+        } else if (data.service === 'electricity') {
+          this.renderElectricityMode(data);
+        } else if (data.service === 'fastag') {
+          this.renderFastagMode(data);
+        } else if (data.service === 'dth') {
+          this.renderDthMode(data);
+        } else if (data.service === 'merchant') {
+          this.renderMerchantMode(data);
+        } else if (data.service === 'gold') {
+          this.renderGoldMode(data);
         } else if (data.service === 'travel') {
           this.renderTravelMode(data);
         } else {
@@ -862,26 +872,340 @@ class PaytmAgentOrchestrator {
 
     container.innerHTML = `
       <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border border-blue-200 text-left animate-in fade-in duration-300">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="text-2xl">✈️</span>
+        <div class="flex items-center justify-between mb-3 border-b pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🚆</span>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-[#002970]">Paytm Travel & IRCTC Booking</h3>
+              <span class="text-xs text-[#00b9f1] font-bold">Pune Junction (PUNE) ➔ Mumbai CSMT</span>
+            </div>
+          </div>
+          <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">100% Refund Shield</span>
+        </div>
+
+        <p class="text-xs text-slate-700 font-medium mb-4">${data.ai_message}</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="p-3.5 bg-sky-50/80 rounded-2xl border-2 border-[#00b9f1] flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-sm font-black text-[#002970]">Vande Bharat (#22226)</span>
+                <span class="text-xs font-black text-emerald-600">₹660</span>
+              </div>
+              <div class="text-xs text-slate-500">PUNE ➔ CSMT • 3h 10m</div>
+              <div class="text-[11px] font-bold text-blue-700 mt-1">42 Seats Available (CC)</div>
+            </div>
+            <button onclick="window.agentEngine.openPinModal(660, 'IRCTC Vande Bharat Express (PUNE-CSMT)', 'Chair Car • 42 Seats')"
+                    class="interactive-btn mt-3 w-full py-2 bg-[#002970] text-white font-bold text-xs rounded-xl shadow-xs">
+              Book Train ₹660
+            </button>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-sm font-black text-[#002970]">Shivneri AC Bus</span>
+                <span class="text-xs font-black text-emerald-600">₹495</span>
+              </div>
+              <div class="text-xs text-slate-500">Expressway AC Volvo • Departs every 30m</div>
+              <div class="text-[11px] font-bold text-emerald-600 mt-1">Free Snacks & Water</div>
+            </div>
+            <button onclick="window.agentEngine.openPinModal(495, 'Shivneri AC Volvo Bus (Pune-Mumbai)', 'Live Seat Selection')"
+                    class="interactive-btn mt-3 w-full py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold text-xs rounded-xl">
+              Book Bus ₹495
+            </button>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-sm font-black text-[#002970]">IndiGo 6E-5321</span>
+                <span class="text-xs font-black text-emerald-600">₹2,850</span>
+              </div>
+              <div class="text-xs text-slate-500">Direct Flight • 55 mins</div>
+              <div class="text-[11px] font-bold text-slate-500 mt-1">Non-stop • Free 15kg Bag</div>
+            </div>
+            <button onclick="window.agentEngine.openPinModal(2850, 'IndiGo Flight 6E-5321 (PNQ-BOM)', 'Economy • 55 mins')"
+                    class="interactive-btn mt-3 w-full py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold text-xs rounded-xl">
+              Book Flight ₹2,850
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 4. Render Electricity Bill Mode
+  renderElectricityMode(data) {
+    const s = data.service_data || {};
+    const container = document.getElementById('workspace-dynamic-content');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-amber-300 text-left animate-in fade-in duration-300">
+        <div class="flex items-center justify-between border-b border-amber-100 pb-3 mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-2xl">⚡</div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-[#002970]">Electricity Bill (BBPS Verified)</h3>
+              <span class="text-xs text-amber-700 font-bold">${s.board}</span>
+            </div>
+          </div>
+          <span class="text-xs font-bold bg-amber-100 text-amber-800 px-3 py-1 rounded-full">Bharat BillPay</span>
+        </div>
+
+        <p class="text-xs sm:text-sm text-slate-800 font-medium mb-4">${data.ai_message}</p>
+
+        <div class="bg-amber-50/60 rounded-2xl p-4 border border-amber-200/80 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h3 class="text-base sm:text-lg font-black text-[#002970]">Paytm Travel Agent (Powered by SerpApi)</h3>
-            <span class="text-xs text-[#00b9f1] font-bold">Live Flight & Bus Search</span>
+            <div class="text-[11px] font-bold text-slate-400 uppercase">Consumer Information</div>
+            <div class="text-sm font-black text-[#002970]">${s.consumer_name}</div>
+            <div class="text-xs text-slate-600">CA Number: <span class="font-mono font-bold">${s.consumer_id}</span></div>
+          </div>
+          <div class="text-left sm:text-right">
+            <div class="text-3xl font-black text-[#002970]">₹${s.bill_amount}</div>
+            <div class="text-xs font-bold text-red-600">Due Date: ${s.due_date}</div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-          ${opts.map(o => `
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <div class="flex justify-between font-bold text-sm text-[#002970]">
-                <span>${o.airline || o.operator}</span>
-                <span class="text-emerald-600 font-black">${o.price}</span>
-              </div>
-              <div class="text-xs text-slate-500 mt-1">${o.route} • ${o.time}</div>
-              <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded mt-2 inline-block">${o.badge}</span>
-            </div>
-          `).join('')}
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5 text-center">
+          <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+            <span class="text-[10px] text-slate-400 font-bold block uppercase">Units</span>
+            <span class="text-sm font-black text-[#002970]">${s.units}</span>
+          </div>
+          <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+            <span class="text-[10px] text-slate-400 font-bold block uppercase">Billing Period</span>
+            <span class="text-sm font-black text-[#002970]">Current Month</span>
+          </div>
+          <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+            <span class="text-[10px] text-slate-400 font-bold block uppercase">Penalty</span>
+            <span class="text-sm font-black text-emerald-600">₹0 (On Time)</span>
+          </div>
+          <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+            <span class="text-[10px] text-slate-400 font-bold block uppercase">Cashback</span>
+            <span class="text-sm font-black text-emerald-600">₹50 Flat</span>
+          </div>
         </div>
+
+        <button onclick="window.agentEngine.openPinModal(${s.bill_amount}, 'Mahavitaran Electricity Bill (CA: ${s.consumer_id})', 'Due Date: ${s.due_date}')"
+                class="interactive-btn w-full py-3.5 px-6 rounded-xl font-black text-sm text-white bg-gradient-to-r from-amber-600 to-orange-600 hover:brightness-110 shadow-lg shadow-amber-900/25 flex items-center justify-center gap-2 cursor-pointer">
+          <span>⚡</span>
+          <span>Pay Electricity Bill ₹${s.bill_amount} via Paytm UPI</span>
+        </button>
+      </div>
+    `;
+  }
+
+  // 5. Render FASTag Toll Mode
+  renderFastagMode(data) {
+    const s = data.service_data || {};
+    const container = document.getElementById('workspace-dynamic-content');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-sky-300 text-left animate-in fade-in duration-300">
+        <div class="flex items-center justify-between border-b border-sky-100 pb-3 mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center text-2xl">🚗</div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-[#002970]">NETC NHAI FASTag Recharge</h3>
+              <span class="text-xs text-sky-700 font-bold">Vehicle: ${s.vehicle_no}</span>
+            </div>
+          </div>
+          <span class="text-xs font-bold bg-sky-100 text-sky-800 px-3 py-1 rounded-full">NETC Certified</span>
+        </div>
+
+        <p class="text-xs sm:text-sm text-slate-800 font-medium mb-4">${data.ai_message}</p>
+
+        <div class="bg-sky-50/60 rounded-2xl p-4 border border-sky-200/80 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <div class="text-[11px] font-bold text-slate-400 uppercase">Registered Vehicle</div>
+            <div class="text-lg font-black text-[#002970]">${s.vehicle_no}</div>
+            <div class="text-xs text-slate-600">Issuer: <strong>${s.issuer}</strong></div>
+          </div>
+          <div class="text-left sm:text-right">
+            <div class="text-xs font-bold text-red-600">Current Balance: ₹${s.current_balance}</div>
+            <div class="text-2xl font-black text-emerald-600">Top-up: ₹${s.recharge_amount}</div>
+          </div>
+        </div>
+
+        <!-- Quick Top-up Pills -->
+        <div class="mb-4">
+          <span class="text-[11px] font-bold text-slate-500 uppercase block mb-1.5">Select Top-up Amount:</span>
+          <div class="grid grid-cols-4 gap-2">
+            ${(s.quick_amounts || [300, 500, 1000, 2000]).map(amt => `
+              <button onclick="window.agentEngine.updateFastagAmount(${amt})"
+                      class="py-2 rounded-xl border ${amt === s.recharge_amount ? 'border-2 border-[#002970] bg-[#002970] text-white font-bold' : 'border-slate-200 bg-white text-slate-700 font-bold hover:bg-slate-50'} text-xs">
+                ₹${amt}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        <button onclick="window.agentEngine.openPinModal(${s.recharge_amount}, 'FASTag Recharge (${s.vehicle_no})', 'NETC NHAI Toll Pass')"
+                class="interactive-btn w-full py-3.5 px-6 rounded-xl font-black text-sm text-white bg-gradient-to-r from-sky-600 to-blue-700 hover:brightness-110 shadow-lg shadow-sky-900/25 flex items-center justify-center gap-2 cursor-pointer">
+          <span>🚗</span>
+          <span>Recharge FASTag ₹${s.recharge_amount} via Paytm UPI</span>
+        </button>
+      </div>
+    `;
+  }
+
+  updateFastagAmount(amt) {
+    paytm.playSound('click');
+    if (this.currentData && this.currentData.service_data) {
+      this.currentData.service_data.recharge_amount = amt;
+      this.renderFastagMode(this.currentData);
+    }
+  }
+
+  // 6. Render DTH Recharge Mode
+  renderDthMode(data) {
+    const s = data.service_data || {};
+    const container = document.getElementById('workspace-dynamic-content');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-indigo-300 text-left animate-in fade-in duration-300">
+        <div class="flex items-center justify-between border-b border-indigo-100 pb-3 mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-2xl">📡</div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-[#002970]">DTH Entertainment Recharge</h3>
+              <span class="text-xs text-indigo-700 font-bold">${s.operator} • ID: ${s.subscriber_id}</span>
+            </div>
+          </div>
+          <span class="text-xs font-bold bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full">Instant Activation</span>
+        </div>
+
+        <p class="text-xs sm:text-sm text-slate-800 font-medium mb-4">${data.ai_message}</p>
+
+        <div class="bg-indigo-50/60 rounded-2xl p-4 border border-indigo-200/80 mb-4 flex justify-between items-center">
+          <div>
+            <div class="text-base font-black text-[#002970]">${s.pack_name}</div>
+            <div class="text-xs text-slate-600 mt-1">${s.channels} • ${s.validity}</div>
+            <div class="text-[11px] font-bold text-emerald-600 mt-1">🎁 ${s.cashback}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-3xl font-black text-[#002970]">₹${s.price}</div>
+            <div class="text-xs text-slate-400">${s.validity}</div>
+          </div>
+        </div>
+
+        <button onclick="window.agentEngine.openPinModal(${s.price}, '${s.operator} DTH Pack (#${s.subscriber_id})', '${s.validity}')"
+                class="interactive-btn w-full py-3.5 px-6 rounded-xl font-black text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:brightness-110 shadow-lg shadow-indigo-900/25 flex items-center justify-center gap-2 cursor-pointer">
+          <span>📡</span>
+          <span>Recharge DTH ₹${s.price} via Paytm UPI</span>
+        </button>
+      </div>
+    `;
+  }
+
+  // 7. Render Merchant & Soundbox Mode
+  renderMerchantMode(data) {
+    const s = data.service_data || {};
+    const container = document.getElementById('workspace-dynamic-content');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-emerald-300 text-left animate-in fade-in duration-300">
+        <div class="flex items-center justify-between border-b border-emerald-100 pb-3 mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-2xl">🏪</div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-[#002970]">${s.merchant_name}</h3>
+              <span class="text-xs text-emerald-700 font-bold">UPI: ${s.merchant_upi} • Paytm Verified</span>
+            </div>
+          </div>
+          <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">Paytm Merchant</span>
+        </div>
+
+        <p class="text-xs sm:text-sm text-slate-800 font-medium mb-4">${data.ai_message}</p>
+
+        <!-- Soundbox Simulation Box -->
+        <div class="bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-blue-500/10 rounded-2xl p-4 border border-emerald-200 mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span class="text-xs font-black text-[#002970]">${s.device}</span>
+            </div>
+            <button onclick="window.agentEngine.triggerSoundboxAudio('${data.language === 'mr' ? s.soundbox_prompt_mr : s.soundbox_prompt}')"
+                    class="interactive-btn text-xs font-bold bg-white text-emerald-700 border border-emerald-300 px-3 py-1 rounded-lg hover:bg-emerald-50 flex items-center gap-1 shadow-xs cursor-pointer">
+              <span>🔊</span> Test Soundbox Audio
+            </button>
+          </div>
+          <p class="text-xs text-slate-600 italic">"Paytm Soundbox will announce payment instantly in Hindi & Marathi"</p>
+        </div>
+
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 mb-4 flex justify-between items-center">
+          <div>
+            <span class="text-xs text-slate-400 uppercase font-bold block">Amount to Pay</span>
+            <span class="text-3xl font-black text-[#002970]">₹${s.amount}</span>
+          </div>
+          <span class="text-xs font-bold bg-blue-100 text-blue-900 px-3 py-1.5 rounded-xl">0% UPI Fee</span>
+        </div>
+
+        <button onclick="window.agentEngine.openPinModal(${s.amount}, '${s.merchant_name} (Merchant QR)', 'Instant Soundbox Audio')"
+                class="interactive-btn w-full py-3.5 px-6 rounded-xl font-black text-sm text-white bg-gradient-to-r from-emerald-600 to-teal-700 hover:brightness-110 shadow-lg shadow-emerald-900/25 flex items-center justify-center gap-2 cursor-pointer">
+          <span>✅</span>
+          <span>Pay ₹${s.amount} to Merchant via Paytm UPI</span>
+        </button>
+      </div>
+    `;
+  }
+
+  triggerSoundboxAudio(text) {
+    paytm.playSound('paytm_success');
+    setTimeout(() => {
+      paytm.speakTextFallback(text);
+      paytm.showToast(`🔊 Soundbox: "${text}"`, 'success', '📢');
+    }, 400);
+  }
+
+  // 8. Render Paytm 24K Digital Gold Mode
+  renderGoldMode(data) {
+    const s = data.service_data || {};
+    const container = document.getElementById('workspace-dynamic-content');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-yellow-400 text-left animate-in fade-in duration-300">
+        <div class="flex items-center justify-between border-b border-yellow-100 pb-3 mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center text-2xl">🪙</div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-[#002970]">Paytm 24K Digital Gold (99.99% Pure)</h3>
+              <span class="text-xs text-yellow-800 font-bold">Live Rate: ₹${s.gold_price_per_gm}/gm • MMTC-PAMP Certified</span>
+            </div>
+          </div>
+          <span class="text-xs font-bold bg-yellow-100 text-yellow-900 px-3 py-1 rounded-full">100% Insured</span>
+        </div>
+
+        <p class="text-xs sm:text-sm text-slate-800 font-medium mb-4">${data.ai_message}</p>
+
+        <div class="bg-yellow-50/70 rounded-2xl p-4 border border-yellow-200 mb-4 flex justify-between items-center">
+          <div>
+            <div class="text-[11px] font-bold text-slate-400 uppercase">Allocated Gold Weight</div>
+            <div class="text-2xl font-black text-[#002970]">${s.gold_grams} Grams</div>
+            <div class="text-xs text-slate-600 mt-1">${s.vault}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[11px] font-bold text-slate-400 uppercase">Investment Amount</div>
+            <div class="text-3xl font-black text-[#002970]">₹${s.purchase_amount}</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-center text-xs font-bold mb-4">
+          <div class="bg-white p-2 rounded-xl border border-slate-200">24K 999.9 Pure</div>
+          <div class="bg-white p-2 rounded-xl border border-slate-200">0% Making Charges</div>
+          <div class="bg-white p-2 rounded-xl border border-slate-200">Sell Anytime 24x7</div>
+        </div>
+
+        <button onclick="window.agentEngine.openPinModal(${s.purchase_amount}, 'Paytm 24K Digital Gold (${s.gold_grams}g)', 'MMTC-PAMP Insured Vault')"
+                class="interactive-btn w-full py-3.5 px-6 rounded-xl font-black text-sm text-white bg-gradient-to-r from-yellow-600 to-amber-700 hover:brightness-110 shadow-lg shadow-yellow-900/25 flex items-center justify-center gap-2 cursor-pointer">
+          <span>🪙</span>
+          <span>Invest ₹${s.purchase_amount} in 24K Gold via Paytm UPI</span>
+        </button>
       </div>
     `;
   }
