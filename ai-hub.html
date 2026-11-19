@@ -419,12 +419,14 @@
 
     function triggerVoice() {
       paytm.playSound('chime');
-      paytm.showToast('🎤 Listening to your voice... Speak now!', 'info', '🎙️');
-      const input = document.getElementById('ai-prompt-input');
-      setTimeout(() => {
-        input.value = 'Recharge ₹299 Jio for mom';
-        paytm.showToast('Captured: "Recharge ₹299 Jio for mom"', 'success', '✅');
-      }, 1200);
+      paytm.showToast('🎤 Listening to your voice (मराठी / हिंदी / English)... Speak now!', 'info', '🎙️');
+      if (paytm.speechRecognition) {
+        paytm.toggleVoiceRecognition();
+      } else {
+        const input = document.getElementById('ai-prompt-input');
+        input.value = 'मला Jio चं 300 बजेट 2GB daily data रिचार्ज करायचं आहे';
+        paytm.showToast('Captured: "मला Jio चा रिचार्ज करायचा आहे"', 'success', '✅');
+      }
     }
 
     function triggerImageUpload() {
@@ -452,15 +454,19 @@
     function quickAction(action) {
       paytm.playSound('click');
       const input = document.getElementById('ai-prompt-input');
-      input.value = `Execute ${action} with Paytm AI`;
-      paytm.showToast(`Action Mode: ${action} selected`, 'info', '⚡');
+      let prompt = `मला ${action} करायचं आहे, best offers दाखव`;
+      if (action === 'Recharge') prompt = 'मला Jio चा 300 बजेट 2GB daily data रिचार्ज करायचा आहे';
+      else if (action === 'Travel') prompt = 'मला पुण्याहून मुंबईला जायचं आहे, स्वस्त फ्लाईट किंवा बस शोध';
+      else if (action === 'Bills') prompt = 'माझं MSEDCL वीजबिल तपासा आणि भरा';
+      input.value = prompt;
+      paytm.showToast(`Action Mode: ${action} ready`, 'info', '⚡');
     }
 
     function quickResolve(resolveType) {
       paytm.playSound('click');
       const input = document.getElementById('ai-prompt-input');
-      input.value = `Resolve ${resolveType} issue immediately`;
-      paytm.showToast(`Resolve Mode: ${resolveType} selected`, 'info', '🛡️');
+      input.value = `माझे पैसे कट झाले पण ${resolveType} झाले नाही, मदत करा`;
+      paytm.showToast(`Resolve Mode: ${resolveType} investigation ready`, 'info', '🛡️');
     }
   </script>
 </body>
