@@ -6,7 +6,7 @@ Produces step-by-step thinking & action execution trace (Astra-style).
 import re
 from backend.agents.groq_agent import parse_query_with_groq
 from backend.agents.recharge_agent import find_matching_recharge_plan
-from backend.agents.serp_agent import search_recharge_live_with_serp, search_travel_options
+from backend.agents.serp_agent import search_recharge_live_with_serp, search_travel_options, search_hotel_options
 from backend.agents.you_agent import fetch_refund_policy_citations
 from backend.agents.nexconn_agent import create_nexconn_dispute_room
 from backend.agents.sarvam_agent import generate_sarvam_speech
@@ -83,10 +83,27 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         if wants_netflix:
             parsed["wants_netflix"] = True
 
+    # 2. Extract 1k-2k range or specific budget
+    if '1-2k' in lower_q or '1 to 2k' in lower_q or '1k-2k' in lower_q or '1-2 हजार' in lower_q:
+        explicit_price = 2000
+    elif '1k' in lower_q:
+        explicit_price = 1000
+    elif '2k' in lower_q:
+        explicit_price = 2000
+    elif '3k' in lower_q:
+        explicit_price = 3000
+
     # Language & Service Classification
     lang = (parsed.get("language") if parsed else None) or detected_lang or "hi"
+    groq_service = (parsed.get("service") if parsed else "") or ""
     
-    if any(k in lower_q for k in ['cut', 'pending', 'failed', 'refund', 'issue', 'complaint', 'कट', 'अडकले', 'वापस', 'तक्रार']):
+    if any(k in lower_q for k in ['hotel', 'hotle', 'lodge', 'room', 'stay', 'resort', 'हॉटेल', 'होटल', 'कमरा', 'राहण्याची']):
+        service = "hotel"
+        mode = "ACTION"
+    elif any(k in lower_q for k in ['flight', 'flite', 'fligt', 'plane', 'air', 'train', 'irctc', 'rail', 'railway', 'bus', 'shivneri', 'vande bharat', 'ticket', 'tiket', 'booking', 'book', 'pune', 'mumbai', 'delhi', 'goa', 'bangalore', 'jaayche', 'aych', 'udaych', 'विमान', 'रेल्वे', 'गाडी', 'तिकीट', 'प्रवास']):
+        service = "travel"
+        mode = "ACTION"
+    elif any(k in lower_q for k in ['cut', 'pending', 'failed', 'refund', 'issue', 'complaint', 'कट', 'अडकले', 'वापस', 'तक्रार']):
         service = "dispute"
         mode = "RESOLVE"
     elif any(k in lower_q for k in ['electricity', 'light', 'bijli', 'power', 'mahavitaran', 'msedcl', 'adani', 'bses', 'वीज', 'लाईट']):
@@ -98,15 +115,15 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     elif any(k in lower_q for k in ['dth', 'tataplay', 'tata play', 'dish tv', 'airtel dth', 'sun direct', 'डिश', 'टीव्ही']):
         service = "dth"
         mode = "ACTION"
-    elif any(k in lower_q for k in ['flight', 'bus', 'train', 'ticket', 'irctc', 'vande bharat', 'shivneri', 'pune', 'mumbai', 'delhi', 'goa', 'विमान', 'रेल्वे']):
-        service = "travel"
-        mode = "ACTION"
     elif any(k in lower_q for k in ['soundbox', 'merchant', 'qr', 'shop', 'store', 'kirana', 'दुकानदार', 'व्यापारी', 'साउंडबॉक्स']):
         service = "merchant"
         mode = "ACTION"
     elif any(k in lower_q for k in ['gold', 'digital gold', '24k', 'silver', 'wealth', 'sip', 'सोने', 'गुंतवणूक']):
         service = "gold"
         mode = "ACTION"
+    elif groq_service in ['hotel', 'travel', 'electricity', 'fastag', 'dth', 'merchant', 'gold', 'dispute']:
+        service = groq_service
+        mode = "RESOLVE" if service == "dispute" else "ACTION"
     else:
         service = "recharge"
         mode = "ACTION"
@@ -463,22 +480,39 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     # Uses: SerpApi Live Flight & Bus Search
     # ==========================================================
     if service == "travel":
+        budget_limit = explicit_price or 0
         steps_log.append({
             "step": 2,
             "title": "SerpApi Travel Discovery Agent",
-            "detail": "Fetching live Google Flights and Bus ticket pricing",
+            "detail": f"Fetching live Google Flights & IRCTC timings from Pune to Mumbai" + (f" (Budget ~₹{budget_limit})" if budget_limit else ""),
             "status": "completed"
         })
-        travel_results = search_travel_options("Pune", "Mumbai")
+        travel_results = search_travel_options("Pune", "Mumbai", max_budget=budget_limit)
+        
+        flights = [o for o in travel_results.get("options", []) if o.get("type") == "Flight"]
+        trains = [o for o in travel_results.get("options", []) if o.get("type") == "Train"]
+        best_flight = flights[0] if flights else None
+        best_train = trains[0] if trains else None
 
-        ai_msg = (
-            "मैंने पुणे से मुंबई के लिए वंदे भारत एक्सप्रेस (₹660) और शिवनेरी बस (₹495) विकल्प खोजे हैं। वंदे भारत में 42 सीटें उपलब्ध हैं।"
-            if lang == "hi" else (
-                "मी पुणे ते मुंबईसाठी वंदे भारत एक्सप्रेस (₹660) आणि शिवनेरी बस (₹495) शोधली आहे. वंदे भारत मध्ये 42 जागा उपलब्ध आहेत!"
-                if lang == "mr" else
-                "Found Vande Bharat Express (₹660, 42 seats) and Shivneri AC Bus (₹495) for Pune to Mumbai. Ready to book?"
-            )
-        )
+        if lang == "hi":
+            if best_flight and any(k in lower_q for k in ['flight', 'flite', 'fligt', 'plane', 'हवाई']):
+                ai_msg = f"मैंने पुणे से मुंबई के लिए इंडिगो फ्लाइट 6E-5321 (सुबह {best_flight['dep_time']} बजे, ₹{best_flight['price']}) खोज ली है। {best_flight['seats']} बची हैं। क्या आप टिकट बुक करना चाहते हैं?"
+            elif best_train:
+                ai_msg = f"मैंने पुणे से मुंबई के लिए वंदे भारत एक्सप्रेस (सुबह {best_train['dep_time']} बजे, ₹{best_train['price']}, {best_train['seats']}) और इंडिगो फ्लाइट खोज ली है। कौन सा टिकट बुक करें?"
+            else:
+                ai_msg = f"मैंने पुणे से मुंबई के लिए ₹{budget_limit or 1000} के बजट में सबसे तेज यात्रा विकल्प खोज लिए हैं।"
+        elif lang == "mr":
+            if best_flight and any(k in lower_q for k in ['flight', 'flite', 'fligt', 'plane', 'विमान']):
+                ai_msg = f"मी पुणे ते मुंबईसाठी इंडिगो फ्लाईट 6E-5321 (सकाळी {best_flight['dep_time']} वाजता, ₹{best_flight['price']}) शोधली आहे. {best_flight['seats']} शिल्लक आहेत. बुक करू का?"
+            elif best_train:
+                ai_msg = f"मी पुणे ते मुंबईसाठी वंदे भारत एक्सप्रेस (सकाळी {best_train['dep_time']} वाजता, ₹{best_train['price']}, {best_train['seats']}) आणि शिवनेरी बस शोधली आहे. कोणते तिकीट बुक करू?"
+            else:
+                ai_msg = f"मी पुणे ते मुंबई प्रवासासाठी ₹{budget_limit or 1000} च्या बजेटमधील उत्तम पर्याय शोधले आहेत."
+        else:
+            if best_flight and any(k in lower_q for k in ['flight', 'flite', 'fligt', 'plane']):
+                ai_msg = f"Found IndiGo flight 6E-5321 (Departs {best_flight['dep_time']}, ₹{best_flight['price']}, {best_flight['seats']}) for Pune to Mumbai. Ready to book?"
+            else:
+                ai_msg = f"Found Vande Bharat Express (Departs 06:25 AM, ₹660) and IndiGo Flight for Pune to Mumbai. Ready to book?"
 
         steps_log.append({
             "step": 3,
@@ -494,6 +528,47 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "language": lang,
             "ai_message": ai_msg,
             "travel_data": travel_results,
+            "steps_log": steps_log,
+            "audio_base64": audio_b64
+        }
+
+    # ==========================================================
+    # BRANCH 8: HOTEL BOOKING (PAYTM HOTELS & STAYS)
+    # Uses: SerpApi Google Local / Hotels Search
+    # ==========================================================
+    if service == "hotel":
+        budget_limit = explicit_price or 2500
+        steps_log.append({
+            "step": 2,
+            "title": "SerpApi Google Hotels & Local Discovery",
+            "detail": f"Searching budget verified hotels near Mumbai Airport (Budget: ~₹{budget_limit})",
+            "status": "completed"
+        })
+        hotel_results = search_hotel_options("Mumbai", "Airport", max_budget=budget_limit)
+        hotels = hotel_results.get("hotels", [])
+        top_hotel = hotels[0] if hotels else None
+
+        if lang == "hi":
+            ai_msg = f"मैंने मुंबई एयरपोर्ट के पास कम बजट में बेहतरीन होटल खोज लिए हैं। {top_hotel['name']} (एयरपोर्ट से {top_hotel['distance']}, ₹{top_hotel['price']} प्रति रात) उपलब्ध है। क्या आप कमरा बुक करना चाहते हैं?"
+        elif lang == "mr":
+            ai_msg = f"मी मुंबई एअरपोर्ट जवळ कमी बजेटमधील सर्वोत्तम हॉटेल्स शोधली आहेत. {top_hotel['name']} (एअरपोर्टपासून {top_hotel['distance']}, ₹{top_hotel['price']}/रात्र) उपलब्ध आहे. रूम बुक करायची का?"
+        else:
+            ai_msg = f"Found top budget hotels near Mumbai Airport. {top_hotel['name']} ({top_hotel['distance']} from airport, ₹{top_hotel['price']}/night) with free WiFi and AC. Ready to book?"
+
+        steps_log.append({
+            "step": 3,
+            "title": "Sarvam AI Voice Synthesis",
+            "detail": "Generating natural human voice audio response",
+            "status": "completed"
+        })
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+
+        return {
+            "mode": "ACTION",
+            "service": "hotel",
+            "language": lang,
+            "ai_message": ai_msg,
+            "hotel_data": hotel_results,
             "steps_log": steps_log,
             "audio_base64": audio_b64
         }

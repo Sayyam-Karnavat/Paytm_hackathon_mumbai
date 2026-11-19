@@ -529,6 +529,8 @@ class PaytmAgentOrchestrator {
           this.renderGoldMode(data);
         } else if (data.service === 'travel') {
           this.renderTravelMode(data);
+        } else if (data.service === 'hotel') {
+          this.renderHotelMode(data);
         } else {
           this.renderRechargeMode(data);
         }
@@ -864,72 +866,107 @@ class PaytmAgentOrchestrator {
     `;
   }
 
-  // 3. Render Travel Mode (SerpApi)
+  // 3. Render Travel Mode (SerpApi Live Flights, IRCTC Trains, & Buses)
   renderTravelMode(data) {
     const opts = data.travel_data?.options || [];
+    const fromCity = data.travel_data?.from_city || 'Pune';
+    const toCity = data.travel_data?.to_city || 'Mumbai';
     const container = document.getElementById('workspace-dynamic-content');
     if (!container) return;
 
     container.innerHTML = `
       <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border border-blue-200 text-left animate-in fade-in duration-300">
         <div class="flex items-center justify-between mb-3 border-b pb-3">
-          <div class="flex items-center gap-2">
-            <span class="text-2xl">🚆</span>
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-2xl">✈️</div>
             <div>
-              <h3 class="text-base sm:text-lg font-black text-[#002970]">Paytm Travel & IRCTC Booking</h3>
-              <span class="text-xs text-[#00b9f1] font-bold">Pune Junction (PUNE) ➔ Mumbai CSMT</span>
+              <h3 class="text-base sm:text-lg font-black text-[#002970]">Paytm Travel & Flights (SerpApi Live)</h3>
+              <span class="text-xs text-[#00b9f1] font-bold">${fromCity} ➔ ${toCity} • Live Timings & Fares</span>
             </div>
           </div>
           <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">100% Refund Shield</span>
         </div>
 
-        <p class="text-xs text-slate-700 font-medium mb-4">${data.ai_message}</p>
+        <p class="text-xs sm:text-sm text-slate-800 font-medium mb-4">${data.ai_message}</p>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div class="p-3.5 bg-sky-50/80 rounded-2xl border-2 border-[#00b9f1] flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-sm font-black text-[#002970]">Vande Bharat (#22226)</span>
-                <span class="text-xs font-black text-emerald-600">₹660</span>
+        <!-- Travel Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          ${opts.map((o, idx) => `
+            <div class="p-3.5 bg-slate-50/90 hover:bg-white rounded-2xl border-2 ${idx === 0 ? 'border-[#002970] shadow-md ring-2 ring-blue-200' : 'border-slate-200 hover:border-[#00b9f1]'} flex flex-col justify-between transition-all">
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs font-bold bg-blue-100 text-blue-900 px-2 py-0.5 rounded-full">${o.type === 'Flight' ? '✈️ Flight' : (o.type === 'Train' ? '🚆 Train' : '🚌 Bus')}</span>
+                  <span class="text-base font-black text-[#002970]">₹${o.price}</span>
+                </div>
+                <div class="font-black text-sm text-[#002970] mt-1">${o.name}</div>
+                <div class="text-xs text-slate-600 font-medium mt-1">
+                  🕒 <strong>${o.dep_time || o.time}</strong> ➔ ${o.arr_time || ''} <span class="text-slate-400">(${o.duration || 'Fastest'})</span>
+                </div>
+                <div class="text-[11px] font-bold text-emerald-600 mt-1 flex items-center gap-1">
+                  <span>✓</span> <span>${o.seats}</span>
+                </div>
+                <div class="text-[10px] text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded mt-2 inline-block">${o.badge}</div>
               </div>
-              <div class="text-xs text-slate-500">PUNE ➔ CSMT • 3h 10m</div>
-              <div class="text-[11px] font-bold text-blue-700 mt-1">42 Seats Available (CC)</div>
+              <button onclick="window.agentEngine.openPinModal(${o.price}, '${o.name} (${fromCity}-${toCity})', '${o.dep_time || 'Confirmed Ticket'}')"
+                      class="interactive-btn mt-3 w-full py-2.5 bg-gradient-to-r from-[#002970] to-[#00b9f1] text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>Book Now ₹${o.price}</span>
+              </button>
             </div>
-            <button onclick="window.agentEngine.openPinModal(660, 'IRCTC Vande Bharat Express (PUNE-CSMT)', 'Chair Car • 42 Seats')"
-                    class="interactive-btn mt-3 w-full py-2 bg-[#002970] text-white font-bold text-xs rounded-xl shadow-xs">
-              Book Train ₹660
-            </button>
-          </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
 
-          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-sm font-black text-[#002970]">Shivneri AC Bus</span>
-                <span class="text-xs font-black text-emerald-600">₹495</span>
-              </div>
-              <div class="text-xs text-slate-500">Expressway AC Volvo • Departs every 30m</div>
-              <div class="text-[11px] font-bold text-emerald-600 mt-1">Free Snacks & Water</div>
-            </div>
-            <button onclick="window.agentEngine.openPinModal(495, 'Shivneri AC Volvo Bus (Pune-Mumbai)', 'Live Seat Selection')"
-                    class="interactive-btn mt-3 w-full py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold text-xs rounded-xl">
-              Book Bus ₹495
-            </button>
-          </div>
+  // 3B. Render Hotel Mode (SerpApi Budget Hotels Near Airport)
+  renderHotelMode(data) {
+    const hotels = data.hotel_data?.hotels || [];
+    const city = data.hotel_data?.city || 'Mumbai';
+    const loc = data.hotel_data?.location || 'Airport';
+    const container = document.getElementById('workspace-dynamic-content');
+    if (!container) return;
 
-          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col justify-between">
+    container.innerHTML = `
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-emerald-300 text-left animate-in fade-in duration-300">
+        <div class="flex items-center justify-between mb-3 border-b border-emerald-100 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-2xl">🏨</div>
             <div>
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-sm font-black text-[#002970]">IndiGo 6E-5321</span>
-                <span class="text-xs font-black text-emerald-600">₹2,850</span>
-              </div>
-              <div class="text-xs text-slate-500">Direct Flight • 55 mins</div>
-              <div class="text-[11px] font-bold text-slate-500 mt-1">Non-stop • Free 15kg Bag</div>
+              <h3 class="text-base sm:text-lg font-black text-[#002970]">Paytm Hotels & Stays (SerpApi Verified)</h3>
+              <span class="text-xs text-emerald-700 font-bold">Best Budget Hotels near ${city} ${loc}</span>
             </div>
-            <button onclick="window.agentEngine.openPinModal(2850, 'IndiGo Flight 6E-5321 (PNQ-BOM)', 'Economy • 55 mins')"
-                    class="interactive-btn mt-3 w-full py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold text-xs rounded-xl">
-              Book Flight ₹2,850
-            </button>
           </div>
+          <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">Pay at Hotel Option</span>
+        </div>
+
+        <p class="text-xs sm:text-sm text-slate-800 font-medium mb-4">${data.ai_message}</p>
+
+        <!-- Hotels Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          ${hotels.map((h, idx) => `
+            <div class="p-4 bg-slate-50/90 hover:bg-white rounded-2xl border-2 ${idx === 0 ? 'border-emerald-600 shadow-md ring-2 ring-emerald-200' : 'border-slate-200 hover:border-emerald-400'} flex flex-col justify-between transition-all text-left">
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs font-bold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full">${h.badge}</span>
+                  <span class="text-xl font-black text-[#002970]">₹${h.price} <span class="text-xs font-normal text-slate-400">/ night</span></span>
+                </div>
+                <div class="font-black text-sm text-[#002970] mt-1">${h.name}</div>
+                <div class="text-xs text-slate-500 font-medium mt-0.5">📍 ${h.location} • <strong class="text-amber-600">${h.rating}</strong></div>
+                
+                <div class="flex flex-wrap gap-1 mt-2.5">
+                  ${(h.amenities || []).map(a => `
+                    <span class="text-[10px] font-semibold bg-white text-slate-600 px-2 py-0.5 rounded-md border border-slate-200">${a}</span>
+                  `).join('')}
+                </div>
+              </div>
+
+              <button onclick="window.agentEngine.openPinModal(${h.price}, '${h.name} (Hotel Room Booking)', '${h.location}')"
+                      class="interactive-btn mt-3.5 w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>🏨</span>
+                <span>Book Room ₹${h.price} via Paytm UPI</span>
+              </button>
+            </div>
+          `).join('')}
         </div>
       </div>
     `;
