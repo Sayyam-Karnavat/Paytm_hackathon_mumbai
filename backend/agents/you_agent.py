@@ -18,7 +18,7 @@ def fetch_refund_policy_citations(query: str = "NPCI UPI failed transaction refu
         try:
             url = f"https://api.you.com/v1/search?query={requests.utils.quote(query)}"
             headers = {"X-API-Key": YOU_API_KEY}
-            resp = requests.get(url, headers=headers, timeout=6)
+            resp = requests.get(url, headers=headers, timeout=(0.8, 1.2))
             if resp.status_code == 200:
                 data = resp.json()
                 web_hits = data.get("results", {}).get("web", [])

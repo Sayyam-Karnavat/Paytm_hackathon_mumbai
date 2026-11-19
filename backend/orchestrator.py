@@ -55,7 +55,18 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         "status": "completed"
     })
 
-    parsed = parse_query_with_groq(query)
+    # Fast-path intent classification: if intent is explicitly clear, fast-track without LLM latency
+    is_clear_intent = any(k in lower_q for k in [
+        'hotel', 'hotle', 'bus', 'flight', 'flite', 'train', 'irctc', 'rail', 'ticket', 'tiket',
+        'electricity', 'bijli', 'fastag', 'toll', 'dth', 'gold', 'soundbox', 'merchant',
+        'refund', 'pending', 'dispute', 'complaint', 'तक्रार', 'रिफंड', 'अडकले', 'कापले', 'कटले',
+        'jio', 'airtel', 'vi', 'bsnl', 'बस', 'ट्रेन', 'विमान', 'गाडी', 'तिकीट', 'टिकट',
+        'galti', 'गलत', 'wrong', 'transfer', 'recall', 'unpaid', 'not updated', 'चूक', 'चुकीच्या', 'दो बार', 'दोनदा', 'duplicate'
+    ]) or bool(re.search(r'\blight\b', lower_q))
+
+    parsed = None
+    if not is_clear_intent:
+        parsed = parse_query_with_groq(query)
     
     if not parsed:
         is_resolve = any(k in lower_q for k in ['pending', 'failed', 'refund', 'complaint', 'तक्रार', 'रिफंड', 'अडकले', 'वापस', 'paise cut', 'cut gaye', 'कट गये', 'कट गए', 'पैसे कट'])
@@ -126,7 +137,13 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     # Dynamic Route & Travel Type Extraction
     is_bus = any(k in lower_q for k in ['bus', 'buses', 'बस', 'व्हॉल्व्हो', 'वॉल्वो', 'shivneri', 'neeta', 'zingbus'])
     is_train = any(k in lower_q for k in ['train', 'trains', 'irctc', 'rail', 'railway', 'गाडी', 'रेल्वे', 'ट्रेन', 'vande bharat', 'tejas'])
-    is_flight = any(k in lower_q for k in ['flight', 'flite', 'fligt', 'flitht', 'plane', 'air', 'हवाई', 'विमान', 'फ्लाइट', 'air india', 'indigo', 'akasa'])
+    
+    # Accurate Flight detection: Avoid substring collision with 'airtel'
+    is_flight = any(k in lower_q for k in ['flight', 'flite', 'fligt', 'flitht', 'plane', 'airplane', 'हवाई', 'विमान', 'फ्लाइट', 'air india', 'indigo', 'akasa', 'spicejet'])
+    if not is_flight and bool(re.search(r'\bair\b', lower_q)) and 'airtel' not in lower_q:
+        is_flight = True
+    if 'airtel' in lower_q and not any(f in lower_q for f in ['flight', 'flite', 'fligt', 'plane', 'विमान', 'हवाई']):
+        is_flight = False
 
     if is_bus:
         travel_type = "bus"
@@ -171,41 +188,70 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     lang = (parsed.get("language") if parsed else None) or detected_lang or "hi"
     groq_service = (parsed.get("service") if parsed else "") or ""
     
-    # Accurate Intent Resolution: Travel > Hotel > Electricity/Bills > Disputes > Recharge
-    # NOTE: Never check standalone 'कट' because it appears inside 'टिकट' (Ticket)!
-    if any(k in lower_q for k in ['hotel', 'hotle', 'lodge', 'room', 'stay', 'resort', 'हॉटेल', 'होटल', 'कमरा', 'राहण्याची', 'थांबायला']):
-        service = "hotel"
-        mode = "ACTION"
-    elif is_bus or is_train or is_flight or any(k in lower_q for k in [
-        'travel', 'trip', 'ticket', 'tickets', 'tiket', 'booking', 'book',
-        'pune', 'mumbai', 'delhi', 'goa', 'bangalore', 'jaayche', 'aych', 'udaych',
-        'बस', 'ट्रेन', 'फ्लाइट', 'विमान', 'रेल्वे', 'गाडी', 'तिकीट', 'टिकट', 'प्रवास', 'सफर', 'जाना', 'जाना है', 'जायचं', 'जायचे', 'बुकिंग', 'बुक'
-    ]):
-        service = "travel"
-        mode = "ACTION"
-    elif any(k in lower_q for k in [
+    # 360-DEGREE ROCK-SOLID INTENT HIERARCHY
+    # Priority 1: DISPUTE & RESOLVE MODE (Refund, failed payment, uncredited, cut money)
+    is_dispute = any(k in lower_q for k in [
         'pending', 'failed', 'refund', 'complaint', 'dispute', 'issue', 'problem',
         'तक्रार', 'रिफंड', 'अडकले', 'वापस', 'समस्या', 'अडचण',
-        'paise cut', 'cut gaye', 'कट गये', 'कट गए', 'कट झाले', 'पैसे कट', 'रुपये कट', 'अमाउंट कट', 'कटले', 'कापले',
+        'paise cut', 'cut gaye', 'कट गये', 'कट गए', 'कट झाले', 'पैसे cut', 'पैसे कट', 'रुपये कट', 'अमाउंट कट', 'कटले', 'कापले',
         'मिळाले नाहीत', 'नाही मिळाले', 'मिळाले नाही', 'not received', 'not credited', 'uncredited',
-        'duplicate', 'double debit', 'दोनदा', 'दो बार', 'wrong transfer', 'चुकीच्या', 'चुकीचे', 'गलत'
-    ]):
+        'unpaid', 'not updated', 'update nahi', 'update nahi hua', 'अपडेट नाही',
+        'duplicate', 'double debit', 'दोनदा', 'दो बार', 'wrong transfer', 'चुकीच्या', 'चुकीचे', 'गलत', 'galti'
+    ])
+
+    # Utilities & Specific Services (Checked before generic mobile recharge)
+    # Ensure 'light' does not match inside 'flight'
+    has_light_word = bool(re.search(r'\blight\b', lower_q)) and 'flight' not in lower_q
+    is_electricity = (has_light_word or any(k in lower_q for k in ['electricity', 'bijli', 'power', 'mahavitaran', 'msedcl', 'adani', 'bses', 'वीज', 'लाईट', 'महावितरण'])) and not is_dispute
+    is_fastag = any(k in lower_q for k in ['fastag', 'toll', 'toll plaza', 'nhai', 'netc', 'फास्टॅग', 'टोल'])
+    is_dth = any(k in lower_q for k in ['dth', 'tataplay', 'tata play', 'dish tv', 'airtel dth', 'sun direct', 'डिश', 'टीव्ही'])
+    is_gold = any(k in lower_q for k in ['gold', 'digital gold', '24k', 'silver', 'wealth', 'sip', 'सोने', 'गुंतवणूक'])
+
+    # Generic Mobile Recharge (Excludes FASTag, DTH, electricity)
+    is_recharge = (not is_fastag and not is_dth and not is_electricity and not is_gold) and (
+        any(k in lower_q for k in ['recharge', 'रिचार्ज', 'रीचार्ज', 'plan', 'प्लॅन', 'data pack', 'validity']) or (
+            any(op in lower_q for op in ['jio', 'airtel', 'vi', 'bsnl']) and not is_bus and not is_train and not is_flight and not is_dispute
+        )
+    )
+
+    # Merchant & Soundbox QR (Kirana, store, merchant, soundbox)
+    is_merchant = any(k in lower_q for k in ['soundbox', 'merchant', 'qr', 'shop', 'store', 'kirana', 'दुकानदार', 'व्यापारी', 'साउंडबॉक्स']) and not is_dispute
+
+    # Hotel & Stays
+    is_hotel = any(k in lower_q for k in ['hotel', 'hotle', 'lodge', 'room', 'stay', 'resort', 'हॉटेल', 'होटल', 'कमरा', 'राहण्याची', 'थांबायला'])
+
+    # Travel & Tickets (Avoid 'dyayche' collision with 'aych')
+    has_travel_verb = bool(re.search(r'\b(?:travel|trip|ticket|tickets|tiket|booking|book|जाना|सफर|प्रवास|तिकीट|टिकट)\b', lower_q))
+    is_travel = is_bus or is_train or is_flight or has_travel_verb or (
+        (has_pune or has_mumbai or has_delhi or has_goa or has_blr) and not is_recharge and not is_merchant and not is_dispute and not is_hotel and not is_fastag and not is_dth
+    )
+
+    if is_dispute:
         service = "dispute"
         mode = "RESOLVE"
-    elif any(k in lower_q for k in ['electricity', 'light', 'bijli', 'power', 'mahavitaran', 'msedcl', 'adani', 'bses', 'वीज', 'लाईट']):
-        service = "electricity"
-        mode = "ACTION"
-    elif any(k in lower_q for k in ['fastag', 'toll', 'toll plaza', 'nhai', 'netc', 'फास्टॅग', 'टोल', 'गाडी']):
+    elif is_fastag:
         service = "fastag"
         mode = "ACTION"
-    elif any(k in lower_q for k in ['dth', 'tataplay', 'tata play', 'dish tv', 'airtel dth', 'sun direct', 'डिश', 'टीव्ही']):
+    elif is_dth:
         service = "dth"
         mode = "ACTION"
-    elif any(k in lower_q for k in ['soundbox', 'merchant', 'qr', 'shop', 'store', 'kirana', 'दुकानदार', 'व्यापारी', 'साउंडबॉक्स']):
+    elif is_electricity:
+        service = "electricity"
+        mode = "ACTION"
+    elif is_gold:
+        service = "gold"
+        mode = "ACTION"
+    elif is_merchant:
         service = "merchant"
         mode = "ACTION"
-    elif any(k in lower_q for k in ['gold', 'digital gold', '24k', 'silver', 'wealth', 'sip', 'सोने', 'गुंतवणूक']):
-        service = "gold"
+    elif is_hotel:
+        service = "hotel"
+        mode = "ACTION"
+    elif is_travel:
+        service = "travel"
+        mode = "ACTION"
+    elif is_recharge:
+        service = "recharge"
         mode = "ACTION"
     elif groq_service in ['hotel', 'travel', 'electricity', 'fastag', 'dth', 'merchant', 'gold', 'dispute']:
         service = groq_service

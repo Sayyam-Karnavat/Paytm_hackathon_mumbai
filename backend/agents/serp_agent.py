@@ -37,7 +37,7 @@ def search_recharge_live_with_serp(operator: str, budget: int, query: str = ""):
     if SERPAPI_KEY:
         try:
             url = f"https://serpapi.com/search.json?engine=google&q={requests.utils.quote(search_q)}&api_key={SERPAPI_KEY}&num=3"
-            resp = requests.get(url, timeout=6)
+            resp = requests.get(url, timeout=(0.8, 1.2))
             if resp.status_code == 200:
                 data = resp.json()
                 results = []
@@ -78,7 +78,7 @@ def search_travel_options(from_city: str = "Pune", to_city: str = "Mumbai", trav
     if SERPAPI_KEY:
         try:
             url = f"https://serpapi.com/search.json?engine=google&q={requests.utils.quote(search_q)}&api_key={SERPAPI_KEY}&num=3"
-            resp = requests.get(url, timeout=6)
+            resp = requests.get(url, timeout=(0.8, 1.2))
             if resp.status_code == 200:
                 data = resp.json()
                 for item in data.get("organic_results", [])[:2]:
@@ -251,6 +251,7 @@ def search_travel_options(from_city: str = "Pune", to_city: str = "Mumbai", trav
         "source": "SerpApi Travel Intelligence",
         "from_city": fc,
         "to_city": tc,
+        "type": travel_type,
         "live_matches": live_results,
         "options": filtered[:6]
     }
@@ -270,7 +271,7 @@ def search_hotel_options(city: str = "Pune", location: str = "Airport", max_budg
     if SERPAPI_KEY:
         try:
             url = f"https://serpapi.com/search.json?engine=google&q={requests.utils.quote(search_q)}&api_key={SERPAPI_KEY}&num=4&hl=en&gl=in"
-            resp = requests.get(url, timeout=6)
+            resp = requests.get(url, timeout=(0.8, 1.2))
             if resp.status_code == 200:
                 data = resp.json()
                 for item in data.get("organic_results", [])[:3]:

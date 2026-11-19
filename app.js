@@ -1447,8 +1447,12 @@ class PaytmAgentOrchestrator {
     const modal = document.getElementById('upi-pin-modal');
     if (!modal) return;
 
+    this.lastPaidAmount = amount;
+    this.lastPaidTitle = operator || 'Paytm Super Service';
+    this.lastPaidSubtitle = validity || 'Instant Confirmation';
+
     document.getElementById('modal-pay-amount').textContent = `₹${amount}`;
-    document.getElementById('modal-operator-name').textContent = `${operator} Prepaid Recharge (${validity})`;
+    document.getElementById('modal-operator-name').textContent = `${this.lastPaidTitle} • ${this.lastPaidSubtitle}`;
     
     this.enteredPin = '';
     this.updatePinDisplay();
@@ -1499,7 +1503,7 @@ class PaytmAgentOrchestrator {
 
   executeRechargePayment() {
     this.closePinModal();
-    paytm.showToast('Connecting to NPCI & Telecom Switch...', 'ai', '🔄');
+    paytm.showToast('Connecting to NPCI & Service Gateway...', 'ai', '🔄');
 
     setTimeout(() => {
       paytm.playSound('paytm_success');
@@ -1512,7 +1516,13 @@ class PaytmAgentOrchestrator {
     if (!container) return;
 
     const txnId = 'PTM' + Math.floor(100000000 + Math.random() * 900000000);
-    const opRef = 'OPR' + Math.floor(10000000 + Math.random() * 90000000);
+    const opRef = 'NPCI' + Math.floor(10000000 + Math.random() * 90000000);
+    const amount = this.lastPaidAmount || (this.activePlan ? this.activePlan.price : 299);
+    const title = this.lastPaidTitle || 'Paytm Order';
+    const subtitle = this.lastPaidSubtitle || 'Instant Confirmation';
+
+    const heading = this.activeLanguage === 'mr' ? 'पेमेंट यशस्वी झाले!' : (this.activeLanguage === 'hi' ? 'भुगतान सफल हुआ!' : 'Payment Successful!');
+    const desc = this.activeLanguage === 'mr' ? `₹${amount} यशस्वीरित्या पूर्ण: ${title}` : (this.activeLanguage === 'hi' ? `₹${amount} सफलतापूर्वक भुगतान किया गया: ${title}` : `₹${amount} paid successfully for ${title}`);
 
     container.innerHTML = `
       <div class="bg-white/95 backdrop-blur-md rounded-2xl p-6 sm:p-8 shadow-2xl border border-emerald-200 text-center animate-in zoom-in-95 duration-400">
@@ -1521,10 +1531,10 @@ class PaytmAgentOrchestrator {
         </div>
 
         <h2 class="text-2xl sm:text-3xl font-black text-[#002970] mt-4">
-          ${this.activeLanguage === 'hi' ? 'रिचार्ज सफल हुआ!' : 'Recharge Successful!'}
+          ${heading}
         </h2>
-        <p class="text-sm text-slate-500 mt-1">
-          ₹${this.activePlan ? this.activePlan.price : 299} paid to ${(this.currentData?.operator || 'Jio').toUpperCase()} Prepaid
+        <p class="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
+          ${desc}
         </p>
 
         <div class="bg-slate-50 rounded-xl p-4 mt-6 max-w-md mx-auto text-left text-xs space-y-2 border border-slate-200">
@@ -1533,12 +1543,16 @@ class PaytmAgentOrchestrator {
             <span class="font-bold text-slate-800 font-mono">#${txnId}</span>
           </div>
           <div class="flex justify-between py-1 border-b border-slate-200/60">
-            <span class="text-slate-500">Operator Ref</span>
+            <span class="text-slate-500">Gateway Reference</span>
             <span class="font-bold text-slate-800 font-mono">${opRef}</span>
           </div>
           <div class="flex justify-between py-1 border-b border-slate-200/60">
-            <span class="text-slate-500">Mobile Number</span>
-            <span class="font-bold text-slate-800">9820123456</span>
+            <span class="text-slate-500">Service / Booking</span>
+            <span class="font-bold text-[#002970] truncate max-w-[200px]">${title}</span>
+          </div>
+          <div class="flex justify-between py-1 border-b border-slate-200/60">
+            <span class="text-slate-500">Details / Validity</span>
+            <span class="font-bold text-slate-700">${subtitle}</span>
           </div>
           <div class="flex justify-between py-1">
             <span class="text-slate-500">Paid Via</span>
@@ -1564,7 +1578,7 @@ class PaytmAgentOrchestrator {
         </div>
 
         <div class="mt-6 flex justify-center gap-3">
-          <button onclick="window.agentEngine.processQuery('Airtel 349 plan recharge')" 
+          <button onclick="window.agentEngine.processQuery('Jio 299 plan recharge')" 
                   class="interactive-btn px-5 py-2.5 rounded-xl font-bold text-xs bg-[#002970] text-white hover:bg-blue-900 shadow-md">
             Do Another Action
           </button>

@@ -37,7 +37,7 @@ def call_groq_llm(prompt: str, system_prompt: str = "") -> str:
             "temperature": 0.1,
             "max_tokens": 400
         }
-        resp = requests.post(url, headers=headers, json=payload, timeout=8)
+        resp = requests.post(url, headers=headers, json=payload, timeout=(0.8, 1.2))
         if resp.status_code == 200:
             return resp.json()["choices"][0]["message"]["content"].strip()
     except Exception as e:
