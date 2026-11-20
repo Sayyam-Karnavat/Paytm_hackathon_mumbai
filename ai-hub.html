@@ -368,17 +368,8 @@
       <!-- Clean Transparent Card Image -->
       <img src="assets/resolve_card_clean.png" alt="Resolve Mode" class="mode-card-img">
 
-      <!-- Full Card Click to Open Resolve Mode -->
-      <div onclick="openMode('resolve')" class="card-hit-top" title="Resolve Mode (Paytm Resolve) — Click to Launch"></div>
-
-      <!-- 5 Sub-Buttons inside the Card -->
-      <div class="sub-buttons-row">
-        <button onclick="quickResolve('Pending')" class="card-sub-hit" title="Check Pending Payments"></button>
-        <button onclick="quickResolve('Refund')" class="card-sub-hit" title="Track Refund Status"></button>
-        <button onclick="quickResolve('Failed Payment')" class="card-sub-hit" title="Resolve Failed Transactions"></button>
-        <button onclick="quickResolve('Complaint')" class="card-sub-hit" title="Raise Payment Complaint"></button>
-        <button onclick="quickResolve('Track')" class="card-sub-hit" title="Track Open Issues"></button>
-      </div>
+      <!-- Full Card Click to Open Resolve Mode Hub -->
+      <div onclick="openMode('resolve')" style="position: absolute; inset: 0; z-index: 10; cursor: pointer;" title="Resolve Mode (Paytm Resolve) — Click to Launch"></div>
     </div>
 
 

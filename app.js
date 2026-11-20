@@ -751,7 +751,7 @@ class PaytmAgentOrchestrator {
 
         <!-- 6 Dispute Case Cards Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-          <button onclick="window.agentEngine.processQuery('माझे 599 कट झाले पण Jio Recharge झाला नाही')" class="p-3.5 bg-rose-50/70 hover:bg-rose-100/90 rounded-2xl border border-rose-200 text-left transition-all cursor-pointer">
+          <button onclick="window.agentEngine.processQuery('माझे पैसे कट झाले पण रिचार्ज झाला नाही')" class="p-3.5 bg-rose-50/70 hover:bg-rose-100/90 rounded-2xl border border-rose-200 text-left transition-all cursor-pointer">
             <div class="flex items-center justify-between mb-1.5">
               <span class="text-xl">💸</span>
               <span class="text-[10px] font-bold bg-rose-200 text-rose-800 px-2 py-0.5 rounded-full">High Priority</span>
@@ -812,7 +812,7 @@ class PaytmAgentOrchestrator {
             <span>🛡️</span> <span>Quick Investigation Starters:</span>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button onclick="window.agentEngine.processQuery('माझे 599 कट झाले पण Jio Recharge झाला नाही')" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-900 text-xs font-bold rounded-xl border border-rose-200 cursor-pointer">🚨 599 कट झाले रिचार्ज नाही</button>
+            <button onclick="window.agentEngine.processQuery('माझे पैसे कट झाले पण रिचार्ज झाला नाही')" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-900 text-xs font-bold rounded-xl border border-rose-200 cursor-pointer">🚨 पैसे कट झाले रिचार्ज नाही</button>
             <button onclick="window.agentEngine.processQuery('Refund not received yet 4 days passed')" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-900 text-xs font-bold rounded-xl border border-sky-200 cursor-pointer">↩️ 4 दिवस झाले रिफंड नाही</button>
             <button onclick="window.agentEngine.processQuery('Galti se dusre number par UPI transfer ho gaya')" class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold rounded-xl border border-amber-200 cursor-pointer">⚠️ चुकीच्या नंबरवर UPI ट्रान्सफर</button>
             <button onclick="window.agentEngine.processQuery('Merchant claims payment not received but money debited')" class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-900 text-xs font-bold rounded-xl border border-purple-200 cursor-pointer">🏪 मर्चंट म्हणतो पैसे नाही मिळाले</button>
@@ -845,9 +845,9 @@ class PaytmAgentOrchestrator {
       {
         id: 'PTM7890124',
         ref: 'NPCI_AUTO_REVERSAL_24H',
-        title: 'Jio ₹599 Recharge Dispute Investigation',
-        subtitle: 'Auto-reversal SLA: within 24h at Telecom Switch',
-        amount: 599,
+        title: 'UPI Payment Pending & Reconciliation',
+        subtitle: 'Auto-reversal SLA: within 24h via NPCI Hub',
+        amount: 500,
         type: 'Dispute Docket',
         status: 'INVESTIGATING',
         date: '09:20 AM, Today'
@@ -1547,8 +1547,8 @@ class PaytmAgentOrchestrator {
       id: caseId,
       ref: caseRef,
       title: caseTitle,
-      subtitle: res.resolution_path || 'Auto-reversal SLA: within 24h at Telecom Switch',
-      amount: res.amount || 599,
+      subtitle: res.resolution_path || 'Auto-reversal SLA: within 24h via NPCI Hub',
+      amount: res.amount || (data.transaction ? data.transaction.amount : 500),
       type: 'Dispute Docket',
       status: 'INVESTIGATING',
       date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', Today'
@@ -1574,9 +1574,9 @@ class PaytmAgentOrchestrator {
           <span class="text-[10px] text-red-600 font-mono font-bold">Paytm Resolve Core</span>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          <button onclick="window.agentEngine.processQuery('पैसे कट झाले पण Jio Recharge झाला नाही')"
+          <button onclick="window.agentEngine.processQuery('पैसे कट झाले पण Recharge झाला नाही')"
                   class="p-2 text-left bg-white hover:bg-red-100/50 rounded-xl border border-red-200 text-xs font-bold text-slate-800 transition-all flex items-center gap-1.5 cursor-pointer">
-            <span>⚡</span> <span class="truncate">Recharge Pending (₹599)</span>
+            <span>⚡</span> <span class="truncate">Recharge Pending</span>
           </button>
           <button onclick="window.agentEngine.processQuery('माझा ₹1200 चा refund अजून आला नाही')"
                   class="p-2 text-left bg-white hover:bg-red-100/50 rounded-xl border border-red-200 text-xs font-bold text-slate-800 transition-all flex items-center gap-1.5 cursor-pointer">
@@ -1657,7 +1657,7 @@ class PaytmAgentOrchestrator {
 
           <div class="text-left sm:text-right">
             <span class="text-xs uppercase text-slate-400 font-bold block">Disputed Amount</span>
-            <span class="text-3xl font-black text-red-600">₹${res.amount || 599}</span>
+            <span class="text-3xl font-black text-red-600">₹${res.amount || 500}</span>
             <span class="text-[10px] text-emerald-600 font-bold block">✓ 100% Escrow Protected</span>
           </div>
         </div>
@@ -1828,8 +1828,8 @@ class PaytmAgentOrchestrator {
           id: '${caseId}',
           ref: '${caseRef}',
           title: '${caseTitle.replace(/'/g, "\\'")}',
-          subtitle: 'Auto-reversal SLA: within 24h at Telecom Switch',
-          amount: ${res.amount || 599},
+          subtitle: 'Auto-reversal SLA: within 24h via NPCI Hub',
+          amount: ${res.amount || 500},
           type: 'Dispute Investigation Docket',
           status: 'INVESTIGATING'
         })" class="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-50 text-[#002970] font-black text-xs border border-slate-300 flex items-center justify-center gap-2 cursor-pointer shadow-xs">

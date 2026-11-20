@@ -75,7 +75,7 @@ def investigate_dispute(query: str, user_id: str = "paytm_user_01", explicit_pri
 
     elif any(k in lower_q for k in ['duplicate', 'double', 'दोनदा', 'दो बार', 'two times']):
         category = "duplicate_payment"
-        amount = explicit_price or 599
+        amount = explicit_price or 500
         service_name = "Duplicate UPI Debit Reconciliation"
         case_title = "Duplicate Debit Matching & Auto-Reversal"
         reconciliation_status = "Duplicate RRN Identified • Auto-Reversal Scheduled"
@@ -84,17 +84,30 @@ def investigate_dispute(query: str, user_id: str = "paytm_user_01", explicit_pri
         finding_mr = f"सिस्टमने 2 मिनिटांच्या अंतरात दोनदा ₹{amount} डेबिट झाल्याचे शोधले आहे. जास्तीच्या रकमेचा ऑटो-रिफंड सुरू झाला आहे."
         finding_en = f"Detected duplicate debit of ₹{amount} within 120 seconds. Automated reversal triggered to source account."
 
-    else:
-        # Default Flagship: Pending Recharge / Operator Switch Delay
+    elif any(k in lower_q for k in ['recharge', 'रिचार्ज', 'plan', 'प्लॅन', 'jio', 'airtel', 'vi', 'bsnl']):
+        # Mobile Recharge Dispute
         category = "pending_recharge"
-        amount = explicit_price or 599
-        service_name = "Jio 5G Unlimited Recharge"
-        case_title = "Recharge Provisioning Delay & Operator Reconciliation"
-        reconciliation_status = "Discrepancy: Debited at Bank, Jio Gateway Provisioning Delay"
+        amount = explicit_price or 299
+        op_name = "Jio" if "jio" in lower_q else ("Airtel" if "airtel" in lower_q else "Telecom Provider")
+        service_name = f"{op_name} Mobile Recharge"
+        case_title = f"{op_name} Recharge Provisioning Delay & Operator Reconciliation"
+        reconciliation_status = f"Discrepancy: Debited at Bank, {op_name} Gateway Provisioning Delay"
         status_badge = "Pending at Operator Switch"
-        finding_hi = f"आपके बैंक से ₹{amount} कट गए हैं और NPCI ने अप्रूव किया है, लेकिन जियो के टेलीकॉम स्विच पर नेटवर्क टाइमआउट हुआ है। दोबारा रिचार्ज न करें; ऑटो-रिवर्सल प्रक्रिया चालू है।"
-        finding_mr = f"तुमच्या बँकेतून ₹{amount} कट झाले आहेत आणि NPCI ने क्लिअर केले आहे, पण जिओच्या सिस्टीमला नेटवर्कमुळे पावती मिळाली नाही. पुन्हा रिचार्ज करू नका; प्रक्रिया सुरू आहे."
-        finding_en = f"Bank debited ₹{amount} and cleared NPCI hub, but Jio gateway provisioning timed out. Do not pay again; reversal is active under NPCI SLA."
+        finding_hi = f"आपके बैंक से ₹{amount} कट गए हैं और NPCI ने अप्रूव किया है, लेकिन ऑपरेटर के स्विच पर नेटवर्क टाइमआउट हुआ है। दोबारा रिचार्ज न करें; ऑटो-रिवर्सल प्रक्रिया चालू है।"
+        finding_mr = f"तुमच्या बँकेतून ₹{amount} कट झाले आहेत आणि NPCI ने क्लिअर केले आहे, पण ऑपरेटरच्या सिस्टीमला पावती मिळाली नाही. पुन्हा रिचार्ज करू नका; ऑटो-रिफंड प्रक्रिया सुरू आहे."
+        finding_en = f"Bank debited ₹{amount} and cleared NPCI hub, but telecom gateway provisioning timed out. Do not pay again; reversal is active under NPCI SLA."
+
+    else:
+        # General Pending Payment / UPI Settlement Delay
+        category = "pending_payment"
+        amount = explicit_price or 500
+        service_name = "Paytm UPI Payment (Bank to Recipient)"
+        case_title = "UPI Payment Status & Bank Reconciliation"
+        reconciliation_status = "Debited at Source Bank • Awaiting NPCI Settlement Confirmation"
+        status_badge = "UPI Settlement in Progress"
+        finding_hi = f"आपके बैंक खाते से ₹{amount} डेबिट हो गए हैं, पर प्राप्तकर्ता बैंक से कन्फर्मेशन पेंडिंग है। NPCI T+1 गाइडलाइंस के तहत आपकी राशि पूरी तरह सुरक्षित है।"
+        finding_mr = f"तुमच्या बँक खात्यातून ₹{amount} डेबिट झाले आहेत, पण समोरच्या बँकेकडून कन्फर्मेशन प्रलंबित आहे. NPCI T+1 नियमांनुसार तुमची रक्कम पूर्णपणे सुरक्षित आहे."
+        finding_en = f"₹{amount} debited from source bank, awaiting recipient bank settlement. Funds fully protected under NPCI T+1 guidelines."
 
     # Case Metadata & Cryptographic Integrity
     case_num = 10820 + (hash(query) % 900)
