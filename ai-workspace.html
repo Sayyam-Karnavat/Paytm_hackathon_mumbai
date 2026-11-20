@@ -684,13 +684,44 @@
         phase2.classList.add('hidden');
         phase3.classList.remove('hidden');
 
-        document.getElementById('success-txn-id').textContent = '#PTM' + Math.floor(100000000 + Math.random() * 900000000);
+        const rawTxn = Math.floor(100000000 + Math.random() * 900000000);
+        const txnIdStr = '#PTM' + rawTxn;
+        document.getElementById('success-txn-id').textContent = txnIdStr;
         const now = new Date();
         document.getElementById('success-time').textContent = now.toLocaleDateString() + ', ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-        const currentPlan = window.agentEngine.activePlan;
+        const currentPlan = window.agentEngine ? window.agentEngine.activePlan : null;
+        const amount = (currentPlan && currentPlan.price) || (window.agentEngine && window.agentEngine.lastPaidAmount) || 299;
+        const title = (currentPlan && currentPlan.operator) ? `${currentPlan.operator} Recharge` : ((window.agentEngine && window.agentEngine.lastPaidTitle) || 'Mobile Recharge');
+        const subtitle = currentPlan ? `${currentPlan.data || '2GB/Day'} • ${currentPlan.validity || '28 Days'}` : 'Instant Confirmation';
+
         if (currentPlan) {
           document.getElementById('success-paid-desc').textContent = `₹${currentPlan.price} paid to Reliance Jio Prepaid (${currentPlan.validity})`;
+        } else {
+          document.getElementById('success-paid-desc').textContent = `₹${amount} paid successfully for ${title}`;
+        }
+
+        // Live Soundbox Voice & WhatsApp Notification & Local History Save
+        if (window.agentEngine) {
+          window.agentEngine.lastPaidAmount = amount;
+          window.agentEngine.lastPaidTitle = title;
+          window.agentEngine.lastPaidSubtitle = subtitle;
+          
+          window.agentEngine.triggerSoundbox(amount, title, window.agentEngine.activeLanguage || 'hi');
+          window.agentEngine.showWhatsAppNotification(
+            'Payment Confirmed ✓',
+            `₹${amount} paid for ${title}. Transaction ID ${txnIdStr}`
+          );
+          window.agentEngine.saveToActivity({
+            id: 'PTM' + rawTxn,
+            ref: 'NPCI' + Math.floor(10000000 + Math.random() * 90000000),
+            title: title,
+            subtitle: subtitle,
+            amount: amount,
+            type: 'Booking / Recharge',
+            status: 'CONFIRMED',
+            date: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', Today'
+          });
         }
       }, 1350);
     }
@@ -715,7 +746,10 @@
       document.getElementById('payment-processing-phase').classList.add('hidden');
       document.getElementById('payment-success-phase').classList.add('hidden');
       document.getElementById('payment-progress-line').style.width = '0%';
-      window.agentEngine.enteredPin = '';
+      if (window.agentEngine) {
+        window.agentEngine.enteredPin = '';
+        window.agentEngine.renderSuccessReceipt();
+      }
 
       paytm.showToast('✅ Transaction completed. Returned to AI Platform.', 'success', '🤖');
     }
