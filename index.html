@@ -188,11 +188,14 @@
       </div>
 
       <!-- Paytm for Business -->
-      <div onclick="paytm.showToast('Paytm for Business: QR, Soundbox & Merchant POS ready', 'info', '💼')" 
-           class="hotspot ripple-effect" 
-           title="Paytm for Business"
-           style="left: 49.3%; top: 16%; width: 8.8%; height: 68%;">
-      </div>
+      <a href="https://astravoice-pos.vercel.app" 
+         target="_blank"
+         rel="noopener noreferrer"
+         onclick="paytm.playSound('chime'); paytm.showToast('💼 Opening Paytm Business AI & POS (AstraVoice)...', 'ai', '🚀')" 
+         class="hotspot ripple-effect" 
+         title="Paytm for Business — AstraVoice POS"
+         style="left: 49.3%; top: 16%; width: 8.8%; height: 68%; display: block;">
+      </a>
 
       <!-- Company -->
       <div onclick="paytm.showToast('Paytm: India\'s leading payments super app', 'info', '🇮🇳')" 
@@ -308,12 +311,22 @@
            style="left: 37.8%; top: 68.0%; width: 11.5%; height: 5.1%; border-radius: 9999px;">
       </div>
 
-      <!-- Promo 3: Download App Now -->
-      <div onclick="paytm.openModal('download-modal')" 
-           class="hotspot ripple-effect" 
-           title="Download Paytm App Now"
-           style="left: 66.0%; top: 68.0%; width: 11.5%; height: 5.1%; border-radius: 9999px;">
-      </div>
+      <!-- Promo 3: NEW PAYTM BUSINESS AI / ASTRAVOICE CARD OVERLAY -->
+      <a href="https://astravoice-pos.vercel.app" 
+         target="_blank"
+         rel="noopener noreferrer"
+         onclick="paytm.playSound('chime'); paytm.showToast('🚀 Opening AstraVoice — Paytm Business AI & Voice POS...', 'ai', '🌾')"
+         class="hotspot hotspot-ai-card ripple-effect group" 
+         title="AstraVoice — Paytm Business AI & Farming Voice POS (Click to Launch)"
+         style="position: absolute; left: 64.3%; top: 56.4%; width: 26.8%; height: 19.4%; z-index: 25; border-radius: 20px; overflow: hidden; cursor: pointer; filter: drop-shadow(0 6px 20px rgba(0, 185, 241, 0.3)); display: block;">
+        <img src="assets/paytm_business_ai_card.png" alt="Paytm Business AI - AstraVoice" class="w-full h-full object-fill pointer-events-none group-hover:scale-102 transition-all duration-200">
+        
+        <!-- Live Glow Indicator -->
+        <span class="absolute top-3 right-3 flex h-2.5 w-2.5">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+        </span>
+      </a>
 
 
       <!-- E. TRAVEL TABS -->

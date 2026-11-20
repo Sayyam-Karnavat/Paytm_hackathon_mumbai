@@ -2592,6 +2592,25 @@ class PaytmAgentOrchestrator {
             <span>📄</span> <span>Export Daily Ledger</span>
           </button>
         </div>
+
+        <!-- Launch AstraVoice POS Banner -->
+        <div class="mt-3 p-3 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-blue-500/15 rounded-xl border border-emerald-300 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🌾</span>
+            <div>
+              <div class="text-xs font-black text-emerald-950 flex items-center gap-1.5">
+                <span>AstraVoice — Paytm Business AI & Voice POS</span>
+                <span class="text-[9px] bg-emerald-200 text-emerald-900 font-bold px-1.5 py-0.5 rounded">Live Teammate</span>
+              </div>
+              <div class="text-[10px] text-slate-600">Voice Billing • Handwritten Chitti Scan • 60 FPS AG Grid Ledger</div>
+            </div>
+          </div>
+          <a href="https://astravoice-pos.vercel.app" target="_blank" rel="noopener noreferrer"
+             onclick="paytm.playSound('chime'); paytm.showToast('🚀 Opening AstraVoice POS...', 'ai', '🌾')"
+             class="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:brightness-110 text-white font-bold text-xs rounded-lg shadow-xs flex items-center gap-1">
+            <span>Launch POS</span> <span>➔</span>
+          </a>
+        </div>
       </div>
     `;
   }
