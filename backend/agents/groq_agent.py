@@ -34,10 +34,10 @@ def call_groq_llm(prompt: str, system_prompt: str = "") -> str:
             "model": GROQ_MODEL,
             "messages": messages,
             "response_format": {"type": "json_object"},
-            "temperature": 0.1,
-            "max_tokens": 400
+            "temperature": 0.2,
+            "max_tokens": 500
         }
-        resp = requests.post(url, headers=headers, json=payload, timeout=(0.8, 1.2))
+        resp = requests.post(url, headers=headers, json=payload, timeout=(2.0, 6.0))
         if resp.status_code == 200:
             return resp.json()["choices"][0]["message"]["content"].strip()
     except Exception as e:
@@ -48,32 +48,44 @@ def call_groq_llm(prompt: str, system_prompt: str = "") -> str:
 
 def parse_query_with_groq(query: str):
     """
-    Uses Groq LLM to intelligently extract intent, language, operator, budget, data, and OTT perks.
+    Uses Groq LLM (ChatGPT / Gemini grade) to intelligently extract intent, entities, 
+    locations (from_city, to_city, city), amounts, and generate natural responses in Marathi, Hindi & English.
     """
     system_prompt = (
-        "You are the Paytm ONE Master Orchestrator for India's leading digital payments app. "
-        "Analyze the user's input (which may be in Hindi, Devanagari, English, Hinglish, or Marathi) "
+        "You are the Paytm AI Hub Master Intelligent Assistant (conversational like ChatGPT & Gemini). "
+        "Analyze the user's input (in Hindi, Marathi, Devanagari, English, or Hinglish) "
         "and return a strict JSON object with these keys:\n"
-        "- language: 'hi' (Hindi/Hinglish), 'en' (English), or 'mr' (Marathi)\n"
-        "- mode: 'ACTION' (for recharges, travel, hotels, bills, shopping) or 'RESOLVE' (ONLY for payment failure, refund request, money deducted, or complaints)\n"
-        "- service: 'travel' (for bus, train, flight, ticket booking, pune to mumbai, etc.), 'hotel' (for hotels, stays, rooms), 'recharge' (for mobile recharges), 'electricity', 'fastag', 'dth', 'gold', 'merchant', or 'dispute' (for failed payments/refunds)\n"
-        "- operator: 'jio', 'airtel', 'vi', or 'bsnl' (if applicable)\n"
-        "- budget: integer approximate price limit or 300\n"
-        "- data_daily: string like '2 GB / Day' or '1.5 GB / Day'\n"
+        "- language: 'mr' (Marathi), 'hi' (Hindi/Hinglish), or 'en' (English)\n"
+        "- mode: 'CHAT' (for general chat, greetings like 'aur kaise ho', asking 'kya help kar sakte ho', general knowledge, questions), "
+        "'ACTION' (for recharges, travel, bus, flight, train, hotels, movies, shopping, bill payments), "
+        "or 'RESOLVE' (for failed payments, pending transactions, refund requests, complaints, lost money)\n"
+        "- service: 'chat' (general chitchat/help), 'travel' (bus, train, flight, ticket), 'hotel' (hotel, stay), "
+        "'recharge' (mobile recharge), 'electricity', 'fastag', 'dth', 'shopping' (deals, offers), "
+        "'movie' (cinema, films), 'gold', 'merchant', or 'dispute' (payment problems/refunds)\n"
+        "- from_city: string English name of departure city (e.g. 'Phaltan' for पलटन/फलटण, 'Pune', 'Mumbai', 'Delhi', 'Nagpur', 'Goa', etc.) or null\n"
+        "- to_city: string English name of arrival/destination city (e.g. 'Pune', 'Mumbai', 'Goa', 'Delhi', etc.) or null\n"
+        "- travel_type: 'flight', 'train', 'bus', or 'travel'\n"
+        "- city: string English name of city for movies, hotels, or local shopping (e.g. 'Phaltan', 'Pune', 'Mumbai') or null\n"
+        "- operator: 'jio', 'airtel', 'vi', or 'bsnl' (if applicable) or null\n"
+        "- amount: integer specific amount mentioned (e.g. 500, 599, 230, 299, 1200) or null\n"
+        "- budget: integer budget limit or null\n"
+        "- data_daily: string like '2 GB / Day' or null\n"
         "- wants_netflix: boolean true if netflix is mentioned\n"
-        "- response_hi: Friendly, concise, professional response in Hindi / Hinglish\n"
-        "- response_en: Friendly, concise, professional response in English\n"
+        "- response_mr: Friendly, highly intelligent, natural conversational response in Marathi\n"
+        "- response_hi: Friendly, highly intelligent, natural conversational response in Hindi / Hinglish\n"
+        "- response_en: Friendly, highly intelligent, natural conversational response in English\n"
+        "- suggested_replies: array of 4 short, relevant follow-up prompt suggestions\n"
         "IMPORTANT RULES:\n"
-        "1. If user mentions bus (बस), train (ट्रेन/रेलवे), flight (विमान/हवाई जहाज), ticket (टिकट/तिकीट), or travel from city to city (e.g. pune se mumbai, mumbai to delhi), service MUST BE 'travel' and mode MUST BE 'ACTION'. DO NOT classify ticket/bus as dispute!\n"
-        "2. If user mentions hotels, lodge, or room, service MUST BE 'hotel' and mode MUST BE 'ACTION'.\n"
-        "3. Only use 'dispute' when user is complaining about failed transaction, lost money, or requesting a refund.\n"
+        "1. If user just greets or asks 'aur kaise ho', 'kya help kar sakte ho', 'who are you', 'how does this work', mode MUST BE 'CHAT' and service MUST BE 'chat'. Give a warm, helpful reply explaining both Action Mode and Resolve Mode!\n"
+        "2. If user mentions travel from one city to another (e.g. 'पलटन से पुणे', 'Phaltan to Pune', 'Nagpur to Goa'), extract from_city and to_city accurately! Phaltan/पलटन/फलटण is 'Phaltan'.\n"
+        "3. If user mentions movie or hotel, extract city (e.g. 'पलटन में मूवी' -> city: 'Phaltan', service: 'movie').\n"
+        "4. Only use 'dispute' when user is complaining about failed transaction, lost money, or requesting a refund.\n"
         "Return ONLY raw valid JSON, no markdown formatting."
     )
 
     llm_output = call_groq_llm(query, system_prompt)
     if llm_output:
         try:
-            # Clean markdown code blocks if any
             clean_json = llm_output.strip()
             if clean_json.startswith("```json"):
                 clean_json = clean_json[7:]

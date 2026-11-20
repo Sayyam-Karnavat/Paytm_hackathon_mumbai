@@ -412,7 +412,7 @@
     </div>
 
     <!-- Chip 5: Raise a payment complaint -->
-    <div onclick="setChipPrompt('Mere 599 rupees cut gaye par recharge pending hai')" 
+    <div onclick="setChipPrompt('माझे पैसे कट झाले पण सेवा मिळाली नाही, तक्रार तपासा')" 
          class="hotspot ripple-effect" 
          title="Click to raise complaint"
          style="left: 75.5%; top: 87.4%; width: 18.1%; height: 7.3%; border-radius: 9999px;">
@@ -539,8 +539,12 @@
     }
 
     function quickResolve(resolveType) {
-      let prompt = `Mere 599 rupees cut gaye par recharge pending hai, refund status check karo`;
-      if (resolveType === 'Failed Payment') prompt = 'UPI transaction failed amount debited';
+      let prompt = `माझे पैसे कट झाले पण रिचार्ज पेन्डिंग आहे, रिफंड स्टेटस तपासा`;
+      if (resolveType === 'Pending') prompt = 'माझे पेमेंट पेन्डिंग आहे आणि बँकेतून कट झाले आहे';
+      else if (resolveType === 'Refund') prompt = 'माझा रिफंड अजून आला नाही, ट्रॅकिंग करा';
+      else if (resolveType === 'Failed Payment') prompt = 'UPI transaction failed amount debited from bank';
+      else if (resolveType === 'Complaint') prompt = 'पेमेंट तक्रार नोंदवा आणि 3-वे रिकन्सिलीएशन करा';
+      else if (resolveType === 'Track') prompt = 'माझ्या सर्व ओपन तक्रारी आणि केसेस दाखवा';
       executePrompt(prompt);
     }
 

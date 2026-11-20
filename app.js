@@ -1172,7 +1172,9 @@ class PaytmAgentOrchestrator {
           paytm.speakTextFallback(data.ai_message);
         }
 
-        if (data.mode === 'RESOLVE' || data.service === 'dispute') {
+        if (data.mode === 'CHAT' || data.service === 'chat') {
+          this.renderChatMode(data);
+        } else if (data.mode === 'RESOLVE' || data.service === 'dispute') {
           this.renderResolveMode(data);
         } else if (data.service === 'electricity') {
           this.renderElectricityMode(data);
@@ -1200,6 +1202,90 @@ class PaytmAgentOrchestrator {
     } catch (e) {
       console.warn('Backend call failed, using standalone fallback:', e);
     }
+  }
+
+  // 0. Render Conversational Chat Mode (ChatGPT / Gemini Grade)
+  renderChatMode(data) {
+    const steps = data.steps_log || [];
+    const suggestions = data.suggested_replies || [];
+    const container = document.getElementById('workspace-dynamic-content');
+    if (!container) return;
+
+    container.innerHTML = `
+      <!-- ASTRA-STYLE AGENT THINKING & EXECUTION TRACE BOX -->
+      <div class="bg-slate-900/90 text-white backdrop-blur-md rounded-2xl p-3.5 sm:p-4 shadow-xl border border-slate-700/80 text-left text-xs space-y-2 animate-in fade-in duration-200">
+        <div class="flex items-center justify-between border-b border-slate-700/60 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span class="font-mono text-cyan-300 font-bold uppercase tracking-wider text-[11px]">Paytm AI Hub • Multilingual Agent Trace</span>
+          </div>
+          <span class="text-[10px] font-mono bg-cyan-950 text-cyan-400 border border-cyan-800/60 px-2 py-0.5 rounded-full font-bold">ChatGPT / Gemini Grade</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 pt-1 font-mono">
+          ${steps.map(s => `
+            <div class="flex items-start gap-1.5 bg-slate-800/60 p-2 rounded-lg border border-slate-700/50">
+              <span class="text-cyan-400 font-bold">⚡ Step ${s.step}:</span>
+              <div>
+                <span class="font-bold text-white">${s.title}</span>
+                <p class="text-[10px] text-slate-400 mt-0.5">${s.detail}</p>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- MAIN CONVERSATIONAL CARD -->
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border border-sky-200 text-left space-y-4 animate-in fade-in duration-200">
+        <div class="flex items-center justify-between border-b border-sky-100 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#002970] to-cyan-500 text-white flex items-center justify-center text-xl shadow-md">🤖</div>
+            <div>
+              <h3 class="text-base font-black text-[#002970]">Paytm AI Assistant</h3>
+              <p class="text-xs text-slate-500 font-semibold">Universal Action Squad & Dispute Resolution Partner</p>
+            </div>
+          </div>
+          <button onclick="paytm.playSarvamAudio('${data.audio_base64 || ''}')" class="px-3 py-1.5 rounded-xl bg-cyan-50 text-cyan-800 font-bold text-xs border border-cyan-200 hover:bg-cyan-100 flex items-center gap-1 cursor-pointer">
+            <span>🔊</span> <span>पुन्हा ऐका</span>
+          </button>
+        </div>
+
+        <!-- AI Message Bubble -->
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 text-sm leading-relaxed whitespace-pre-line font-medium shadow-2xs">
+          ${data.ai_message}
+        </div>
+
+        <!-- TWO PRIMARY MODE TILES -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <button onclick="window.agentEngine.switchMode('action')" class="p-3.5 rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50/80 border border-sky-200 hover:border-sky-400 hover:shadow-md transition-all text-left cursor-pointer group">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xl">⚡</span>
+              <span class="font-black text-xs text-[#002970] group-hover:text-cyan-600">Action Mode (Do More)</span>
+            </div>
+            <p class="text-[11px] text-slate-600">Recharge, Bus/Train/Flight Tickets, Hotels, Electricity, Shopping Deals</p>
+          </button>
+
+          <button onclick="window.agentEngine.switchMode('resolve')" class="p-3.5 rounded-2xl bg-gradient-to-br from-rose-50 to-red-50/80 border border-rose-200 hover:border-rose-400 hover:shadow-md transition-all text-left cursor-pointer group">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xl">🛡️</span>
+              <span class="font-black text-xs text-rose-900 group-hover:text-red-700">Resolve Mode (Get Help)</span>
+            </div>
+            <p class="text-[11px] text-slate-600">Stuck Money, Failed UPI, Refund Tracking, NPCI 3-Way Reconciliation</p>
+          </button>
+        </div>
+
+        <!-- SUGGESTED QUESTIONS / ACTIONS -->
+        <div class="pt-2 border-t border-slate-100">
+          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">तुम्ही हे विचारू शकता (Suggested Prompts):</span>
+          <div class="flex flex-wrap gap-2">
+            ${suggestions.map(s => `
+              <button onclick="window.agentEngine.processQuery('${s.replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-white hover:bg-cyan-50 text-slate-700 hover:text-cyan-800 text-xs font-semibold rounded-xl border border-slate-200 hover:border-cyan-300 transition-all cursor-pointer shadow-2xs">
+                ${s}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   // 1. Render Recharge Mode (Paytm ONE Action Squad)

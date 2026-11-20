@@ -130,19 +130,21 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         parsed = parse_query_with_groq(query)
     
     if not parsed:
+        is_chat_fallback = any(k in lower_q for k in ['aur kaise', 'kaise ho', 'kya help', 'who are you', 'तू कोण', 'काय मदत', 'कसा आहेस', 'help kar'])
         is_resolve = any(k in lower_q for k in ['pending', 'failed', 'refund', 'complaint', 'तक्रार', 'रिफंड', 'अडकले', 'वापस', 'paise cut', 'cut gaye', 'कट गये', 'कट गए', 'पैसे कट'])
         is_travel = any(k in lower_q for k in ['flight', 'bus', 'train', 'ticket', 'pune', 'mumbai', 'delhi', 'goa', 'बस', 'ट्रेन', 'फ्लाइट', 'विमान', 'रेल्वे', 'गाडी', 'तिकीट', 'टिकट', 'पुणे', 'मुंबई'])
 
         parsed = {
             "language": detected_lang,
-            "mode": "RESOLVE" if is_resolve else "ACTION",
-            "service": "dispute" if is_resolve else ("travel" if is_travel else "recharge"),
+            "mode": "CHAT" if is_chat_fallback else ("RESOLVE" if is_resolve else "ACTION"),
+            "service": "chat" if is_chat_fallback else ("dispute" if is_resolve else ("travel" if is_travel else "recharge")),
             "operator": op_detected,
             "budget": explicit_price or 299,
             "data_daily": detected_data,
             "wants_netflix": wants_netflix,
-            "response_hi": "Maine aapka plan khoj liya hai.",
-            "response_en": "I have found the matching plan for you."
+            "response_mr": "मी खूप छान आहे! मी तुम्हाला पेटीएमच्या सर्व सेवांमध्ये मदत करू शकतो — जसे की मोबाईल रिचार्ज, बस/ट्रेन/फ्लाइट तिकीट बुकिंग, बिल पेमेंट, किंवा अडकलेले पैसे आणि रिफंडचे त्वरित निराकरण.",
+            "response_hi": "मैं बिल्कुल ठीक हूँ! मैं आपकी पेटीएम की सभी सेवाओं में मदद कर सकता हूँ — जैसे मोबाइल रिचार्ज, बस/ट्रेन/फ्लाइट टिकट बुकिंग, बिजली बिल, या अटके हुए पैसे और रिफंड का समाधान।",
+            "response_en": "I am doing great! I can help you with all Paytm services — mobile recharges, travel tickets, utility bills, or resolving stuck payments and refunds."
         }
     else:
         # Override with explicit values if found in user's prompt
@@ -215,39 +217,66 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     else:
         travel_type = "travel"
 
-    from_city = "Pune"
-    to_city = "Mumbai"
+    # DYNAMIC CITY & ROUTE EXTRACTION (ChatGPT / Gemini Grade)
+    from_city = (parsed.get("from_city") if parsed else None)
+    to_city = (parsed.get("to_city") if parsed else None)
+    if parsed and parsed.get("city"):
+        detected_city = parsed["city"]
+    if parsed and parsed.get("travel_type"):
+        travel_type = parsed["travel_type"]
+    if parsed and parsed.get("amount"):
+        explicit_price = parsed["amount"]
 
-    has_pune = any(w in lower_q for w in ['pune', 'pun', 'पुणे', 'पुण्यात', 'lohegaon'])
-    has_mumbai = any(w in lower_q for w in ['mumbai', 'bombay', 'मुंबई', 'मुंबईत'])
-    has_delhi = any(w in lower_q for w in ['delhi', 'dilli', 'दिल्ली'])
-    has_goa = any(w in lower_q for w in ['goa', 'गोवा', 'गोव्यात'])
-    has_blr = any(w in lower_q for w in ['bangalore', 'bengaluru', 'बेंगळुरू'])
+    # Intelligent city aliases mapping
+    city_aliases = {
+        'पलटन': 'Phaltan', 'फलटण': 'Phaltan', 'phaltan': 'Phaltan',
+        'पुणे': 'Pune', 'पुण्यात': 'Pune', 'pune': 'Pune', 'pun': 'Pune',
+        'मुंबई': 'Mumbai', 'मुंबईत': 'Mumbai', 'mumbai': 'Mumbai', 'bombay': 'Mumbai',
+        'दिल्ली': 'Delhi', 'delhi': 'Delhi', 'dilli': 'Delhi',
+        'गोवा': 'Goa', 'गोव्यात': 'Goa', 'goa': 'Goa',
+        'नागपूर': 'Nagpur', 'nagpur': 'Nagpur',
+        'सातारा': 'Satara', 'satara': 'Satara',
+        'कोल्हापूर': 'Kolhapur', 'kolhapur': 'Kolhapur',
+        'नाशिक': 'Nashik', 'nashik': 'Nashik',
+        'शिर्डी': 'Shirdi', 'shirdi': 'Shirdi',
+        'बंगळुरू': 'Bangalore', 'बेंगळुरू': 'Bangalore', 'bangalore': 'Bangalore', 'bengaluru': 'Bangalore',
+        'हैदराबाद': 'Hyderabad', 'hyderabad': 'Hyderabad',
+        'जयपूर': 'Jaipur', 'jaipur': 'Jaipur',
+        'सुरत': 'Surat', 'surat': 'Surat',
+        'अहमदाबाद': 'Ahmedabad', 'ahmedabad': 'Ahmedabad'
+    }
 
-    if has_pune and has_mumbai:
-        if ('mumbai se pune' in lower_q or 'mumbai to pune' in lower_q or 'मुंबई से पुणे' in lower_q or 'मुंबई ते पुणे' in lower_q):
-            from_city, to_city = "Mumbai", "Pune"
-        else:
-            from_city, to_city = "Pune", "Mumbai"
-    elif has_mumbai and has_delhi:
-        from_city, to_city = "Mumbai", "Delhi"
-    elif has_pune and has_delhi:
-        from_city, to_city = "Pune", "Delhi"
-    elif has_pune and has_goa:
-        from_city, to_city = "Pune", "Goa"
-    elif has_delhi and has_blr:
-        from_city, to_city = "Delhi", "Bangalore"
-    elif detected_city:
-        if detected_city == "Pune":
-            from_city, to_city = "Pune", "Mumbai"
-        elif detected_city == "Mumbai":
-            from_city, to_city = "Mumbai", "Delhi"
-        else:
-            from_city, to_city = detected_city, "Mumbai"
+    # If LLM didn't catch both cities, check regex route patterns like "X से Y", "X to Y", "X ते Y"
+    if not from_city or not to_city:
+        route_match = re.search(r'([a-zA-Z\u0900-\u097F]+)\s*(?:se|to|ते|से)\s*([a-zA-Z\u0900-\u097F]+)', lower_q)
+        if route_match:
+            c1_raw = route_match.group(1).strip().lower()
+            c2_raw = route_match.group(2).strip().lower()
+            if not from_city and c1_raw in city_aliases:
+                from_city = city_aliases[c1_raw]
+            if not to_city and c2_raw in city_aliases:
+                to_city = city_aliases[c2_raw]
+
+    # Check for single destination or origin
+    for alias_key, alias_val in city_aliases.items():
+        if alias_key in lower_q:
+            if not detected_city:
+                detected_city = alias_val
+            if not from_city and ('se' in lower_q or 'ते' in lower_q or 'from' in lower_q):
+                from_city = alias_val
+            elif not to_city:
+                to_city = alias_val
+
+    # Safe sensible defaults if completely unspecified
+    if not from_city:
+        from_city = "Pune"
+    if not to_city:
+        to_city = "Mumbai" if from_city != "Mumbai" else "Pune"
 
     # Language & Service Classification
     lang = (parsed.get("language") if parsed else None) or detected_lang or "hi"
     groq_service = (parsed.get("service") if parsed else "") or ""
+    groq_mode = (parsed.get("mode") if parsed else "") or ""
     
     # 360-DEGREE ROCK-SOLID INTENT HIERARCHY
     # Priority 1: DISPUTE & RESOLVE MODE (Refund, failed payment, uncredited, cut money)
@@ -258,7 +287,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         'मिळाले नाहीत', 'नाही मिळाले', 'मिळाले नाही', 'not received', 'not credited', 'uncredited',
         'unpaid', 'not updated', 'update nahi', 'update nahi hua', 'अपडेट नाही',
         'duplicate', 'double debit', 'दोनदा', 'दो बार', 'wrong transfer', 'चुकीच्या', 'चुकीचे', 'गलत', 'galti'
-    ])
+    ]) or (groq_mode == "RESOLVE" or groq_service == "dispute")
 
     # Utilities & Specific Services (Checked before generic mobile recharge)
     # Ensure 'light' does not match inside 'flight'
@@ -296,16 +325,30 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     # Hotel & Stays
     is_hotel = any(k in lower_q for k in ['hotel', 'hotle', 'lodge', 'room', 'stay', 'resort', 'हॉटेल', 'होटल', 'कमरा', 'राहण्याची', 'थांबायला']) and not is_shopping
 
+    # General Conversational Chat (ChatGPT / Gemini style)
+    is_chat = (
+        groq_mode == "CHAT" or groq_service == "chat" or any(k in lower_q for k in [
+            'aur kaise', 'kaise ho', 'kya help', 'help kar sakte', 'who are you',
+            'तू कोण आहेस', 'काय मदत करू शकतोस', 'कसा आहेस', 'काय करू शकतोस',
+            'hi', 'hello', 'hey', 'namaste', 'नमस्ते', 'नमस्कार',
+            'how are you', 'what can you do', 'what is paytm', 'tell me about'
+        ])
+    ) and not is_dispute
+
     # Travel & Tickets: Must have explicit travel vehicle, ticket/travel verb, or two-city route
-    has_explicit_route = (has_pune and has_mumbai) or (has_mumbai and has_delhi) or (has_pune and has_delhi) or (has_pune and has_goa)
     has_travel_verb = bool(re.search(r'\b(?:travel|trip|ticket|tickets|tiket|booking|book|जाना|सफर|प्रवास|तिकीट|टिकट|गाडी|flight|bus|train)\b', lower_q))
     is_travel = (
-        is_bus or is_train or is_flight or has_travel_verb or (
-            has_explicit_route and any(w in lower_q for w in ['to', 'se', 'te', 'ते', 'से', 'travel', 'trip', 'जाना'])
+        not is_chat and (
+            is_bus or is_train or is_flight or has_travel_verb or groq_service == "travel" or (
+                bool(re.search(r'\b(?:to|se|te|ते|से)\b', lower_q)) and any(c.lower() in lower_q for c in city_aliases.keys())
+            )
         )
     ) and not is_shopping and not is_movie and not is_hotel and not is_recharge and not is_merchant and not is_dispute and not is_fastag and not is_dth and not is_electricity and not is_gold
 
-    if is_dispute:
+    if is_chat:
+        service = "chat"
+        mode = "CHAT"
+    elif is_dispute:
         service = "dispute"
         mode = "RESOLVE"
     elif is_shopping:
@@ -342,8 +385,56 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         service = groq_service
         mode = "RESOLVE" if service == "dispute" else "ACTION"
     else:
-        service = "recharge"
-        mode = "ACTION"
+        service = "chat"
+        mode = "CHAT"
+
+    # ==========================================================
+    # BRANCH 0: CHAT MODE (CHATGPT / GEMINI CONVERSATIONAL ENGINE)
+    # ==========================================================
+    if mode == "CHAT" or service == "chat":
+        steps_log.append({
+            "step": 2,
+            "title": "Groq Multilingual Neural Understanding Agent",
+            "detail": f"Classified conversational intent ({lang.upper()}) • Knowledge Synthesis Active",
+            "status": "completed"
+        })
+        steps_log.append({
+            "step": 3,
+            "title": "Paytm Universal Services Knowledge Graph",
+            "detail": "Cross-linked Action Mode (10+ utilities) & Resolve Mode (NPCI 3-Way Reconciliation)",
+            "status": "completed"
+        })
+
+        if lang == "mr":
+            ai_msg = (parsed.get("response_mr") if parsed else None) or "मी खूप छान आहे! मी तुम्हाला पेटीएमच्या सर्व सेवांमध्ये मदत करू शकतो — मोबाईल रिचार्ज, बस/ट्रेन/फ्लाइट तिकीट बुकिंग, बिल पेमेंट, किंवा अडकलेले पैसे आणि रिफंडचे त्वरित निराकरण. तुम्हाला काय मदत हवी आहे?"
+        elif lang == "hi":
+            ai_msg = (parsed.get("response_hi") if parsed else None) or "मैं बिल्कुल ठीक हूँ! मैं आपकी पेटीएम की सभी सेवाओं में मदद कर सकता हूँ — जैसे मोबाइल रिचार्ज, बस/ट्रेन/फ्लाइट टिकट बुकिंग, बिजली बिल, या अटके हुए पैसे और रिफंड का समाधान। आप क्या करना चाहते हैं?"
+        else:
+            ai_msg = (parsed.get("response_en") if parsed else None) or "I am doing great! I can help you with all Paytm services — mobile recharges, travel tickets (bus, train, flight), utility bills, or resolving stuck payments and refunds. How can I assist you today?"
+
+        steps_log.append({
+            "step": 4,
+            "title": "Sarvam AI Voice Synthesis",
+            "detail": f"Synthesizing authentic voice with Bulbul v3 ({lang}-IN)",
+            "status": "completed"
+        })
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+
+        suggested = (parsed.get("suggested_replies") if parsed else None) or (
+            ["Jio ₹299 रिचार्ज करा ⚡", "पुणे ते मुंबई बस/फ्लाइट 🚌", "माझे ₹500 कट झाले (तक्रार) 🛡️", "वीज बिल भरा 💡"] if lang == "mr"
+            else (["Jio ₹299 रिचार्ज करें ⚡", "पुणे से मुंबई बस/फ्लाइट 🚌", "मेरे ₹500 कट गए (शिकायत) 🛡️", "बिजली बिल भरें 💡"] if lang == "hi"
+            else ["Recharge Jio ₹299 ⚡", "Pune to Mumbai Bus/Flight 🚌", "Dispute ₹500 Deduction 🛡️", "Pay Electricity Bill 💡"])
+        )
+
+        return {
+            "mode": "CHAT",
+            "service": "chat",
+            "language": lang,
+            "ai_message": ai_msg,
+            "suggested_replies": suggested,
+            "steps_log": steps_log,
+            "audio_base64": audio_b64
+        }
 
     # ==========================================================
     # BRANCH 1: RESOLVE MODE (PAYTM RESOLVE INTELLIGENCE)
