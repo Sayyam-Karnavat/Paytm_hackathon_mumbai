@@ -2595,7 +2595,6 @@ class PaytmAgentOrchestrator {
       </div>
     `;
   }
-  }
 
   // 4. PIN & Payment Flow
   openPinModal(amount, operator, validity) {
