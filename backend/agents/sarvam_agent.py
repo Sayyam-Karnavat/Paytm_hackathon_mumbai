@@ -20,22 +20,28 @@ def generate_sarvam_speech(text: str, language_code: str = "hi-IN", speaker: str
     if not SARVAM_API_KEY or not text:
         return None
 
-    # Strip markdown and special symbols for clean vocal delivery
-    clean = re.sub(r'[\*\#\_\[\]\(\)\{\}\<\>•\-–—\|]', ' ', text)
+    # Clean text of markdown and special symbols for smooth neural vocal delivery
+    clean = re.sub(r'[\*\#\_\[\]\(\)\{\}\<\>•–—\|]', ' ', text)
     clean = re.sub(r'\s+', ' ', clean).strip()
 
-    # Keep speech concise for fast sub-second synthesis (up to ~140 chars)
-    if len(clean) > 140:
-        match = re.search(r'([।\.\?!])\s*', clean[:140])
-        if match:
-            clean_text = clean[:match.end()].strip()
+    # Sarvam Bulbul:v3 supports up to 500 characters per utterance.
+    # Allow up to 450 characters so full complete thoughts and sentences are spoken!
+    if len(clean) > 450:
+        truncated = clean[:450]
+        last_punct = -1
+        for p in ['।', '.', '?', '!']:
+            idx = truncated.rfind(p)
+            if idx > last_punct:
+                last_punct = idx
+        if last_punct > 100:
+            clean_text = truncated[:last_punct + 1].strip()
         else:
-            clean_text = clean[:140].strip()
+            clean_text = truncated.strip()
     else:
         clean_text = clean
 
     if not clean_text:
-        clean_text = text[:100].strip()
+        clean_text = text[:300].strip()
 
     cache_key = f"{language_code}_{clean_text}"
     if cache_key in _TTS_CACHE:
