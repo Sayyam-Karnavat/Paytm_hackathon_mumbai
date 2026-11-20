@@ -498,8 +498,6 @@ class PaytmAgentOrchestrator {
             </button>
           `).join('')}
         </div>
-
-        ${this.renderSuggestedChips(data.suggested_replies)}
       </div>
     `;
   }

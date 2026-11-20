@@ -63,6 +63,12 @@ def search_recharge_live_with_serp(operator: str, budget: int, query: str = ""):
     }
 
 
+_TRAVEL_CACHE = {}
+_HOTEL_CACHE = {}
+_SHOPPING_CACHE = {}
+_MOVIE_CACHE = {}
+
+
 def search_travel_options(
     from_city: str = "Pune",
     to_city: str = "Mumbai",
@@ -76,10 +82,14 @@ def search_travel_options(
 ):
     """
     Uses SerpApi Google Search engine to verify live flights, trains (Vande Bharat/IRCTC), and AC buses with real departure/arrival timings.
-    Supports dynamic routes across any Indian cities.
+    Supports dynamic routes across any Indian cities with sub-second caching.
     """
     fc = from_city.strip().title()
     tc = to_city.strip().title()
+    cache_key = f"{fc}_{tc}_{travel_type}_{max_budget}_{is_cheapest}_{is_fastest}_{is_ac_only}_{is_morning}_{is_night}"
+    if cache_key in _TRAVEL_CACHE:
+        return _TRAVEL_CACHE[cache_key]
+
     fc_code = AIRPORT_CODES.get(from_city.strip().lower(), "PNQ")
     tc_code = AIRPORT_CODES.get(to_city.strip().lower(), "BOM")
 
@@ -88,7 +98,7 @@ def search_travel_options(
     if SERPAPI_KEY:
         try:
             url = f"https://serpapi.com/search.json?engine=google&q={requests.utils.quote(search_q)}&api_key={SERPAPI_KEY}&num=3"
-            resp = requests.get(url, timeout=(0.8, 1.2))
+            resp = requests.get(url, timeout=(0.3, 0.5))
             if resp.status_code == 200:
                 data = resp.json()
                 for item in data.get("organic_results", [])[:2]:
@@ -98,7 +108,7 @@ def search_travel_options(
                         "link": item.get("link", "")
                     })
         except Exception as e:
-            print("SerpApi travel error:", e)
+            pass
 
     # Dynamic flight numbers and timings
     all_options = [
@@ -276,7 +286,7 @@ def search_travel_options(
     else:
         filtered = sorted_options
 
-    return {
+    result = {
         "source": "SerpApi Travel Intelligence",
         "from_city": fc,
         "to_city": tc,
@@ -284,6 +294,8 @@ def search_travel_options(
         "live_matches": live_results,
         "options": filtered[:6]
     }
+    _TRAVEL_CACHE[cache_key] = result
+    return result
 
 
 def search_hotel_options(city: str = "Pune", location: str = "Airport", max_budget: int = 0):
@@ -293,6 +305,10 @@ def search_hotel_options(city: str = "Pune", location: str = "Airport", max_budg
     """
     c = city.strip().title() if city else "Pune"
     loc = location.strip().title() if location else "Airport"
+    cache_key = f"{c}_{loc}_{max_budget}"
+    if cache_key in _HOTEL_CACHE:
+        return _HOTEL_CACHE[cache_key]
+
     budget_label = f"under ₹{max_budget}" if max_budget else "best price"
 
     search_q = f"best budget hotels near {c} {loc} price per night {budget_label} reviews"
@@ -300,7 +316,7 @@ def search_hotel_options(city: str = "Pune", location: str = "Airport", max_budg
     if SERPAPI_KEY:
         try:
             url = f"https://serpapi.com/search.json?engine=google&q={requests.utils.quote(search_q)}&api_key={SERPAPI_KEY}&num=4&hl=en&gl=in"
-            resp = requests.get(url, timeout=(0.8, 1.2))
+            resp = requests.get(url, timeout=(0.3, 0.5))
             if resp.status_code == 200:
                 data = resp.json()
                 for item in data.get("organic_results", [])[:3]:
@@ -310,7 +326,7 @@ def search_hotel_options(city: str = "Pune", location: str = "Airport", max_budg
                         "link": item.get("link", "")
                     })
         except Exception as e:
-            print("SerpApi hotel search error:", e)
+            pass
 
     # City-specific and dynamic hotel catalog
     c_lower = c.lower()
@@ -457,13 +473,15 @@ def search_hotel_options(city: str = "Pune", location: str = "Airport", max_budg
     else:
         filtered = base_hotels
 
-    return {
+    result = {
         "source": "SerpApi Google Local & Hotels",
         "city": c,
         "location": loc,
         "live_matches": live_results,
         "hotels": filtered[:4]
     }
+    _HOTEL_CACHE[cache_key] = result
+    return result
 
 
 def search_shopping_deals(city: str = "Pune", query: str = "", max_budget: int = 0):
@@ -472,12 +490,16 @@ def search_shopping_deals(city: str = "Pune", query: str = "", max_budget: int =
     Uses SerpApi Google Search + rich curated Paytm Partner brand deals.
     """
     c = city.strip().title() if city else "Pune"
+    cache_key = f"{c}_{query}_{max_budget}"
+    if cache_key in _SHOPPING_CACHE:
+        return _SHOPPING_CACHE[cache_key]
+
     search_q = f"best shopping offers discounts deals in {c} malls electronics clothing"
     live_results = []
     if SERPAPI_KEY:
         try:
             url = f"https://serpapi.com/search.json?engine=google&q={requests.utils.quote(search_q)}&api_key={SERPAPI_KEY}&num=4&hl=en&gl=in"
-            resp = requests.get(url, timeout=(0.8, 1.2))
+            resp = requests.get(url, timeout=(0.3, 0.5))
             if resp.status_code == 200:
                 for r in resp.json().get("organic_results", [])[:3]:
                     live_results.append({
@@ -486,7 +508,7 @@ def search_shopping_deals(city: str = "Pune", query: str = "", max_budget: int =
                         "link": r.get("link", "")
                     })
         except Exception as e:
-            print("SerpApi shopping deals search error:", e)
+            pass
 
     deals = [
         {
@@ -584,12 +606,14 @@ def search_shopping_deals(city: str = "Pune", query: str = "", max_budget: int =
         deals = sorted(deals, key=lambda d: 0 if "Grocery" in d["category"] else 1)
         deals[0]["badge"] = "🏪 Top Kirana Cashback 🌟"
 
-    return {
+    result = {
         "source": "SerpApi Shopping Deals Intelligence",
         "city": c,
         "deals": deals,
         "live_matches": live_results
     }
+    _SHOPPING_CACHE[cache_key] = result
+    return result
 
 
 def search_movie_options(city: str = "Pune"):
