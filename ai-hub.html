@@ -213,9 +213,9 @@
 
 
     <!-- ==================== 3. ACTION MODE CARD (LEFT) ==================== -->
-    <div onclick="quickAction('Recharge')" 
+    <div onclick="openMode('action')" 
          class="hotspot ripple-effect" 
-         title="Action Mode (Paytm ONE)"
+         title="Action Mode (Paytm ONE) — Click to open Dedicated Action Mode!"
          style="left: 6.4%; top: 58.5%; width: 41.5%; height: 9.8%;">
     </div>
 
@@ -256,9 +256,9 @@
 
 
     <!-- ==================== 4. RESOLVE MODE CARD (RIGHT) ==================== -->
-    <div onclick="quickResolve('Pending Payment')" 
+    <div onclick="openMode('resolve')" 
          class="hotspot ripple-effect" 
-         title="Resolve Mode (Paytm Resolve)"
+         title="Resolve Mode (Paytm Resolve) — Click to open Dedicated Dispute Investigation Mode!"
          style="left: 51.5%; top: 58.5%; width: 42.0%; height: 9.8%;">
     </div>
 
@@ -371,6 +371,18 @@
 
       setTimeout(() => {
         window.location.href = `ai-workspace.html?q=${encodeURIComponent(query.trim())}`;
+      }, 350);
+    }
+
+    function openMode(mode) {
+      paytm.playSound('chime');
+      const overlay = document.getElementById('portal-overlay');
+      const portalText = document.getElementById('portal-text');
+      if (portalText) portalText.textContent = mode === 'resolve' ? 'Opening Paytm Resolve Mode...' : 'Opening Paytm Action Mode...';
+      if (overlay) overlay.classList.add('active');
+
+      setTimeout(() => {
+        window.location.href = `ai-workspace.html?mode=${mode}`;
       }, 350);
     }
 

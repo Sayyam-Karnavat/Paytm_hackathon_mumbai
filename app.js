@@ -544,6 +544,562 @@ class PaytmAgentOrchestrator {
     });
   }
 
+  initWorkspace(mode = 'action', query = '') {
+    this.currentMode = mode || 'action';
+    this.updateModeTabsUi(this.currentMode);
+    this.updateActivityBadge();
+
+    if (query && query.trim()) {
+      this.processQuery(query.trim());
+    } else {
+      this.renderModeShowcase(this.currentMode);
+    }
+  }
+
+  switchMode(mode) {
+    paytm.playSound('click');
+    this.currentMode = mode;
+    this.updateModeTabsUi(mode);
+    this.renderModeShowcase(mode);
+  }
+
+  updateModeTabsUi(mode) {
+    const actBtn = document.getElementById('mode-tab-action');
+    const resBtn = document.getElementById('mode-tab-resolve');
+    const promptInput = document.getElementById('user-chat-prompt');
+
+    if (mode === 'action') {
+      if (actBtn) {
+        actBtn.className = 'px-3 py-1 rounded-full text-xs font-black bg-[#002970] text-white shadow-xs cursor-pointer flex items-center gap-1 transition-all';
+      }
+      if (resBtn) {
+        resBtn.className = 'px-3 py-1 rounded-full text-xs font-black text-slate-600 hover:text-red-700 cursor-pointer flex items-center gap-1 transition-all';
+      }
+      if (promptInput) {
+        promptInput.placeholder = 'बोलिए या टाइप करें... (उदा. Jio 299 रिचार्ज, पुणे ते मुंबई बस, 1000 मध्ये हॉटेल, 50% ऑफ शॉपिंग...)';
+      }
+    } else {
+      if (actBtn) {
+        actBtn.className = 'px-3 py-1 rounded-full text-xs font-black text-slate-600 hover:text-blue-900 cursor-pointer flex items-center gap-1 transition-all';
+      }
+      if (resBtn) {
+        resBtn.className = 'px-3 py-1 rounded-full text-xs font-black bg-rose-600 text-white shadow-xs cursor-pointer flex items-center gap-1 transition-all';
+      }
+      if (promptInput) {
+        promptInput.placeholder = 'आपकी समस्या बताएं... (उदा. पैसे कट गए रिचार्ज नहीं हुआ, रिफंड अटका है, मर्चेंट को पैसे नहीं मिले...)';
+      }
+    }
+  }
+
+  renderModeShowcase(mode) {
+    if (mode === 'resolve') {
+      this.renderResolveShowcase();
+    } else {
+      this.renderActionShowcase();
+    }
+  }
+
+  renderActionShowcase() {
+    const container = document.getElementById('workspace-dynamic-content');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-sky-300 text-left animate-in fade-in duration-200">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-sky-100">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center text-2xl shadow-xs">⚡</div>
+            <div>
+              <h2 class="text-base sm:text-lg font-black text-[#002970]">Paytm ONE — Universal Action Squad</h2>
+              <p class="text-xs text-sky-700 font-semibold">Autonomous Payments, Fast Travel Booking & Verified Deals</p>
+            </div>
+          </div>
+          <span class="text-xs font-black bg-sky-100 text-[#002970] px-3 py-1 rounded-full hidden sm:inline">10 Live Services</span>
+        </div>
+
+        <p class="text-xs text-slate-600 mb-4 font-medium">खालीलपैकी कोणत्याही सेवेवर क्लिक करा किंवा खाली व्हॉइस/टेक्स्टने थेट बोला:</p>
+
+        <!-- 10 Action Service Cards Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3 mb-5">
+          <button onclick="window.agentEngine.processQuery('Jio 299 recharge 2gb daily data')" class="p-3 bg-slate-50 hover:bg-sky-50 rounded-xl border border-slate-200 hover:border-sky-400 text-left transition-all group cursor-pointer">
+            <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">📱</div>
+            <div class="text-xs font-black text-slate-800">Mobile Recharge</div>
+            <div class="text-[10px] text-slate-500">Jio, Airtel, Vi 5G</div>
+          </button>
+
+          <button onclick="window.agentEngine.processQuery('Pune to Mumbai bus ticket')" class="p-3 bg-slate-50 hover:bg-sky-50 rounded-xl border border-slate-200 hover:border-sky-400 text-left transition-all group cursor-pointer">
+            <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🚌</div>
+            <div class="text-xs font-black text-slate-800">AC Volvo Bus</div>
+            <div class="text-[10px] text-slate-500">Shivneri M-Ticket</div>
+          </button>
+
+          <button onclick="window.agentEngine.processQuery('Pune to Mumbai flight ticket')" class="p-3 bg-slate-50 hover:bg-sky-50 rounded-xl border border-slate-200 hover:border-sky-400 text-left transition-all group cursor-pointer">
+            <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">✈️</div>
+            <div class="text-xs font-black text-slate-800">Flights & Air</div>
+            <div class="text-[10px] text-slate-500">IndiGo, Akasa Air</div>
+          </button>
+
+          <button onclick="window.agentEngine.processQuery('Pune to Mumbai Vande Bharat train')" class="p-3 bg-slate-50 hover:bg-sky-50 rounded-xl border border-slate-200 hover:border-sky-400 text-left transition-all group cursor-pointer">
+            <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🚆</div>
+            <div class="text-xs font-black text-slate-800">IRCTC Trains</div>
+            <div class="text-[10px] text-slate-500">Vande Bharat Seats</div>
+          </button>
+
+          <button onclick="window.agentEngine.processQuery('Budget hotels near Mumbai airport')" class="p-3 bg-slate-50 hover:bg-sky-50 rounded-xl border border-slate-200 hover:border-sky-400 text-left transition-all group cursor-pointer">
+            <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🏨</div>
+            <div class="text-xs font-black text-slate-800">Airport Hotels</div>
+            <div class="text-[10px] text-slate-500">Under ₹1,500/night</div>
+          </button>
+
+          <button onclick="window.agentEngine.processQuery('Pay MSEDCL electricity bill 1450')" class="p-3 bg-slate-50 hover:bg-sky-50 rounded-xl border border-slate-200 hover:border-sky-400 text-left transition-all group cursor-pointer">
+            <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">⚡</div>
+            <div class="text-xs font-black text-slate-800">Electricity Bill</div>
+            <div class="text-[10px] text-slate-500">Mahavitaran MSEDCL</div>
+          </button>
+
+          <button onclick="window.agentEngine.processQuery('Recharge FASTag 500')" class="p-3 bg-slate-50 hover:bg-sky-50 rounded-xl border border-slate-200 hover:border-sky-400 text-left transition-all group cursor-pointer">
+            <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🚗</div>
+            <div class="text-xs font-black text-slate-800">FASTag Toll</div>
+            <div class="text-[10px] text-slate-500">NETC NHAI Instant</div>
+          </button>
+
+          <button onclick="window.agentEngine.processQuery('Pune madhe shopping che best offers dakhva')" class="p-3 bg-slate-50 hover:bg-pink-50 rounded-xl border border-slate-200 hover:border-pink-400 text-left transition-all group cursor-pointer">
+            <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🛍️</div>
+            <div class="text-xs font-black text-slate-800">Shopping Deals</div>
+            <div class="text-[10px] text-pink-600 font-bold">50% Off Malls</div>
+          </button>
+
+          <button onclick="window.agentEngine.processQuery('Pushpa 2 movie tickets in Pune')" class="p-3 bg-slate-50 hover:bg-purple-50 rounded-xl border border-slate-200 hover:border-purple-400 text-left transition-all group cursor-pointer">
+            <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🎬</div>
+            <div class="text-xs font-black text-slate-800">Movie Tickets</div>
+            <div class="text-[10px] text-slate-500">PVR & INOX Shows</div>
+          </button>
+
+          <button onclick="window.agentEngine.processQuery('Buy 500 digital gold')" class="p-3 bg-slate-50 hover:bg-amber-50 rounded-xl border border-slate-200 hover:border-amber-400 text-left transition-all group cursor-pointer">
+            <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🪙</div>
+            <div class="text-xs font-black text-slate-800">24K Digital Gold</div>
+            <div class="text-[10px] text-slate-500">MMTC-PAMP Insured</div>
+          </button>
+        </div>
+
+        <!-- 1-Tap Quick Action Chips -->
+        <div class="pt-3 border-t border-slate-200/80">
+          <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2 flex items-center gap-1.5">
+            <span>💡</span> <span>Try Asking or Tapping These Prompts:</span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="window.agentEngine.processQuery('मला पुणे ते मुंबई 1 ते 2k च्या आसपास फ्लाईट दाखव')" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-[#002970] text-xs font-bold rounded-xl border border-sky-200 cursor-pointer">✈️ पुणे ते मुंबई 1-2k फ्लाईट</button>
+            <button onclick="window.agentEngine.processQuery('मुझे पुणे से मुंबई जाना है बस देखो अच्छे से टिकट')" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-900 text-xs font-bold rounded-xl border border-blue-200 cursor-pointer">🚌 पुणे से मुंबई बस टिकट</button>
+            <button onclick="window.agentEngine.processQuery('Jio 299 ka 2gb daily data plan')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 cursor-pointer">📱 Jio 299 2GB/Day</button>
+            <button onclick="window.agentEngine.processQuery('मुझे शॉपिंग करनी हे बेस्ट ऑफर देखो पुणे में')" class="px-3 py-1.5 bg-pink-50 hover:bg-pink-100 text-pink-900 text-xs font-bold rounded-xl border border-pink-200 cursor-pointer">🛍️ शॉपिंग बेस्ट ऑफर्स पुणे</button>
+            <button onclick="window.agentEngine.processQuery('पुण्यात पुष्पा २ चं तिकीट बुक कर')" class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-900 text-xs font-bold rounded-xl border border-purple-200 cursor-pointer">🎬 पुष्पा २ तिकीट पुणे</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  renderResolveShowcase() {
+    const container = document.getElementById('workspace-dynamic-content');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-rose-300 text-left animate-in fade-in duration-200">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-rose-100">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center text-2xl shadow-xs">🛡️</div>
+            <div>
+              <h2 class="text-base sm:text-lg font-black text-rose-900">Paytm Resolve — Payment Investigation Squad</h2>
+              <p class="text-xs text-rose-700 font-semibold">Autonomous Payment Investigation & Verified SLA Resolution</p>
+            </div>
+          </div>
+          <span class="text-xs font-black bg-rose-100 text-rose-900 px-3 py-1 rounded-full">NPCI 24H SLA</span>
+        </div>
+
+        <!-- 4-Step Squad Pipeline Tracker Banner -->
+        <div class="bg-slate-900 text-white rounded-xl p-3.5 mb-4 border border-slate-700 text-xs">
+          <div class="text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-wider mb-2">⚡ 4-Step Autonomous Resolution Squad Active</div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] font-semibold text-slate-300">
+            <div class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> <span>1. Classification</span></div>
+            <div class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> <span>2. You.com Citation</span></div>
+            <div class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> <span>3. Nexconn Room</span></div>
+            <div class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> <span>4. Sarvam Voice</span></div>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-700 font-medium mb-3">तुम्हाला कोणती समस्या आली आहे? खालील पर्यायावर टॅप करा किंवा तुमची अडचण बोला/टाइप करा:</p>
+
+        <!-- 6 Dispute Case Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+          <button onclick="window.agentEngine.processQuery('माझे 599 कट झाले पण Jio Recharge झाला नाही')" class="p-3.5 bg-rose-50/70 hover:bg-rose-100/90 rounded-2xl border border-rose-200 text-left transition-all cursor-pointer">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xl">💸</span>
+              <span class="text-[10px] font-bold bg-rose-200 text-rose-800 px-2 py-0.5 rounded-full">High Priority</span>
+            </div>
+            <div class="text-xs font-black text-rose-950">पैसे कट झाले पण Recharge नाही</div>
+            <div class="text-[10px] text-slate-600 mt-1">बँक आणि ऑपरेटर स्टेटस तपासून SLA Auto-Reversal ट्रॅक करेल</div>
+          </button>
+
+          <button onclick="window.agentEngine.processQuery('UPI payment pending amount debited from bank')" class="p-3.5 bg-amber-50/70 hover:bg-amber-100/90 rounded-2xl border border-amber-200 text-left transition-all cursor-pointer">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xl">⏳</span>
+              <span class="text-[10px] font-bold bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full">SLA: T+1</span>
+            </div>
+            <div class="text-xs font-black text-amber-950">Payment Pending / Debited</div>
+            <div class="text-[10px] text-slate-600 mt-1">UPI स्विच आणि बँक UTR reconciliation तपासेल</div>
+          </button>
+
+          <button onclick="window.agentEngine.processQuery('Refund not received yet 4 days passed')" class="p-3.5 bg-sky-50/70 hover:bg-sky-100/90 rounded-2xl border border-sky-200 text-left transition-all cursor-pointer">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xl">↩️</span>
+              <span class="text-[10px] font-bold bg-sky-200 text-sky-800 px-2 py-0.5 rounded-full">Reversal</span>
+            </div>
+            <div class="text-xs font-black text-sky-950">Refund अजून मिळाला नाही</div>
+            <div class="text-[10px] text-slate-600 mt-1">गेटवे आणि मर्चंट रिफंड सायकल ट्रॅक करून पुरावे देईल</div>
+          </button>
+
+          <button onclick="window.agentEngine.processQuery('Merchant claims payment not received but money debited')" class="p-3.5 bg-purple-50/70 hover:bg-purple-100/90 rounded-2xl border border-purple-200 text-left transition-all cursor-pointer">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xl">🏪</span>
+              <span class="text-[10px] font-bold bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full">Proof</span>
+            </div>
+            <div class="text-xs font-black text-purple-950">Merchant ला पैसे मिळाले नाहीत</div>
+            <div class="text-[10px] text-slate-600 mt-1">अधिकृत UTR सेटलमेंट पुरावा तयार करेल</div>
+          </button>
+
+          <button onclick="window.agentEngine.processQuery('MSEDCL bill paid but showing unpaid on portal')" class="p-3.5 bg-yellow-50/70 hover:bg-yellow-100/90 rounded-2xl border border-yellow-200 text-left transition-all cursor-pointer">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xl">💡</span>
+              <span class="text-[10px] font-bold bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded-full">Biller</span>
+            </div>
+            <div class="text-xs font-black text-yellow-950">Bill भरले पण Unpaid दिसते</div>
+            <div class="text-[10px] text-slate-600 mt-1">BBPS कन्फर्मेशन आणि ऑपरेटर तिकिटिंग सुरू करेल</div>
+          </button>
+
+          <button onclick="window.agentEngine.processQuery('Duplicate UPI debit double payment on order')" class="p-3.5 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-300 text-left transition-all cursor-pointer">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xl">🔁</span>
+              <span class="text-[10px] font-bold bg-slate-200 text-slate-800 px-2 py-0.5 rounded-full">Dual TXN</span>
+            </div>
+            <div class="text-xs font-black text-slate-900">दोनदा पैसे कापले गेले (Duplicate)</div>
+            <div class="text-[10px] text-slate-600 mt-1">दोन्ही व्यवहार पडताळून त्वरित रिव्हर्सल ट्रिगर करेल</div>
+          </button>
+        </div>
+
+        <!-- Quick 1-Tap Dispute Chips -->
+        <div class="pt-3 border-t border-slate-200/80">
+          <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2 flex items-center gap-1.5">
+            <span>🛡️</span> <span>Quick Investigation Starters:</span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="window.agentEngine.processQuery('माझे 599 कट झाले पण Jio Recharge झाला नाही')" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-900 text-xs font-bold rounded-xl border border-rose-200 cursor-pointer">🚨 599 कट झाले रिचार्ज नाही</button>
+            <button onclick="window.agentEngine.processQuery('Refund not received yet 4 days passed')" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-900 text-xs font-bold rounded-xl border border-sky-200 cursor-pointer">↩️ 4 दिवस झाले रिफंड नाही</button>
+            <button onclick="window.agentEngine.processQuery('Galti se dusre number par UPI transfer ho gaya')" class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold rounded-xl border border-amber-200 cursor-pointer">⚠️ चुकीच्या नंबरवर UPI ट्रान्सफर</button>
+            <button onclick="window.agentEngine.processQuery('Merchant claims payment not received but money debited')" class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-900 text-xs font-bold rounded-xl border border-purple-200 cursor-pointer">🏪 मर्चंट म्हणतो पैसे नाही मिळाले</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Activity History & Persistence
+  getActivityList() {
+    try {
+      const saved = localStorage.getItem('PAYTM_ACTIVITY_LOG');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.warn('LocalStorage error:', e);
+    }
+    // Pre-populate with high quality verified demo activities
+    return [
+      {
+        id: 'PTM9841029',
+        ref: 'IRCTC782194',
+        title: 'Shivneri AC Volvo (Pune ➔ Mumbai)',
+        subtitle: 'Confirmed Seat • Departs 08:30 AM',
+        amount: 495,
+        type: 'Bus Booking',
+        status: 'CONFIRMED',
+        date: '10:45 AM, Today'
+      },
+      {
+        id: 'PTM7890124',
+        ref: 'NPCI_AUTO_REVERSAL_24H',
+        title: 'Jio ₹599 Recharge Dispute Investigation',
+        subtitle: 'Auto-reversal SLA: within 24h at Telecom Switch',
+        amount: 599,
+        type: 'Dispute Docket',
+        status: 'INVESTIGATING',
+        date: '09:20 AM, Today'
+      },
+      {
+        id: 'PTM6291048',
+        ref: 'JIO902814',
+        title: 'Jio Prepaid 5G Booster Pack (2GB/Day)',
+        subtitle: '28 Days Validity + Unlimited 5G Data',
+        amount: 299,
+        type: 'Mobile Recharge',
+        status: 'CONFIRMED',
+        date: 'Yesterday'
+      }
+    ];
+  }
+
+  saveToActivity(item) {
+    try {
+      const list = this.getActivityList();
+      list.unshift(item);
+      localStorage.setItem('PAYTM_ACTIVITY_LOG', JSON.stringify(list.slice(0, 15)));
+      this.updateActivityBadge();
+    } catch (e) {
+      console.warn('Save activity error:', e);
+    }
+  }
+
+  updateActivityBadge() {
+    const list = this.getActivityList();
+    const badge = document.getElementById('activity-badge-count');
+    if (badge) badge.textContent = list.length;
+  }
+
+  openActivityDrawer() {
+    paytm.playSound('click');
+    const modal = document.getElementById('activity-drawer-modal');
+    const container = document.getElementById('activity-list-container');
+    if (!modal || !container) return;
+
+    const list = this.getActivityList();
+    if (list.length === 0) {
+      container.innerHTML = `
+        <div class="text-center py-12 text-slate-400">
+          <div class="text-4xl mb-2">📂</div>
+          <p class="text-sm font-semibold">No transactions or cases yet</p>
+        </div>
+      `;
+    } else {
+      container.innerHTML = list.map(item => `
+        <div class="p-3.5 bg-slate-50 hover:bg-white rounded-2xl border border-slate-200 shadow-2xs space-y-2 text-left transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${item.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-800' : (item.status === 'INVESTIGATING' ? 'bg-amber-100 text-amber-800' : 'bg-cyan-100 text-[#002970]')}">
+              ${item.status}
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono">${item.date || 'Today'}</span>
+          </div>
+
+          <div>
+            <div class="text-xs font-black text-slate-900">${item.title}</div>
+            <div class="text-[11px] text-slate-500">${item.subtitle}</div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1 border-t border-slate-200/60">
+            <span class="text-xs font-black text-[#002970]">₹${item.amount}</span>
+            <button onclick="window.agentEngine.generateOfficialReceipt(${JSON.stringify(item).replace(/"/g, '&quot;')})" class="text-[11px] font-bold text-cyan-600 hover:text-cyan-800 flex items-center gap-1 cursor-pointer">
+              <span>📄 View Receipt</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeActivityDrawer() {
+    paytm.playSound('click');
+    const modal = document.getElementById('activity-drawer-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+  }
+
+  clearActivityLog() {
+    paytm.playSound('click');
+    localStorage.removeItem('PAYTM_ACTIVITY_LOG');
+    this.updateActivityBadge();
+    this.openActivityDrawer();
+    paytm.showToast('Activity log cleared', 'info', '🗑️');
+  }
+
+  // Interactive Visual Soundbox Simulation
+  triggerSoundbox(amount = 299, merchant = 'Paytm Merchant', lang = this.activeLanguage) {
+    const soundbox = document.getElementById('paytm-soundbox-widget');
+    const led = document.getElementById('soundbox-led');
+    const waves = document.getElementById('soundbox-waves');
+    const statusText = document.getElementById('soundbox-status');
+
+    if (soundbox) {
+      soundbox.classList.add('scale-110');
+      setTimeout(() => soundbox.classList.remove('scale-110'), 800);
+    }
+
+    if (led) {
+      led.classList.remove('bg-emerald-400', 'shadow-[0_0_14px_#10b981]');
+      led.classList.add('bg-cyan-400', 'shadow-[0_0_20px_#00b9f1]', 'animate-ping');
+      setTimeout(() => {
+        led.classList.remove('animate-ping', 'bg-cyan-400', 'shadow-[0_0_20px_#00b9f1]');
+        led.classList.add('bg-emerald-400', 'shadow-[0_0_14px_#10b981]');
+      }, 3000);
+    }
+
+    if (waves) {
+      waves.classList.remove('opacity-60');
+      waves.classList.add('opacity-100');
+      setTimeout(() => {
+        waves.classList.remove('opacity-100');
+        waves.classList.add('opacity-60');
+      }, 3500);
+    }
+
+    if (statusText) {
+      statusText.textContent = `₹${amount} Recv! 🔊`;
+      setTimeout(() => {
+        statusText.textContent = 'Tap to Test Voice 🔊';
+      }, 4000);
+    }
+
+    // Play Voice Speech
+    let msg = `Paytm par ${amount} rupaye prapt hue`;
+    if (lang === 'mr') {
+      msg = `पेटीएम वर ${amount} रुपये मिळाले`;
+    } else if (lang === 'en') {
+      msg = `Rupees ${amount} received on Paytm`;
+    }
+    paytm.speakTextFallback(msg, lang === 'mr' ? 'mr-IN' : 'hi-IN');
+    paytm.playSound('paytm_success');
+  }
+
+  demoSoundbox() {
+    this.triggerSoundbox(299, 'Sharma Kirana Store', this.activeLanguage);
+    this.showWhatsAppNotification('Paytm Soundbox 4G Pro', 'Voice Alert Triggered: ₹299 received via Paytm UPI QR');
+  }
+
+  // Live WhatsApp / SMS Notification Toast
+  showWhatsAppNotification(title, message) {
+    const toast = document.getElementById('push-notification-toast');
+    const titleEl = document.getElementById('push-toast-title');
+    const msgEl = document.getElementById('push-toast-msg');
+    if (!toast || !titleEl || !msgEl) return;
+
+    paytm.playSound('chime');
+    titleEl.textContent = title || 'Paytm Alert';
+    msgEl.textContent = message || 'Transaction verified by NPCI.';
+
+    toast.classList.remove('-translate-y-40');
+    toast.classList.add('translate-y-0');
+
+    setTimeout(() => {
+      this.dismissPushToast();
+    }, 5500);
+  }
+
+  dismissPushToast() {
+    const toast = document.getElementById('push-notification-toast');
+    if (toast) {
+      toast.classList.remove('translate-y-0');
+      toast.classList.add('-translate-y-40');
+    }
+  }
+
+  // Official Printable PDF Receipt & Dispute Docket
+  generateOfficialReceipt(item) {
+    paytm.playSound('click');
+    const modal = document.getElementById('receipt-modal');
+    const area = document.getElementById('receipt-content-area');
+    if (!modal || !area) return;
+
+    const txnId = item.id || ('PTM' + Math.floor(100000000 + Math.random() * 900000000));
+    const ref = item.ref || ('NPCI' + Math.floor(10000000 + Math.random() * 90000000));
+    const isDispute = item.type && item.type.includes('Dispute');
+
+    area.innerHTML = `
+      <!-- Official Paytm Header -->
+      <div class="border-b-2 border-[#002970] pb-4 flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-2xl font-black text-[#002970] tracking-tight">paytm</span>
+            <span class="text-xs bg-[#00b9f1] text-[#002970] font-black px-2 py-0.5 rounded uppercase">ONE</span>
+          </div>
+          <p class="text-[11px] text-slate-500 font-medium mt-0.5">One97 Communications Ltd. • Official Transaction Docket</p>
+        </div>
+        <div class="text-right">
+          <span class="text-xs font-black px-2.5 py-1 rounded-full ${item.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+            ${item.status}
+          </span>
+          <div class="text-[10px] text-slate-400 font-mono mt-1">${new Date().toLocaleDateString()}</div>
+        </div>
+      </div>
+
+      <!-- Core Details Table -->
+      <div class="space-y-3 text-xs">
+        <div class="bg-slate-50 rounded-2xl p-4 space-y-2 border border-slate-200">
+          <div class="flex justify-between">
+            <span class="text-slate-500 font-semibold">${isDispute ? 'Case Reference ID:' : 'Transaction ID:'}</span>
+            <span class="font-bold text-slate-900 font-mono">#${txnId}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500 font-semibold">Gateway / Bank Ref:</span>
+            <span class="font-bold text-slate-900 font-mono">${ref}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500 font-semibold">Service Description:</span>
+            <span class="font-bold text-[#002970]">${item.title}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500 font-semibold">User Details:</span>
+            <span class="font-bold text-slate-800">Akash (+91 98765 43210)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500 font-semibold">Payment Channel:</span>
+            <span class="font-bold text-slate-800">Paytm UPI • Verified Handle</span>
+          </div>
+        </div>
+
+        <!-- Financial Breakdown -->
+        <div class="p-3 bg-blue-50/70 rounded-2xl border border-blue-200 space-y-1.5">
+          <div class="flex justify-between font-bold text-slate-700">
+            <span>Base Service Fee:</span>
+            <span>₹${item.amount}</span>
+          </div>
+          <div class="flex justify-between text-slate-500 text-[11px]">
+            <span>Convenience & Tax (GST 18%):</span>
+            <span class="text-emerald-600 font-bold">₹0.00 (Waived)</span>
+          </div>
+          <div class="flex justify-between font-black text-sm text-[#002970] pt-1.5 border-t border-blue-200">
+            <span>Total ${isDispute ? 'Claimed Amount' : 'Amount Paid'}:</span>
+            <span class="text-base text-emerald-600">₹${item.amount}</span>
+          </div>
+        </div>
+
+        <!-- Security & Legal Watermark -->
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[10px] text-slate-500 space-y-1">
+          <div class="flex items-center gap-1 text-[#002970] font-bold">
+            <span>🔒</span> <span>NPCI & RBI Regulatory SLA Compliance</span>
+          </div>
+          <p>This is a computer-generated docket issued under the Information Technology Act, 2000. Verified via Nexconn & You.com official regulatory feed.</p>
+        </div>
+      </div>
+    `;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeReceiptModal() {
+    paytm.playSound('click');
+    const modal = document.getElementById('receipt-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+  }
+
   async processQuery(query) {
     const container = document.getElementById('workspace-dynamic-content');
     if (container) {
@@ -857,6 +1413,28 @@ class PaytmAgentOrchestrator {
     const draft = res.complaint_draft || {};
     const evidence = res.evidence_bundle || {};
 
+    const caseId = res.transaction_id || ('PTM' + Math.floor(1000000 + Math.random() * 9000000));
+    const caseTitle = res.summary || 'Payment Dispute Investigation';
+    const caseRef = res.operator_reference || 'NPCI_AUTO_REVERSAL_24H';
+
+    // 1. Save to Persistent Activity History
+    this.saveToActivity({
+      id: caseId,
+      ref: caseRef,
+      title: caseTitle,
+      subtitle: res.resolution_path || 'Auto-reversal SLA: within 24h at Telecom Switch',
+      amount: res.amount || 599,
+      type: 'Dispute Docket',
+      status: 'INVESTIGATING',
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', Today'
+    });
+
+    // 2. Trigger WhatsApp Push Notification
+    this.showWhatsAppNotification(
+      'Paytm Resolve Alert',
+      `Investigation Docket #${caseId} registered with NPCI. Auto-reversal SLA: 24h.`
+    );
+
     const container = document.getElementById('workspace-dynamic-content');
     if (!container) return;
 
@@ -1119,6 +1697,20 @@ class PaytmAgentOrchestrator {
             <span>Open Real-Time Resolution Chat with Priya (Nexconn SDK)</span>
           </button>
         </div>
+
+        <!-- Download Official Dispute Docket Button -->
+        <button onclick="window.agentEngine.generateOfficialReceipt({
+          id: '${caseId}',
+          ref: '${caseRef}',
+          title: '${caseTitle.replace(/'/g, "\\'")}',
+          subtitle: 'Auto-reversal SLA: within 24h at Telecom Switch',
+          amount: ${res.amount || 599},
+          type: 'Dispute Investigation Docket',
+          status: 'INVESTIGATING'
+        })" class="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-50 text-[#002970] font-black text-xs border border-slate-300 flex items-center justify-center gap-2 cursor-pointer shadow-xs">
+          <span>📄</span>
+          <span>Download Official Dispute Docket & Investigation Report (PDF)</span>
+        </button>
 
         ${this.renderSuggestedChips(data.suggested_replies)}
       </div>
@@ -1743,6 +2335,27 @@ class PaytmAgentOrchestrator {
     const title = this.lastPaidTitle || 'Paytm Order';
     const subtitle = this.lastPaidSubtitle || 'Instant Confirmation';
 
+    // 1. Save to Persistent Activity History
+    this.saveToActivity({
+      id: txnId,
+      ref: opRef,
+      title: title,
+      subtitle: subtitle,
+      amount: amount,
+      type: 'Booking / Recharge',
+      status: 'CONFIRMED',
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', Today'
+    });
+
+    // 2. Trigger Real-Time Soundbox Voice & Green LED Pulse
+    this.triggerSoundbox(amount, title, this.activeLanguage);
+
+    // 3. Trigger WhatsApp Push Notification Banner
+    this.showWhatsAppNotification(
+      'Payment Confirmed ✓',
+      `₹${amount} paid for ${title}. Transaction ID #${txnId}`
+    );
+
     const heading = this.activeLanguage === 'mr' ? 'पेमेंट यशस्वी झाले!' : (this.activeLanguage === 'hi' ? 'भुगतान सफल हुआ!' : 'Payment Successful!');
     const desc = this.activeLanguage === 'mr' ? `₹${amount} यशस्वीरित्या पूर्ण: ${title}` : (this.activeLanguage === 'hi' ? `₹${amount} सफलतापूर्वक भुगतान किया गया: ${title}` : `₹${amount} paid successfully for ${title}`);
 
@@ -1780,6 +2393,19 @@ class PaytmAgentOrchestrator {
             <span class="text-slate-500">Paid Via</span>
             <span class="font-bold text-[#002970]">Paytm UPI • SBI XX4821</span>
           </div>
+
+          <button onclick="window.agentEngine.generateOfficialReceipt({
+            id: '${txnId}',
+            ref: '${opRef}',
+            title: '${title.replace(/'/g, "\\'")}',
+            subtitle: '${subtitle.replace(/'/g, "\\'")}',
+            amount: ${amount},
+            type: 'Payment Receipt',
+            status: 'CONFIRMED'
+          })" class="w-full mt-3 py-2 px-3 rounded-xl bg-white hover:bg-slate-100 text-[#002970] font-black text-xs border border-slate-300 flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs">
+            <span>📄</span>
+            <span>Download Official PDF Receipt</span>
+          </button>
         </div>
 
         <!-- Scratch Card -->
