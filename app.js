@@ -617,7 +617,12 @@ class PaytmAgentOrchestrator {
           <span class="text-xs font-black bg-sky-100 text-[#002970] px-3 py-1 rounded-full hidden sm:inline">10 Live Services</span>
         </div>
 
-        <p class="text-xs text-slate-600 mb-4 font-medium">खालीलपैकी कोणत्याही सेवेवर क्लिक करा किंवा खाली व्हॉइस/टेक्स्टने थेट बोला:</p>
+        <p class="text-xs text-slate-600 mb-3 font-medium">खालीलपैकी कोणत्याही सेवेवर क्लिक करा किंवा खाली व्हॉइस/टेक्स्टने थेट बोला:</p>
+
+        <!-- Authentic Action Mode Card Banner -->
+        <div class="mb-4 text-center">
+          <img src="assets/action_card_clean.png" alt="Action Mode Banner" class="max-h-24 sm:max-h-28 mx-auto rounded-2xl shadow-lg border-2 border-sky-300 hover:scale-102 transition-all">
+        </div>
 
         <!-- 10 Action Service Cards Grid -->
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3 mb-5">
@@ -729,6 +734,11 @@ class PaytmAgentOrchestrator {
         </div>
 
         <p class="text-xs text-slate-700 font-medium mb-3">तुम्हाला कोणती समस्या आली आहे? खालील पर्यायावर टॅप करा किंवा तुमची अडचण बोला/टाइप करा:</p>
+
+        <!-- Authentic Resolve Mode Card Banner -->
+        <div class="mb-4 text-center">
+          <img src="assets/resolve_card_clean.png" alt="Resolve Mode Banner" class="max-h-24 sm:max-h-28 mx-auto rounded-2xl shadow-lg border-2 border-emerald-400 hover:scale-102 transition-all">
+        </div>
 
         <!-- 6 Dispute Case Cards Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">

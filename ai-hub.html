@@ -99,6 +99,132 @@
       transform: scale(0.92);
     }
 
+    /* Stunning Glowing & Shining Animated Card Styles */
+    .mode-card-outer {
+      position: absolute;
+      border-radius: 20px;
+      z-index: 20;
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mode-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 20px;
+      pointer-events: none;
+      user-select: none;
+      position: relative;
+      z-index: 2;
+      filter: drop-shadow(0 8px 18px rgba(0, 41, 112, 0.16));
+    }
+
+    /* Shining Animated Neon Edge */
+    .shining-edge {
+      position: absolute;
+      inset: -4px;
+      border-radius: 24px;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.92;
+      transition: all 0.3s ease;
+    }
+
+    .action-edge {
+      background: linear-gradient(135deg, #00b9f1, #002970, #38bdf8, #00b9f1);
+      background-size: 300% 300%;
+      animation: neonFlow 3.5s ease infinite, neonPulseAction 2s ease-in-out infinite alternate;
+      box-shadow: 0 0 20px rgba(0, 185, 241, 0.6), inset 0 0 10px rgba(0, 185, 241, 0.3);
+    }
+
+    .resolve-edge {
+      background: linear-gradient(135deg, #10b981, #059669, #34d399, #10b981);
+      background-size: 300% 300%;
+      animation: neonFlow 3.5s ease infinite, neonPulseResolve 2s ease-in-out infinite alternate;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), inset 0 0 10px rgba(16, 185, 129, 0.3);
+    }
+
+    @keyframes neonFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes neonPulseAction {
+      0% { box-shadow: 0 0 14px rgba(0, 185, 241, 0.45); }
+      100% { box-shadow: 0 0 32px rgba(0, 185, 241, 0.95), 0 0 14px #ffffff; }
+    }
+
+    @keyframes neonPulseResolve {
+      0% { box-shadow: 0 0 14px rgba(16, 185, 129, 0.45); }
+      100% { box-shadow: 0 0 32px rgba(16, 185, 129, 0.95), 0 0 14px #ffffff; }
+    }
+
+    .mode-card-outer:hover {
+      transform: translateY(-4px) scale(1.025);
+    }
+
+    .action-card-outer:hover .shining-edge {
+      inset: -6px;
+      box-shadow: 0 0 38px rgba(0, 185, 241, 0.98), 0 0 20px #ffffff;
+    }
+
+    .resolve-card-outer:hover .shining-edge {
+      inset: -6px;
+      box-shadow: 0 0 38px rgba(16, 185, 129, 0.98), 0 0 20px #ffffff;
+    }
+
+    /* Hit areas inside card */
+    .card-hit-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 48%;
+      z-index: 5;
+      cursor: pointer;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .card-hit-top:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .sub-buttons-row {
+      position: absolute;
+      bottom: 5%;
+      left: 2%;
+      width: 96%;
+      height: 45%;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.5%;
+      z-index: 5;
+    }
+
+    .card-sub-hit {
+      background: transparent;
+      border: none;
+      outline: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .card-sub-hit:hover {
+      background: rgba(255, 255, 255, 0.38);
+      box-shadow: 0 0 14px rgba(255, 255, 255, 0.85);
+      transform: scale(1.06);
+    }
+
+    .card-sub-hit:active {
+      transform: scale(0.95);
+    }
+
     /* Top Sleek Breadcrumb / Back Bar */
     .top-nav-bar {
       width: min(980px, 94vw, calc((100vh - 85px) * 1.7818));
@@ -212,89 +338,47 @@
     </div>
 
 
-    <!-- ==================== 3. ACTION MODE CARD (LEFT) ==================== -->
-    <div onclick="openMode('action')" 
-         class="hotspot ripple-effect" 
-         title="Action Mode (Paytm ONE) — Click to open Dedicated Action Mode!"
-         style="left: 6.4%; top: 58.5%; width: 41.5%; height: 9.8%;">
-    </div>
+    <!-- ==================== 3. NEW ACTION MODE CARD (LEFT) WITH SHINING GLOW BORDER ==================== -->
+    <div class="mode-card-outer action-card-outer" style="left: 5.5%; top: 57.0%; width: 43.2%; height: 23.4%;">
+      <!-- Glowing Animated Shining Edge Border -->
+      <div class="shining-edge action-edge"></div>
+      
+      <!-- Clean Transparent Card Image -->
+      <img src="assets/action_card_clean.png" alt="Action Mode" class="mode-card-img">
+      
+      <!-- Full Card Click to Open Action Mode -->
+      <div onclick="openMode('action')" class="card-hit-top" title="Action Mode (Paytm ONE) — Click to Launch"></div>
 
-    <!-- 1. Recharge Button -->
-    <div onclick="quickAction('Recharge')" 
-         class="hotspot ripple-effect" 
-         title="Mobile Recharge / Bill"
-         style="left: 7.35%; top: 69.0%; width: 6.6%; height: 10.5%;">
-    </div>
-
-    <!-- 2. Travel Button -->
-    <div onclick="quickAction('Travel')" 
-         class="hotspot ripple-effect" 
-         title="Travel Booking"
-         style="left: 15.2%; top: 69.0%; width: 6.6%; height: 10.5%;">
-    </div>
-
-    <!-- 3. Shopping Button -->
-    <div onclick="quickAction('Shopping')" 
-         class="hotspot ripple-effect" 
-         title="Shopping & Store Deals"
-         style="left: 23.0%; top: 69.0%; width: 6.6%; height: 10.5%;">
-    </div>
-
-    <!-- 4. Bills Button -->
-    <div onclick="quickAction('Bills')" 
-         class="hotspot ripple-effect" 
-         title="Pay Electricity / Utility Bills"
-         style="left: 30.9%; top: 69.0%; width: 6.6%; height: 10.5%;">
-    </div>
-
-    <!-- 5. Offers Button -->
-    <div onclick="quickAction('Offers')" 
-         class="hotspot ripple-effect" 
-         title="Cashback & Offers"
-         style="left: 38.7%; top: 69.0%; width: 6.6%; height: 10.5%;">
+      <!-- 5 Sub-Buttons inside the Card -->
+      <div class="sub-buttons-row">
+        <button onclick="quickAction('Recharge')" class="card-sub-hit" title="Mobile Recharge / Bill"></button>
+        <button onclick="quickAction('Travel')" class="card-sub-hit" title="Travel & Flights"></button>
+        <button onclick="quickAction('Shopping')" class="card-sub-hit" title="Shopping Deals"></button>
+        <button onclick="quickAction('Bills')" class="card-sub-hit" title="Pay Electricity Bills"></button>
+        <button onclick="quickAction('Offers')" class="card-sub-hit" title="Cashback & Offers"></button>
+      </div>
     </div>
 
 
-    <!-- ==================== 4. RESOLVE MODE CARD (RIGHT) ==================== -->
-    <div onclick="openMode('resolve')" 
-         class="hotspot ripple-effect" 
-         title="Resolve Mode (Paytm Resolve) — Click to open Dedicated Dispute Investigation Mode!"
-         style="left: 51.5%; top: 58.5%; width: 42.0%; height: 9.8%;">
-    </div>
+    <!-- ==================== 4. NEW RESOLVE MODE CARD (RIGHT) WITH SHINING GLOW BORDER ==================== -->
+    <div class="mode-card-outer resolve-card-outer" style="left: 51.3%; top: 57.0%; width: 43.2%; height: 23.4%;">
+      <!-- Glowing Animated Shining Edge Border -->
+      <div class="shining-edge resolve-edge"></div>
 
-    <!-- 1. Pending Button -->
-    <div onclick="quickResolve('Pending')" 
-         class="hotspot ripple-effect" 
-         title="Check Pending Payments"
-         style="left: 52.4%; top: 69.0%; width: 6.6%; height: 10.5%;">
-    </div>
+      <!-- Clean Transparent Card Image -->
+      <img src="assets/resolve_card_clean.png" alt="Resolve Mode" class="mode-card-img">
 
-    <!-- 2. Refund Button -->
-    <div onclick="quickResolve('Refund')" 
-         class="hotspot ripple-effect" 
-         title="Track Refund Status"
-         style="left: 60.3%; top: 69.0%; width: 6.6%; height: 10.5%;">
-    </div>
+      <!-- Full Card Click to Open Resolve Mode -->
+      <div onclick="openMode('resolve')" class="card-hit-top" title="Resolve Mode (Paytm Resolve) — Click to Launch"></div>
 
-    <!-- 3. Failed Button -->
-    <div onclick="quickResolve('Failed Payment')" 
-         class="hotspot ripple-effect" 
-         title="Resolve Failed Transactions"
-         style="left: 68.1%; top: 69.0%; width: 6.6%; height: 10.5%;">
-    </div>
-
-    <!-- 4. Complaint Button -->
-    <div onclick="quickResolve('Complaint')" 
-         class="hotspot ripple-effect" 
-         title="Raise Payment Complaint"
-         style="left: 76.0%; top: 69.0%; width: 6.6%; height: 10.5%;">
-    </div>
-
-    <!-- 5. Track Button -->
-    <div onclick="quickResolve('Track')" 
-         class="hotspot ripple-effect" 
-         title="Track Open Issues"
-         style="left: 83.8%; top: 69.0%; width: 6.6%; height: 10.5%;">
+      <!-- 5 Sub-Buttons inside the Card -->
+      <div class="sub-buttons-row">
+        <button onclick="quickResolve('Pending')" class="card-sub-hit" title="Check Pending Payments"></button>
+        <button onclick="quickResolve('Refund')" class="card-sub-hit" title="Track Refund Status"></button>
+        <button onclick="quickResolve('Failed Payment')" class="card-sub-hit" title="Resolve Failed Transactions"></button>
+        <button onclick="quickResolve('Complaint')" class="card-sub-hit" title="Raise Payment Complaint"></button>
+        <button onclick="quickResolve('Track')" class="card-sub-hit" title="Track Open Issues"></button>
+      </div>
     </div>
 
 
