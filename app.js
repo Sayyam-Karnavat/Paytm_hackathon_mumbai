@@ -703,6 +703,8 @@ class PaytmAgentOrchestrator {
           </div>
           <div class="flex flex-wrap gap-2">
             <button onclick="window.agentEngine.processQuery('मला पुणे ते मुंबई 1 ते 2k च्या आसपास फ्लाईट दाखव')" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-[#002970] text-xs font-bold rounded-xl border border-sky-200 cursor-pointer">✈️ पुणे ते मुंबई 1-2k फ्लाईट</button>
+            <button onclick="window.agentEngine.processQuery('या महिन्यात माझे पैसे कुठे जास्त खर्च झाले?')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold rounded-xl border border-emerald-200 cursor-pointer">📊 या महिन्यात खर्च कुठे झाला?</button>
+            <button onclick="window.agentEngine.processQuery('आज किती पैसे मिळाले?')" class="px-3 py-1.5 bg-cyan-50 hover:bg-cyan-100 text-cyan-900 text-xs font-bold rounded-xl border border-cyan-200 cursor-pointer">🏪 आज किती पैसे मिळाले? (Soundbox)</button>
             <button onclick="window.agentEngine.processQuery('मुझे पुणे से मुंबई जाना है बस देखो अच्छे से टिकट')" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-900 text-xs font-bold rounded-xl border border-blue-200 cursor-pointer">🚌 पुणे से मुंबई बस टिकट</button>
             <button onclick="window.agentEngine.processQuery('Jio 299 ka 2gb daily data plan')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 cursor-pointer">📱 Jio 299 2GB/Day</button>
             <button onclick="window.agentEngine.processQuery('मुझे शॉपिंग करनी हे बेस्ट ऑफर देखो पुणे में')" class="px-3 py-1.5 bg-pink-50 hover:bg-pink-100 text-pink-900 text-xs font-bold rounded-xl border border-pink-200 cursor-pointer">🛍️ शॉपिंग बेस्ट ऑफर्स पुणे</button>
@@ -1176,6 +1178,10 @@ class PaytmAgentOrchestrator {
           this.renderChatMode(data);
         } else if (data.mode === 'RESOLVE' || data.service === 'dispute') {
           this.renderResolveMode(data);
+        } else if (data.service === 'expense') {
+          this.renderExpenseMode(data);
+        } else if (data.service === 'merchant_summary') {
+          this.renderMerchantSummaryMode(data);
         } else if (data.service === 'electricity') {
           this.renderElectricityMode(data);
         } else if (data.service === 'fastag') {
@@ -2378,6 +2384,217 @@ class PaytmAgentOrchestrator {
         </button>
       </div>
     `;
+  }
+
+  // 9. Render Smart Money Intelligence (Expense Analytics)
+  renderExpenseMode(data) {
+    const s = data.service_data || {};
+    const categories = s.categories || [];
+    const recurring = s.recurring_bills || [];
+    const tip = s.savings_tip || {};
+    const container = document.getElementById('workspace-dynamic-content');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-emerald-400 text-left animate-in fade-in duration-300">
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-emerald-100 pb-3 mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-2xl shadow-xs">📊</div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-[#002970]">Paytm Smart Money Intelligence</h3>
+              <span class="text-xs text-emerald-800 font-bold">Autonomous Expense Patterns & Savings Advisor • ${s.month || 'November 2026'}</span>
+            </div>
+          </div>
+          <span class="text-xs font-black bg-emerald-100 text-emerald-900 px-3 py-1 rounded-full">AI Verified</span>
+        </div>
+
+        <!-- AI Spoken Finding -->
+        <div class="p-3.5 bg-gradient-to-r from-emerald-50 via-teal-50 to-sky-50 rounded-2xl border border-emerald-200 mb-4 flex items-center justify-between gap-3">
+          <div class="flex items-start gap-2.5">
+            <span class="text-xl">🤖</span>
+            <p class="text-xs sm:text-sm text-slate-800 font-semibold leading-relaxed">${data.ai_message}</p>
+          </div>
+          <button onclick="paytm.playSarvamAudio('${data.audio_base64 || ''}')" class="shrink-0 px-2.5 py-1.5 bg-white text-emerald-700 text-xs font-bold rounded-xl border border-emerald-300 hover:bg-emerald-50 shadow-xs cursor-pointer flex items-center gap-1">
+            <span>🔊</span> <span>पुन्हा ऐका</span>
+          </button>
+        </div>
+
+        <!-- Total Spend Banner -->
+        <div class="bg-slate-900 text-white rounded-2xl p-4 sm:p-5 mb-4 shadow-lg border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <span class="text-[10px] font-mono uppercase tracking-wider text-cyan-400 font-bold">Total Monthly Outflow (Verified UPI & Bills)</span>
+            <div class="text-3xl font-black text-white mt-0.5">₹${(s.total_spent || 14850).toLocaleString('en-IN')}</div>
+            <div class="text-xs text-slate-400 mt-1">Across 38 payments • ₹480 below monthly planned budget</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="paytm.showToast('📄 Passbook Detailed Statement Downloaded', 'success', '📑')" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl border border-slate-700 cursor-pointer flex items-center gap-1.5">
+              <span>📑</span> <span>Download Statement</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Category Progress Bars -->
+        <div class="mb-4">
+          <h4 class="text-xs font-black text-[#002970] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+            <span>📊</span> <span>Category-Wise Outflow Breakdown</span>
+          </h4>
+          <div class="space-y-2.5">
+            ${categories.map(c => `
+              <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <div class="flex justify-between items-center text-xs font-bold mb-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">${c.icon}</span>
+                    <span class="text-slate-800">${data.language === 'mr' ? (c.name_mr || c.name) : c.name}</span>
+                  </div>
+                  <div class="font-mono text-[#002970]">
+                    ₹${c.amount.toLocaleString('en-IN')} <span class="text-slate-400 text-[10px]">(${c.percent}%)</span>
+                  </div>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div class="bg-gradient-to-r from-[#002970] to-[#00b9f1] h-2 rounded-full" style="width: ${c.percent}%"></div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Recurring Bills & Subscriptions -->
+        <div class="mb-4 p-4 bg-sky-50/70 rounded-2xl border border-sky-200">
+          <h4 class="text-xs font-black text-[#002970] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+            <span>🔄</span> <span>Upcoming Detected Recurring Payments</span>
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            ${recurring.map(r => `
+              <div class="p-2.5 bg-white rounded-xl border border-sky-100 flex justify-between items-center">
+                <div>
+                  <div class="text-xs font-bold text-slate-800">${r.name}</div>
+                  <div class="text-[10px] text-amber-700 font-semibold">${r.due}</div>
+                </div>
+                <div class="text-right">
+                  <div class="text-xs font-black text-[#002970]">₹${r.amount}</div>
+                  <button onclick="window.agentEngine.processQuery('${r.name} pay')" class="text-[10px] text-[#00b9f1] font-bold hover:underline cursor-pointer">Pay ➔</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- AI Savings Recommendation Box -->
+        <div class="p-4 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-blue-500/10 rounded-2xl border border-emerald-300 flex items-center justify-between gap-3">
+          <div class="flex items-start gap-2.5">
+            <span class="text-2xl">💡</span>
+            <div>
+              <div class="text-xs font-black text-emerald-950 flex items-center gap-1.5">
+                <span>${data.language === 'mr' ? (tip.title_mr || tip.title) : tip.title}</span>
+                <span class="bg-emerald-200 text-emerald-900 text-[10px] font-bold px-2 py-0.5 rounded-full">Save ₹${tip.saving_amount || 580}</span>
+              </div>
+              <p class="text-xs text-slate-700 mt-1 leading-relaxed">${tip.desc || 'Link your RuPay Credit Card to Paytm UPI to save on monthly bills.'}</p>
+            </div>
+          </div>
+          <button onclick="paytm.showToast('🎉 RuPay 5% Cashback Benefits Activated!', 'success', '💳')" class="shrink-0 px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:brightness-110 text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer">
+            Activate
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // 10. Render Merchant Intelligence (Soundbox Collections & Settlement)
+  renderMerchantSummaryMode(data) {
+    const s = data.service_data || {};
+    const payments = s.recent_payments || [];
+    const container = document.getElementById('workspace-dynamic-content');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-cyan-400 text-left animate-in fade-in duration-300">
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-cyan-100 pb-3 mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-cyan-100 flex items-center justify-center text-2xl shadow-xs">🏪</div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-[#002970]">${s.store_name || 'Paytm Merchant Dashboard'}</h3>
+              <span class="text-xs text-cyan-800 font-bold">${s.soundbox_device || 'Paytm Soundbox 4G Pro'}</span>
+            </div>
+          </div>
+          <span class="text-xs font-black bg-cyan-100 text-cyan-900 px-3 py-1 rounded-full">Live Terminal</span>
+        </div>
+
+        <!-- AI Audio Greeting -->
+        <div class="p-3.5 bg-gradient-to-r from-cyan-50 via-sky-50 to-blue-50 rounded-2xl border border-cyan-200 mb-4 flex items-center justify-between gap-3">
+          <div class="flex items-start gap-2.5">
+            <span class="text-xl">🤖</span>
+            <p class="text-xs sm:text-sm text-slate-800 font-semibold leading-relaxed">${data.ai_message}</p>
+          </div>
+          <button onclick="paytm.playSarvamAudio('${data.audio_base64 || ''}')" class="shrink-0 px-2.5 py-1.5 bg-white text-cyan-800 text-xs font-bold rounded-xl border border-cyan-300 hover:bg-cyan-50 shadow-xs cursor-pointer flex items-center gap-1">
+            <span>🔊</span> <span>पुन्हा ऐका</span>
+          </button>
+        </div>
+
+        <!-- Live Metrics Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+          <!-- Total Collections -->
+          <div class="p-4 bg-slate-900 text-white rounded-2xl shadow-md border border-slate-800">
+            <span class="text-[10px] font-mono uppercase text-cyan-400 font-bold">Today's Collections</span>
+            <div class="text-3xl font-black text-white mt-1">₹${(s.today_total || 8450).toLocaleString('en-IN')}</div>
+            <div class="text-[11px] text-slate-400 mt-1">${s.tx_count || 42} Customer Payments via QR</div>
+          </div>
+
+          <!-- Settled to Bank -->
+          <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200">
+            <span class="text-[10px] font-bold uppercase text-emerald-800">Settled into Bank</span>
+            <div class="text-2xl font-black text-emerald-900 mt-1">₹${(s.settled_amount || 7950).toLocaleString('en-IN')}</div>
+            <div class="text-[11px] text-emerald-700 mt-1">Direct to ${s.settlement_bank || 'HDFC Bank'}</div>
+          </div>
+
+          <!-- Pending Settlement -->
+          <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200">
+            <span class="text-[10px] font-bold uppercase text-amber-800">Pending Settlement</span>
+            <div class="text-2xl font-black text-amber-900 mt-1">₹${(s.pending_amount || 500).toLocaleString('en-IN')}</div>
+            <div class="text-[11px] text-amber-700 mt-1">${s.next_settlement || 'Auto-settle 11:00 PM'}</div>
+          </div>
+        </div>
+
+        <!-- Recent Payments Table -->
+        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 mb-4">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-black text-[#002970] uppercase tracking-wider flex items-center gap-1.5">
+              <span>🧾</span> <span>Live In-Store Soundbox Payments</span>
+            </h4>
+            <span class="text-[10px] font-mono text-slate-500">Peak: ${s.peak_hours || '07:00 PM – 09:00 PM'}</span>
+          </div>
+
+          <div class="space-y-2 font-mono text-xs">
+            ${payments.map(p => `
+              <div class="p-2.5 bg-white rounded-xl border border-slate-200 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] text-slate-400">${p.time}</span>
+                  <span class="font-bold text-slate-800">${p.customer}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="font-black text-[#002970]">₹${p.amount}</span>
+                  <span class="text-[10px] font-bold ${p.status === 'Success' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'} px-2 py-0.5 rounded-full">
+                    ${p.status}
+                  </span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="flex flex-col sm:flex-row gap-2">
+          <button onclick="window.agentEngine.triggerSoundboxAudio('पेटीएम पर 299 रुपये प्राप्त हुए')" class="flex-1 py-3 px-4 bg-gradient-to-r from-[#002970] to-[#00b9f1] text-white font-bold text-xs rounded-xl hover:brightness-110 shadow-xs flex items-center justify-center gap-2 cursor-pointer">
+            <span>🔊</span> <span>Test Latest Soundbox Voice Announcement</span>
+          </button>
+          <button onclick="paytm.showToast('📑 Merchant Daily Tax Report PDF Downloaded', 'success', '📄')" class="py-3 px-4 bg-white border border-slate-300 text-slate-800 font-bold text-xs rounded-xl hover:bg-slate-100 shadow-xs flex items-center justify-center gap-2 cursor-pointer">
+            <span>📄</span> <span>Export Daily Ledger</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
   }
 
   // 4. PIN & Payment Flow

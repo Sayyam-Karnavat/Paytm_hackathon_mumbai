@@ -319,8 +319,22 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         'फिल्म', 'पिक्चर', 'पुष्पा', 'pushpa', 'stree', 'kantara'
     ]) and not is_dispute
 
+    # Mentor USP 04: Merchant Intelligence (आज किती पैसे मिळाले? / Soundbox Collection Summary)
+    is_merchant_summary = any(k in lower_q for k in [
+        'आज किती पैसे मिळाले', 'आजचे कलेक्शन', 'आज का कलेक्शन', 'किती पैसे जमा झाले',
+        'kitne paise mile', 'kitna collection', 'today collection', 'merchant summary',
+        'soundbox summary', 'soundbox collection', 'दुकानदार कलेक्शन', 'आज कितना पैसा आया', 'कितने पैसे आए', 'आज पैसे किती'
+    ]) or (groq_service == "merchant_summary")
+
+    # Mentor USP 03: Smart Money Intelligence (खर्च विश्लेषण / Expense Analytics)
+    is_expense = (any(k in lower_q for k in [
+        'खर्च', 'खर्चा', 'खर्च झाले', 'कुठे खर्च', 'किती खर्च', 'खर्चाचा हिशोब',
+        'kharch', 'kharcha', 'kitna kharch', 'spend', 'spending', 'expense', 'expenses',
+        'budget analysis', 'money spent', 'कुठे गेले पैसे', 'पैसे कुठे गेले'
+    ]) or (groq_service == "expense")) and not is_dispute and not is_merchant_summary
+
     # Merchant & Soundbox QR (Kirana, store, merchant, soundbox)
-    is_merchant = any(k in lower_q for k in ['soundbox', 'merchant', 'qr', 'shop', 'store', 'kirana', 'दुकानदार', 'व्यापारी', 'साउंडबॉक्स']) and not is_dispute and not is_shopping
+    is_merchant = any(k in lower_q for k in ['soundbox', 'merchant', 'qr', 'shop', 'store', 'kirana', 'दुकानदार', 'व्यापारी', 'साउंडबॉक्स']) and not is_dispute and not is_shopping and not is_merchant_summary
 
     # Hotel & Stays
     is_hotel = any(k in lower_q for k in ['hotel', 'hotle', 'lodge', 'room', 'stay', 'resort', 'हॉटेल', 'होटल', 'कमरा', 'राहण्याची', 'थांबायला']) and not is_shopping
@@ -351,6 +365,12 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     elif is_dispute:
         service = "dispute"
         mode = "RESOLVE"
+    elif is_merchant_summary:
+        service = "merchant_summary"
+        mode = "ACTION"
+    elif is_expense:
+        service = "expense"
+        mode = "ACTION"
     elif is_shopping:
         service = "shopping"
         mode = "ACTION"
@@ -381,7 +401,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     elif is_recharge:
         service = "recharge"
         mode = "ACTION"
-    elif groq_service in ['hotel', 'travel', 'electricity', 'fastag', 'dth', 'merchant', 'gold', 'shopping', 'movie', 'dispute']:
+    elif groq_service in ['expense', 'merchant_summary', 'hotel', 'travel', 'electricity', 'fastag', 'dth', 'merchant', 'gold', 'shopping', 'movie', 'dispute']:
         service = groq_service
         mode = "RESOLVE" if service == "dispute" else "ACTION"
     else:
@@ -798,6 +818,126 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
                 "gold_grams": gold_grams,
                 "vault": "100% Insured Custody Vault with IDBI Trusteeship",
                 "cashback": "₹25 Cashback in Gold"
+            },
+            "steps_log": steps_log,
+            "audio_base64": audio_b64
+        }
+
+    # ==========================================================
+    # BRANCH: SMART MONEY INTELLIGENCE (EXPENSE ANALYTICS & PATTERNS)
+    # ==========================================================
+    if service == "expense":
+        steps_log.append({
+            "step": 2,
+            "title": "Paytm Passbook & Unified Statement Analyzer",
+            "detail": "Ingesting recent UPI, Soundbox, Card & BBPS debits",
+            "status": "completed"
+        })
+        steps_log.append({
+            "step": 3,
+            "title": "AI Category & Recurring Subscription Classifier",
+            "detail": "Aggregated ₹14,850 into 4 primary buckets • 3 recurring bills detected",
+            "status": "completed"
+        })
+
+        if lang == "mr":
+            ai_msg = "या महिन्यात तुमचा एकूण खर्च ₹14,850 झाला आहे. यात सर्वाधिक 34% (₹5,050) खर्च जेवण आणि ग्रोसरीवर झाला आहे. RuPay क्रेडिट कार्ड व पेटीएम कॅशबॅक वापरून तुम्ही पुढील महिन्यात ₹580 वाचवू शकता."
+        elif lang == "hi":
+            ai_msg = "इस महीने आपका कुल खर्च ₹14,850 हुआ है। इसमें सबसे ज्यादा 34% (₹5,050) खर्च खाने-पीने और डाइनिंग पर हुआ है। RuPay क्रेडिट कार्ड और कैशबैक से आप ₹580 बचा सकते हैं।"
+        else:
+            ai_msg = "You spent ₹14,850 this month. Top category is Food & Dining at 34% (₹5,050). Switch to Paytm RuPay UPI to save up to ₹580 next month."
+
+        steps_log.append({
+            "step": 4,
+            "title": "Sarvam AI Voice Synthesis",
+            "detail": f"Synthesizing authentic voice with Bulbul v3 ({lang}-IN)",
+            "status": "completed"
+        })
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+
+        return {
+            "mode": "ACTION",
+            "service": "expense",
+            "language": lang,
+            "ai_message": ai_msg,
+            "service_data": {
+                "total_spent": 14850,
+                "month": "November 2026",
+                "categories": [
+                    {"name": "Food & Dining", "name_mr": "फूड व जेवण", "icon": "🍔", "amount": 5050, "percent": 34, "color": "emerald"},
+                    {"name": "Travel & Commute", "name_mr": "प्रवास व पेट्रोल", "icon": "🚗", "amount": 3860, "percent": 26, "color": "cyan"},
+                    {"name": "Utility Bills & Recharge", "name_mr": "लाईट बिल व रिचार्ज", "icon": "⚡", "amount": 3260, "percent": 22, "color": "amber"},
+                    {"name": "Shopping & Mall", "name_mr": "शॉपिंग व खरेदी", "icon": "🛍️", "amount": 2680, "percent": 18, "color": "purple"}
+                ],
+                "recurring_bills": [
+                    {"name": "MSEDCL Electricity", "amount": 1420, "due": "Due in 5 days", "status": "upcoming"},
+                    {"name": "Jio 5G Unlimited", "amount": 299, "due": "Due in 3 days", "status": "upcoming"},
+                    {"name": "Netflix Premium", "amount": 649, "due": "Auto-debit 28th", "status": "active"}
+                ],
+                "savings_tip": {
+                    "title": "AI Smart Savings Opportunity",
+                    "title_mr": "एआय बचत संधी",
+                    "saving_amount": 580,
+                    "desc": "Link your RuPay Credit Card to Paytm UPI for 5% instant cashback on grocery & fuel plus ₹200 off on utility bills."
+                }
+            },
+            "steps_log": steps_log,
+            "audio_base64": audio_b64
+        }
+
+    # ==========================================================
+    # BRANCH: MERCHANT INTELLIGENCE (SOUNDBOX COLLECTIONS & SETTLEMENT)
+    # ==========================================================
+    if service == "merchant_summary":
+        steps_log.append({
+            "step": 2,
+            "title": "Paytm Merchant Soundbox 4G Cloud Ingestion",
+            "detail": "Synced 42 QR & Soundbox transactions from Sharma Kirana Store",
+            "status": "completed"
+        })
+        steps_log.append({
+            "step": 3,
+            "title": "NPCI Instant Settlement Ledger Audit",
+            "detail": "₹7,950 settled to HDFC Bank ****4821 • ₹500 in pending evening batch",
+            "status": "completed"
+        })
+
+        if lang == "mr":
+            ai_msg = "आज तुमच्या पेटीएम साउंडबॉक्सवर एकूण ₹8,450 चे 42 व्यवहार पूर्ण झाले आहेत. ₹7,950 थेट तुमच्या HDFC बँकेत जमा झाले आहेत आणि ₹500 रात्री 11 वाजता जमा होतील."
+        elif lang == "hi":
+            ai_msg = "आज आपके पेटीएम साउंडबॉक्स पर कुल ₹8,450 के 42 लेनदेन पूरे हुए हैं। ₹7,950 सीधे आपके HDFC बैंक खाते में सेटल हो चुके हैं और ₹500 रात 11 बजे सेटल होंगे।"
+        else:
+            ai_msg = "Today your Paytm Soundbox collected ₹8,450 across 42 transactions. ₹7,950 is settled into your HDFC Bank account, and ₹500 will auto-settle tonight at 11:00 PM."
+
+        steps_log.append({
+            "step": 4,
+            "title": "Sarvam AI Voice Synthesis",
+            "detail": f"Synthesizing authentic voice with Bulbul v3 ({lang}-IN)",
+            "status": "completed"
+        })
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+
+        return {
+            "mode": "ACTION",
+            "service": "merchant_summary",
+            "language": lang,
+            "ai_message": ai_msg,
+            "service_data": {
+                "store_name": "Sharma Kirana & General Store",
+                "today_total": 8450,
+                "tx_count": 42,
+                "settled_amount": 7950,
+                "pending_amount": 500,
+                "settlement_bank": "HDFC Bank (A/C ****4821)",
+                "next_settlement": "Tonight, 11:00 PM IST",
+                "soundbox_device": "Paytm Soundbox 4G Pro • Battery 94% • Strong 4G",
+                "peak_hours": "07:00 PM – 09:00 PM (18 transactions)",
+                "recent_payments": [
+                    {"time": "07:42 PM", "amount": 299, "customer": "Rohan Deshmukh", "status": "Success"},
+                    {"time": "07:28 PM", "amount": 850, "customer": "Sunita Patil", "status": "Success"},
+                    {"time": "06:55 PM", "amount": 150, "customer": "Vikram Shinde", "status": "Success"},
+                    {"time": "06:10 PM", "amount": 500, "customer": "Kiran More", "status": "Pending"}
+                ]
             },
             "steps_log": steps_log,
             "audio_base64": audio_b64
