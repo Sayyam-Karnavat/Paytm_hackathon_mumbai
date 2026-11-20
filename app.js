@@ -1192,7 +1192,6 @@ class PaytmAgentOrchestrator {
       </div>
     `;
   }
-  }
 
   // 3B. Render Hotel Mode (SerpApi Budget Hotels Near Airport)
   renderHotelMode(data) {
@@ -1326,13 +1325,6 @@ class PaytmAgentOrchestrator {
                 <span>🎁</span>
                 <span>Claim Offer with Paytm UPI</span>
               </button>
-            </div>
-          `).join('')}
-        </div>
-
-        ${this.renderSuggestedChips(data.suggested_replies)}
-      </div>
-    `;
             </div>
           `).join('')}
         </div>
