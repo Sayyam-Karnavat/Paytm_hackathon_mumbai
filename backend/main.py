@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 from backend.orchestrator import orchestrate_query
+from backend.agents.sarvam_agent import generate_sarvam_speech
 
 app = FastAPI(
     title="Paytm AI Hub API",
@@ -30,13 +31,29 @@ class QueryRequest(BaseModel):
     language: Optional[str] = "auto"
 
 
+class TTSRequest(BaseModel):
+    text: str
+    language_code: Optional[str] = "hi-IN"
+    speaker: Optional[str] = "priya"
+
+
 @app.get("/")
 def root():
     return {
         "status": "online",
         "product": "Paytm AI Hub",
-        "sponsor_integrations": ["SerpApi", "You.com", "Nexconn Chat SDK"]
+        "sponsor_integrations": ["SerpApi", "You.com", "Nexconn Chat SDK", "Sarvam AI"]
     }
+
+
+@app.post("/api/tts")
+def handle_tts(req: TTSRequest):
+    if not req.text.strip():
+        raise HTTPException(status_code=400, detail="Text cannot be empty")
+    audio = generate_sarvam_speech(req.text, req.language_code, req.speaker)
+    if audio:
+        return {"status": "success", "audio_base64": audio}
+    return {"status": "error", "message": "Failed to generate audio"}
 
 
 @app.post("/api/chat")

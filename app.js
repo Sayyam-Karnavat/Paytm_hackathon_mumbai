@@ -151,9 +151,18 @@ class PaytmApp {
     try {
       if (this.activeVoiceAudio) {
         this.activeVoiceAudio.pause();
+        this.activeVoiceAudio.currentTime = 0;
       }
       this.activeVoiceAudio = new Audio("data:audio/wav;base64," + base64Audio);
-      this.activeVoiceAudio.play().catch(e => console.warn("Sarvam audio play error:", e));
+      this.activeVoiceAudio.volume = 1.0;
+      const p = this.activeVoiceAudio.play();
+      if (p !== undefined) {
+        p.then(() => {
+          console.log("[Sarvam AI] Playing audio successfully!");
+        }).catch(e => {
+          console.warn("Sarvam audio play error:", e);
+        });
+      }
     } catch (e) {
       console.warn("Audio load error:", e);
     }
@@ -972,14 +981,34 @@ class PaytmAgentOrchestrator {
       }, 4000);
     }
 
-    // Play Voice Speech
+    // Play Voice Speech using Sarvam AI Bulbul v3 with fallback
     let msg = `Paytm par ${amount} rupaye prapt hue`;
+    let ttsLang = 'hi-IN';
     if (lang === 'mr') {
       msg = `पेटीएम वर ${amount} रुपये मिळाले`;
+      ttsLang = 'mr-IN';
     } else if (lang === 'en') {
       msg = `Rupees ${amount} received on Paytm`;
+      ttsLang = 'en-IN';
     }
-    paytm.speakTextFallback(msg, lang === 'mr' ? 'mr-IN' : 'hi-IN');
+
+    fetch('http://localhost:8000/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: msg, language_code: ttsLang, speaker: 'priya' })
+    })
+    .then(r => r.json())
+    .then(d => {
+      if (d.audio_base64) {
+        paytm.playSarvamAudio(d.audio_base64);
+      } else {
+        paytm.speakTextFallback(msg, ttsLang);
+      }
+    })
+    .catch(() => {
+      paytm.speakTextFallback(msg, ttsLang);
+    });
+
     paytm.playSound('paytm_success');
   }
 
