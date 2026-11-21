@@ -5,7 +5,11 @@ Enables Live Human Agent Handoff, Dispute Room Creation & Real-Time Messaging.
 import os
 from dotenv import load_dotenv
 
-load_dotenv('C:/Users/hp/paytmone/backend/.env', override=True)
+env_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+if os.path.exists(env_file):
+    load_dotenv(env_file, override=True)
+else:
+    load_dotenv(override=True)
 NEXCONN_APP_KEY = os.getenv("NEXCONN_APP_KEY", "m7ua80gbmcxrm")
 
 

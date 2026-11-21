@@ -6,7 +6,11 @@ import json
 import requests
 from dotenv import load_dotenv
 
-load_dotenv('C:/Users/hp/paytmone/backend/.env', override=True)
+env_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+if os.path.exists(env_file):
+    load_dotenv(env_file, override=True)
+else:
+    load_dotenv(override=True)
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL = "qwen/qwen3.8-27b"
 

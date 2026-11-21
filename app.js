@@ -46,7 +46,7 @@ class PaytmApp {
     this.speechRecognition = null;
     this.isListening = false;
     this.currentLanguage = 'hi-IN'; // Default: Hindi as requested
-    this.backendUrl = 'http://localhost:8000';
+    this.backendUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '5500' ? 'http://localhost:8000' : '';
     this.activeVoiceAudio = null;
     this.selectedOperator = 'jio';
     this.selectedCategory = 'recommended';
@@ -1144,7 +1144,7 @@ class PaytmAgentOrchestrator {
       ttsLang = 'en-IN';
     }
 
-    fetch('http://localhost:8000/api/tts', {
+    fetch(`${this.backendUrl}/api/tts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: msg, language_code: ttsLang, speaker: 'priya' })
@@ -1306,7 +1306,8 @@ class PaytmAgentOrchestrator {
     }
 
     try {
-      const resp = await fetch('http://localhost:8000/api/chat', {
+      const apiBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '5500' ? 'http://localhost:8000' : '';
+      const resp = await fetch(`${apiBase}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: query, user_id: 'paytm_user_01' })

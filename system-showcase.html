@@ -1039,7 +1039,8 @@
 
       // Call Backend API
       try {
-        const resp = await fetch('http://localhost:8000/api/chat', {
+        const apiBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '5500' ? 'http://localhost:8000' : '';
+        const resp = await fetch(`${apiBase}/api/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query: cfg.query, user_id: 'judge_eval_01' })
