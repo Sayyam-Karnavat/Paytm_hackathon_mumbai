@@ -1069,7 +1069,7 @@
           }
 
           if (activeAudioBase64 && window.paytm) {
-            window.paytm.playSarvamAudio(activeAudioBase64);
+            window.paytm.playSarvamAudio(activeAudioBase64, d.ai_message, activeWorkflowMode === 'action' ? 'mr-IN' : 'hi-IN');
           }
         }
       } catch (err) {
@@ -1102,11 +1102,12 @@
     }
 
     function playWorkflowAudio() {
+      const msg = document.getElementById('workflow-ai-msg').textContent;
+      const lang = activeWorkflowMode === 'action' ? 'mr-IN' : 'hi-IN';
       if (activeAudioBase64 && window.paytm) {
-        window.paytm.playSarvamAudio(activeAudioBase64);
-      } else {
-        const msg = document.getElementById('workflow-ai-msg').textContent;
-        if (window.paytm) window.paytm.speakTextFallback(msg);
+        window.paytm.playSarvamAudio(activeAudioBase64, msg, lang);
+      } else if (window.paytm) {
+        window.paytm.speakTextFallback(msg, lang);
       }
     }
 

@@ -146,44 +146,181 @@ class PaytmApp {
     }
   }
 
-  playSarvamAudio(base64Audio) {
-    if (!this.soundEnabled || !base64Audio) return;
+  b64toBlob(b64Data, contentType = 'audio/wav') {
+    try {
+      const cleanB64 = b64Data.replace(/^data:audio\/\w+;base64,/, '').trim();
+      const byteCharacters = atob(cleanB64);
+      const byteArrays = [];
+      const sliceSize = 1024;
+      for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        const slice = byteCharacters.slice(offset, offset + sliceSize);
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+        byteArrays.push(new Uint8Array(byteNumbers));
+      }
+      return new Blob(byteArrays, { type: contentType });
+    } catch (e) {
+      console.warn('[Sarvam AI] b64toBlob error:', e);
+      return null;
+    }
+  }
+
+  playSarvamAudio(base64Audio, fallbackText = null, targetLang = null) {
+    if (!this.soundEnabled) return;
+    if (base64Audio) this.lastAudioBase64 = base64Audio;
+    if (fallbackText) this.lastSpokenText = fallbackText;
+    if (targetLang) this.lastSpokenLang = targetLang;
+
+    if (!base64Audio) {
+      if (fallbackText) this.speakTextFallback(fallbackText, targetLang || this.currentLanguage);
+      return;
+    }
+
     try {
       if (this.activeVoiceAudio) {
         this.activeVoiceAudio.pause();
         this.activeVoiceAudio.currentTime = 0;
+        this.activeVoiceAudio = null;
       }
-      this.activeVoiceAudio = new Audio("data:audio/wav;base64," + base64Audio);
+
+      const blob = this.b64toBlob(base64Audio, 'audio/wav');
+      let audioSrc;
+      if (blob) {
+        audioSrc = URL.createObjectURL(blob);
+      } else {
+        audioSrc = "data:audio/wav;base64," + base64Audio;
+      }
+
+      this.activeVoiceAudio = new Audio(audioSrc);
       this.activeVoiceAudio.volume = 1.0;
+      this.setSpeakerPlayingState(true);
+
       const p = this.activeVoiceAudio.play();
       if (p !== undefined) {
         p.then(() => {
           console.log("[Sarvam AI] Playing audio successfully!");
+          this.hideAutoplayPill();
         }).catch(e => {
-          console.warn("Sarvam audio play error:", e);
+          console.warn("[Sarvam AI] Autoplay restricted by browser policy, queuing for tap:", e);
+          this.setSpeakerPlayingState(false);
+          this.showAutoplayPill(fallbackText || 'Paytm Sarvam Voice');
+
+          // Automatic one-tap resume on ANY user gesture anywhere on page
+          const unlockHandler = () => {
+            if (this.lastAudioBase64) {
+              this.replayAudio();
+            }
+            document.removeEventListener('click', unlockHandler);
+            document.removeEventListener('touchstart', unlockHandler);
+          };
+          document.addEventListener('click', unlockHandler, { once: true });
+          document.addEventListener('touchstart', unlockHandler, { once: true });
         });
       }
+
+      this.activeVoiceAudio.onended = () => {
+        this.setSpeakerPlayingState(false);
+      };
+      this.activeVoiceAudio.onerror = (err) => {
+        console.warn("[Sarvam AI] HTML5 Audio playback error, falling back to Web Speech:", err);
+        this.setSpeakerPlayingState(false);
+        if (fallbackText) {
+          this.speakTextFallback(fallbackText, targetLang || this.currentLanguage);
+        }
+      };
     } catch (e) {
-      console.warn("Audio load error:", e);
+      console.warn("[Sarvam AI] Audio element error:", e);
+      this.setSpeakerPlayingState(false);
+      if (fallbackText) {
+        this.speakTextFallback(fallbackText, targetLang || this.currentLanguage);
+      }
     }
   }
 
+  replayAudio() {
+    this.playSound('click');
+    if (this.lastAudioBase64) {
+      this.playSarvamAudio(this.lastAudioBase64, this.lastSpokenText, this.lastSpokenLang);
+    } else if (this.lastSpokenText) {
+      this.speakTextFallback(this.lastSpokenText, this.lastSpokenLang || this.currentLanguage);
+    } else {
+      this.showToast('🔊 व्हॉईस क्लिप तयार आहे, पुन्हा टॅप करा.', 'info', 'ℹ️');
+    }
+  }
+
+  setSpeakerPlayingState(isPlaying) {
+    const btns = document.querySelectorAll('.sarvam-voice-btn');
+    btns.forEach(b => {
+      if (isPlaying) {
+        b.classList.add('ring-2', 'ring-cyan-400', 'animate-pulse');
+        const icon = b.querySelector('.speaker-icon');
+        if (icon) icon.textContent = '🔊';
+      } else {
+        b.classList.remove('ring-2', 'ring-cyan-400', 'animate-pulse');
+        const icon = b.querySelector('.speaker-icon');
+        if (icon) icon.textContent = '🔈';
+      }
+    });
+  }
+
+  showAutoplayPill(title) {
+    let pill = document.getElementById('audio-floating-pill');
+    if (!pill) {
+      pill = document.createElement('div');
+      pill.id = 'audio-floating-pill';
+      pill.className = 'fixed bottom-20 right-4 sm:right-6 z-50 bg-gradient-to-r from-[#002970] via-[#0052cc] to-[#00b9f1] text-white px-4 py-2.5 rounded-2xl shadow-2xl border border-white/50 flex items-center gap-2.5 cursor-pointer hover:scale-105 transition-transform animate-bounce';
+      pill.onclick = () => {
+        paytm.replayAudio();
+        paytm.hideAutoplayPill();
+      };
+      document.body.appendChild(pill);
+    }
+    pill.innerHTML = `
+      <span class="text-xl">🎙️</span>
+      <div class="text-left">
+        <div class="text-[10px] font-black uppercase tracking-wider text-cyan-200">Sarvam AI Voice Ready</div>
+        <div class="text-xs font-bold flex items-center gap-1">आवाज ऐका <span>🔊</span></div>
+      </div>
+    `;
+    pill.style.display = 'flex';
+  }
+
+  hideAutoplayPill() {
+    const pill = document.getElementById('audio-floating-pill');
+    if (pill) pill.style.display = 'none';
+  }
+
   speakTextFallback(text, lang = this.currentLanguage) {
-    if (!this.speechSynthesis) return;
+    if (!('speechSynthesis' in window)) return;
     try {
-      this.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = lang;
-      utterance.rate = 1.0;
-      utterance.pitch = 1.05;
+      window.speechSynthesis.cancel();
+      const clean = (text || '')
+        .replace(/[\*\#\_\[\]\(\)\{\}\<\>•–—\|]/g, ' ')
+        .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (!clean) return;
 
-      const voices = this.speechSynthesis.getVoices();
-      const matchingVoice = voices.find(v => v.lang.includes(lang.split('-')[0]) || v.name.includes('Hindi') || v.name.includes('India'));
-      if (matchingVoice) utterance.voice = matchingVoice;
+      const utterance = new SpeechSynthesisUtterance(clean);
+      let targetLang = lang || 'hi-IN';
+      if (targetLang.includes('mr')) targetLang = 'mr-IN';
+      else if (targetLang.includes('hi')) targetLang = 'hi-IN';
+      else targetLang = 'en-IN';
+      utterance.lang = targetLang;
+      utterance.rate = 0.95;
+      utterance.pitch = 1.0;
 
-      this.speechSynthesis.speak(utterance);
+      const voices = window.speechSynthesis.getVoices();
+      if (voices && voices.length > 0) {
+        const matched = voices.find(v => v.lang.startsWith(targetLang.substring(0, 2)) || v.name.includes('Hindi') || v.name.includes('Marathi') || v.name.includes('India'));
+        if (matched) utterance.voice = matched;
+      }
+
+      window.speechSynthesis.speak(utterance);
     } catch (e) {
-      console.warn('TTS error:', e);
+      console.warn('[Web Speech] Fallback error:', e);
     }
   }
 
@@ -1152,7 +1289,7 @@ class PaytmAgentOrchestrator {
     .then(r => r.json())
     .then(d => {
       if (d.audio_base64) {
-        paytm.playSarvamAudio(d.audio_base64);
+        paytm.playSarvamAudio(d.audio_base64, msg, ttsLang);
       } else {
         paytm.speakTextFallback(msg, ttsLang);
       }
@@ -1319,11 +1456,9 @@ class PaytmAgentOrchestrator {
         this.activeLanguage = data.language || 'hi';
 
         // Play Sarvam AI Speech or browser fallback
-        if (data.audio_base64) {
-          paytm.playSarvamAudio(data.audio_base64);
-        } else {
-          paytm.speakTextFallback(data.ai_message);
-        }
+        const aiMsg = data.ai_message || '';
+        const ttsLang = (data.language === 'mr' ? 'mr-IN' : (data.language === 'en' ? 'en-IN' : 'hi-IN'));
+        paytm.playSarvamAudio(data.audio_base64, aiMsg, ttsLang);
 
         if (data.mode === 'CHAT' || data.service === 'chat') {
           this.renderChatMode(data);
@@ -1401,8 +1536,8 @@ class PaytmAgentOrchestrator {
               <p class="text-xs text-slate-500 font-semibold">Universal Action Squad & Dispute Resolution Partner</p>
             </div>
           </div>
-          <button onclick="paytm.playSarvamAudio('${data.audio_base64 || ''}')" class="px-3 py-1.5 rounded-xl bg-cyan-50 text-cyan-800 font-bold text-xs border border-cyan-200 hover:bg-cyan-100 flex items-center gap-1 cursor-pointer">
-            <span>🔊</span> <span>पुन्हा ऐका</span>
+          <button onclick="paytm.replayAudio()" class="sarvam-voice-btn px-3 py-1.5 rounded-xl bg-cyan-50 text-cyan-800 font-bold text-xs border border-cyan-200 hover:bg-cyan-100 flex items-center gap-1.5 cursor-pointer shadow-xs transition-all">
+            <span class="speaker-icon">🔊</span> <span>आवाज ऐका (Sarvam AI)</span>
           </button>
         </div>
 
@@ -1490,14 +1625,19 @@ class PaytmAgentOrchestrator {
             🤖
           </div>
           <div class="flex-1">
-            <div class="flex items-center gap-2 mb-1 flex-wrap">
-              <span class="text-xs font-black tracking-wider text-[#002970] uppercase">Paytm ONE • AI Commander</span>
-              <span class="text-[10px] font-bold bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded-full">
-                🌐 ${data.language === 'hi' ? 'हिंदी (Hindi)' : (data.language === 'en' ? 'English' : 'मराठी')}
-              </span>
-              <span class="text-[10px] font-bold bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">
-                🎙️ Sarvam AI Audio Active
-              </span>
+            <div class="flex items-center justify-between mb-1 flex-wrap gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs font-black tracking-wider text-[#002970] uppercase">Paytm ONE • AI Commander</span>
+                <span class="text-[10px] font-bold bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded-full">
+                  🌐 ${data.language === 'hi' ? 'हिंदी (Hindi)' : (data.language === 'en' ? 'English' : 'मराठी')}
+                </span>
+                <span class="text-[10px] font-bold bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">
+                  🎙️ Sarvam AI Audio
+                </span>
+              </div>
+              <button onclick="paytm.replayAudio()" class="sarvam-voice-btn px-2.5 py-1 bg-gradient-to-r from-purple-50 to-indigo-50 hover:bg-purple-100 text-purple-900 border border-purple-200 font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-xs cursor-pointer transition-all">
+                <span class="speaker-icon">🔊</span> <span>आवाज ऐका</span>
+              </button>
             </div>
             <p class="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed">${data.ai_message}</p>
           </div>
@@ -1821,9 +1961,14 @@ class PaytmAgentOrchestrator {
 
         <!-- AI Investigation Verbal Finding -->
         <div class="p-4 bg-gradient-to-r from-red-50 via-rose-50 to-orange-50 rounded-2xl border-2 border-red-200">
-          <div class="flex items-center gap-2 mb-1">
-            <span class="text-sm">🤖</span>
-            <span class="text-xs font-black uppercase tracking-wider text-[#002970]">Paytm Resolve Commander Finding</span>
+          <div class="flex items-center justify-between mb-1 gap-2 flex-wrap">
+            <div class="flex items-center gap-2">
+              <span class="text-sm">🤖</span>
+              <span class="text-xs font-black uppercase tracking-wider text-[#002970]">Paytm Resolve Commander Finding</span>
+            </div>
+            <button onclick="paytm.replayAudio()" class="sarvam-voice-btn px-2.5 py-1 bg-white hover:bg-red-50 text-red-700 border border-red-200 font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-xs cursor-pointer transition-all">
+              <span class="speaker-icon">🔊</span> <span>आवाज ऐका (Sarvam AI)</span>
+            </button>
           </div>
           <p class="text-xs sm:text-sm text-slate-800 font-semibold leading-relaxed">${data.ai_message || res.finding}</p>
         </div>
@@ -2566,8 +2711,8 @@ class PaytmAgentOrchestrator {
             <span class="text-xl">🤖</span>
             <p class="text-xs sm:text-sm text-slate-800 font-semibold leading-relaxed">${data.ai_message}</p>
           </div>
-          <button onclick="paytm.playSarvamAudio('${data.audio_base64 || ''}')" class="shrink-0 px-2.5 py-1.5 bg-white text-emerald-700 text-xs font-bold rounded-xl border border-emerald-300 hover:bg-emerald-50 shadow-xs cursor-pointer flex items-center gap-1">
-            <span>🔊</span> <span>पुन्हा ऐका</span>
+          <button onclick="paytm.replayAudio()" class="sarvam-voice-btn shrink-0 px-2.5 py-1.5 bg-white text-emerald-700 text-xs font-bold rounded-xl border border-emerald-300 hover:bg-emerald-50 shadow-xs cursor-pointer flex items-center gap-1.5 transition-all">
+            <span class="speaker-icon">🔊</span> <span>आवाज ऐका</span>
           </button>
         </div>
 
@@ -2678,8 +2823,8 @@ class PaytmAgentOrchestrator {
             <span class="text-xl">🤖</span>
             <p class="text-xs sm:text-sm text-slate-800 font-semibold leading-relaxed">${data.ai_message}</p>
           </div>
-          <button onclick="paytm.playSarvamAudio('${data.audio_base64 || ''}')" class="shrink-0 px-2.5 py-1.5 bg-white text-cyan-800 text-xs font-bold rounded-xl border border-cyan-300 hover:bg-cyan-50 shadow-xs cursor-pointer flex items-center gap-1">
-            <span>🔊</span> <span>पुन्हा ऐका</span>
+          <button onclick="paytm.replayAudio()" class="sarvam-voice-btn shrink-0 px-2.5 py-1.5 bg-white text-cyan-800 text-xs font-bold rounded-xl border border-cyan-300 hover:bg-cyan-50 shadow-xs cursor-pointer flex items-center gap-1.5 transition-all">
+            <span class="speaker-icon">🔊</span> <span>आवाज ऐका</span>
           </button>
         </div>
 
