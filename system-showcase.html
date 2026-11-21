@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inside Paytm AI — Autonomous Multi-Agent Workflow Engine</title>
+  <title>Inside Paytm AI — Autonomous Multi-Agent System & Workflow Showcase</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="mockup.png">
@@ -18,8 +18,8 @@
     .n8n-canvas-wrapper {
       background-color: #0d1117;
       background-image: radial-gradient(circle, #21262d 1.5px, transparent 1.5px);
-      background-size: 22px 22px;
-      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.8);
+      background-size: 20px 20px;
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.85);
       position: relative;
     }
 
@@ -35,12 +35,12 @@
     }
     .workflow-node:hover {
       border-color: #58a6ff;
-      transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 16px rgba(88, 166, 255, 0.25);
+      transform: translateY(-2px) scale(1.015);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 16px rgba(88, 166, 255, 0.3);
     }
     .workflow-node.active-selected {
       border-color: #38bdf8 !important;
-      box-shadow: 0 0 24px rgba(56, 189, 248, 0.4), 0 0 0 2px #38bdf8 !important;
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.45), 0 0 0 2px #38bdf8 !important;
     }
     .workflow-node.node-running {
       border-color: #f59e0b !important;
@@ -52,14 +52,14 @@
       box-shadow: 0 0 22px rgba(34, 197, 94, 0.5), 0 0 0 2px #22c55e !important;
     }
     .workflow-node.node-dimmed {
-      opacity: 0.22 !important;
+      opacity: 0.25 !important;
       filter: grayscale(85%);
       pointer-events: auto;
     }
 
     @keyframes pulseRunning {
-      from { box-shadow: 0 0 12px rgba(245, 158, 11, 0.3); }
-      to { box-shadow: 0 0 28px rgba(245, 158, 11, 0.8), 0 0 0 2px #f59e0b; }
+      from { box-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
+      to { box-shadow: 0 0 26px rgba(245, 158, 11, 0.8), 0 0 0 2px #f59e0b; }
     }
 
     /* Node Port Pins (Input left, Output right) */
@@ -117,11 +117,6 @@
       }
     }
 
-    /* Glowing Photons */
-    .photon-dot {
-      filter: drop-shadow(0 0 6px currentColor);
-    }
-
     /* Mode Pill Buttons */
     .mode-pill-btn {
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -138,11 +133,20 @@
       border-color: #fb7185 !important;
       box-shadow: 0 0 15px rgba(251, 113, 133, 0.4);
     }
-    .mode-pill-btn.active-smart {
-      background: #059669 !important;
+    .mode-pill-btn.active-both {
+      background: #0f766e !important;
       color: white !important;
-      border-color: #34d399 !important;
-      box-shadow: 0 0 15px rgba(52, 211, 153, 0.4);
+      border-color: #2dd4bf !important;
+      box-shadow: 0 0 15px rgba(45, 212, 191, 0.4);
+    }
+
+    /* Modal Dialog Animation */
+    @keyframes modalPop {
+      0% { opacity: 0; transform: scale(0.92) translateY(12px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-pop {
+      animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
   </style>
 </head>
@@ -158,7 +162,7 @@
         <div class="h-4 w-px bg-slate-300"></div>
         <div class="flex items-center gap-2">
           <span class="text-base font-black text-[#002970] tracking-tight">paytm</span>
-          <span class="text-[10px] bg-[#00b9f1] text-[#002970] font-black px-1.5 py-0.5 rounded">WORKFLOW ENGINE</span>
+          <span class="text-[10px] bg-[#00b9f1] text-[#002970] font-black px-1.5 py-0.5 rounded">SYSTEM SHOWCASE</span>
         </div>
       </div>
 
@@ -185,13 +189,13 @@
 
       <div class="relative z-10 max-w-3xl">
         <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-bold text-cyan-300 border border-white/20 mb-3">
-          <span>✨</span> <span>JUDGES ARCHITECTURE DOSSIER • AUTONOMOUS MULTI-AGENT WORKFLOW</span>
+          <span>✨</span> <span>JUDGES ARCHITECTURE DOSSIER • TRACK 3: AUTONOMOUS AI TEAMMATES</span>
         </div>
         <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
-          Paytm AI Autonomous Multi-Agent Workflow
+          Paytm AI Autonomous Multi-Agent Orchestrator
         </h1>
         <p class="text-sm sm:text-base text-slate-200 mt-2 font-medium leading-relaxed">
-          Simulate real-time intent routing, specialized sponsor agent execution, and zero-trust banking settlement across Action, Resolve, and Smart Money modes.
+          Full interactive workflow visualization: Intent classification, specialized sponsor agents, zero-trust UNWIND banking governance, Smart Money intelligence, and Paytm Business AI.
         </p>
 
         <!-- KPI Badges -->
@@ -217,53 +221,61 @@
     </div>
   </section>
 
-  <!-- ==================== SECTION 1: N8N-STYLE INTERACTIVE NODE CANVAS ==================== -->
+  <!-- ==================== SECTION 1: FULL-WIDTH N8N INTERACTIVE NODE WORKFLOW ==================== -->
   <section class="max-w-7xl mx-auto px-4 sm:px-8 py-4">
     
-    <!-- Canvas Top Toolbar (Like n8n in User's Image) -->
-    <div class="bg-slate-900 text-white rounded-t-3xl px-5 py-3 border border-b-0 border-slate-800 flex flex-wrap items-center justify-between gap-3">
+    <!-- Canvas Top Toolbar (Full Width with Zoom & Mode Controls) -->
+    <div class="bg-slate-900 text-white rounded-t-3xl px-5 py-3.5 border border-b-0 border-slate-800 flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Flow Title & Status -->
       <div class="flex items-center gap-3">
         <div class="flex items-center gap-2">
           <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span class="text-xs font-black text-white tracking-wide">Paytm_AI_Master_Orchestrator.flow</span>
+          <span class="text-xs sm:text-sm font-black text-white tracking-wide">Paytm_AI_Autonomous_Workflow.canvas</span>
         </div>
-        <span class="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">v2.4 Active</span>
+        <span class="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700 hidden sm:inline">Click any node to view info</span>
       </div>
 
-      <!-- 3 Mode Switcher Pills -->
+      <!-- Mode Selector Pills (Action Mode vs Resolve Mode vs Both) -->
       <div class="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
-        <button id="pill-action" onclick="setFlowMode('action')" class="mode-pill-btn active-action px-3 py-1 rounded-lg text-xs font-bold text-slate-300 flex items-center gap-1.5 cursor-pointer">
+        <button id="pill-action" onclick="setFlowMode('action')" class="mode-pill-btn active-action px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-300 flex items-center gap-1.5 cursor-pointer">
           <span>⚡</span> <span>Action Mode</span>
         </button>
-        <button id="pill-resolve" onclick="setFlowMode('resolve')" class="mode-pill-btn px-3 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 cursor-pointer">
+        <button id="pill-resolve" onclick="setFlowMode('resolve')" class="mode-pill-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 cursor-pointer">
           <span>🛡️</span> <span>Resolve Mode</span>
         </button>
-        <button id="pill-smart" onclick="setFlowMode('smart')" class="mode-pill-btn px-3 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 cursor-pointer">
-          <span>📊</span> <span>Smart Money</span>
+        <button id="pill-both" onclick="setFlowMode('both')" class="mode-pill-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 cursor-pointer">
+          <span>🌐 Both Parallel</span>
         </button>
       </div>
 
-      <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
-        <span id="canvas-status-pill" class="text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800 px-2.5 py-0.5 rounded-full">
-          Status: Ready to Execute
-        </span>
+      <!-- Zoom Controls (+ / - / Reset) -->
+      <div class="flex items-center gap-1 bg-slate-950 px-2 py-1 rounded-xl border border-slate-800">
+        <button onclick="zoomCanvas(-0.1)" title="Zoom Out" class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-xs font-bold transition-all cursor-pointer">
+          -
+        </button>
+        <span id="zoom-indicator" class="text-[11px] font-mono text-cyan-400 px-1 font-bold">100%</span>
+        <button onclick="zoomCanvas(0.1)" title="Zoom In" class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-xs font-bold transition-all cursor-pointer">
+          +
+        </button>
+        <button onclick="resetZoom()" title="Fit to Screen" class="px-2 py-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-[10px] font-bold transition-all cursor-pointer">
+          Fit
+        </button>
       </div>
     </div>
 
-    <!-- Main Grid: Canvas on Left (8 Cols), Node Inspector on Right (4 Cols) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 border border-slate-800 rounded-b-3xl overflow-hidden shadow-2xl bg-slate-950">
-      
-      <!-- The n8n Graph Canvas (Scrollable Horizontally, 8 Cols on desktop) -->
-      <div class="lg:col-span-8 n8n-canvas-wrapper overflow-x-auto p-4 sm:p-6" style="min-height: 570px;">
+    <!-- FULL-WIDTH WORKFLOW CANVAS (No Cramped Sidebar!) -->
+    <div class="border border-slate-800 rounded-b-3xl overflow-hidden shadow-2xl bg-slate-950">
+      <div class="n8n-canvas-wrapper overflow-x-auto p-4 sm:p-8 flex justify-center" style="min-height: 480px;">
         
-        <!-- The Coordinate Container for Nodes + SVG Cables -->
-        <div class="relative mx-auto" style="width: 1360px; height: 500px;">
+        <!-- Zoomable Inner Container -->
+        <div id="zoomable-canvas" class="relative transition-transform duration-200 origin-top" style="width: 1140px; height: 380px;">
           
-          <!-- SVG Wire Layer Behind Nodes -->
+          <!-- SVG Connecting Cables Layer -->
           <svg id="workflow-svg-canvas" class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 1;">
             <defs>
               <filter id="glow-green" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="2.5" result="blur" />
+                <feGaussianBlur stdDeviation="3" result="blur" />
                 <feMerge>
                   <feMergeNode in="blur" />
                   <feMergeNode in="SourceGraphic" />
@@ -273,44 +285,41 @@
 
             <!-- Base Inactive Wires -->
             <!-- 1. Node 1 -> Node 2 -->
-            <path id="wire-base-1-2" d="M 190 250 L 260 250" class="n8n-wire-base" />
+            <path id="wire-base-1-2" d="M 165 190 L 210 190" class="n8n-wire-base" />
             <!-- 2. Node 2 -> Branch 3A (Action) -->
-            <path id="wire-base-2-3a" d="M 440 250 C 475 250, 475 75, 510 75" class="n8n-wire-base" />
-            <!-- 3. Node 3A -> Node 4A (Action Agent) -->
-            <path id="wire-base-3a-4a" d="M 680 75 L 730 75" class="n8n-wire-base" />
+            <path id="wire-base-2-3a" d="M 375 190 C 402 190, 402 77.5, 430 77.5" class="n8n-wire-base" />
+            <!-- 3. Node 3A -> Node 4A (SerpApi & Deals) -->
+            <path id="wire-base-3a-4a" d="M 580 77.5 L 620 77.5" class="n8n-wire-base" />
             <!-- 4. Node 4A -> Node 5 (UNWIND Gate) -->
-            <path id="wire-base-4a-5" d="M 900 75 C 935 75, 935 250, 970 250" class="n8n-wire-base" />
+            <path id="wire-base-4a-5" d="M 770 77.5 C 795 77.5, 795 190, 820 190" class="n8n-wire-base" />
             <!-- 5. Node 2 -> Branch 3B (Resolve) -->
-            <path id="wire-base-2-3b" d="M 440 250 L 510 250" class="n8n-wire-base" />
-            <!-- 6. Node 3B -> Node 4B (Resolve Agent) -->
-            <path id="wire-base-3b-4b" d="M 680 250 L 730 250" class="n8n-wire-base" />
+            <path id="wire-base-2-3b" d="M 375 190 C 402 190, 402 297.5, 430 297.5" class="n8n-wire-base" />
+            <!-- 6. Node 3B -> Node 4B (3-Way Matrix & You.com) -->
+            <path id="wire-base-3b-4b" d="M 580 297.5 L 620 297.5" class="n8n-wire-base" />
             <!-- 7. Node 4B -> Node 5 (UNWIND Gate) -->
-            <path id="wire-base-4b-5" d="M 900 250 L 970 250" class="n8n-wire-base" />
-            <!-- 8. Node 2 -> Branch 3C (Smart Money) -->
-            <path id="wire-base-2-3c" d="M 440 250 C 475 250, 475 425, 510 425" class="n8n-wire-base" />
-            <!-- 9. Node 3C -> Node 4C (Smart Money Agent) -->
-            <path id="wire-base-3c-4c" d="M 680 425 L 730 425" class="n8n-wire-base" />
-            <!-- 10. Node 4C -> Node 5 (UNWIND Gate) -->
-            <path id="wire-base-4c-5" d="M 900 425 C 935 425, 935 250, 970 250" class="n8n-wire-base" />
-            <!-- 11. Node 5 -> Node 6 (Terminal Output) -->
-            <path id="wire-base-5-6" d="M 1140 250 L 1180 250" class="n8n-wire-base" />
+            <path id="wire-base-4b-5" d="M 770 297.5 C 795 297.5, 795 190, 820 190" class="n8n-wire-base" />
+            <!-- 8. Node 5 -> Node 6 (Terminal Execution) -->
+            <path id="wire-base-5-6" d="M 960 190 L 990 190" class="n8n-wire-base" />
 
             <!-- Active Animated Wires Layer (Controlled via JS) -->
-            <path id="wire-active-1-2" d="M 190 250 L 260 250" class="n8n-wire-base" />
-            <path id="wire-active-branch-in" d="M 440 250 C 475 250, 475 75, 510 75" class="n8n-wire-base" />
-            <path id="wire-active-branch-mid" d="M 680 75 L 730 75" class="n8n-wire-base" />
-            <path id="wire-active-branch-out" d="M 900 75 C 935 75, 935 250, 970 250" class="n8n-wire-base" />
-            <path id="wire-active-5-6" d="M 1140 250 L 1180 250" class="n8n-wire-base" />
+            <path id="wire-active-1-2" d="M 165 190 L 210 190" class="n8n-wire-base" />
+            <path id="wire-active-2-3a" d="M 375 190 C 402 190, 402 77.5, 430 77.5" class="n8n-wire-base" />
+            <path id="wire-active-3a-4a" d="M 580 77.5 L 620 77.5" class="n8n-wire-base" />
+            <path id="wire-active-4a-5" d="M 770 77.5 C 795 77.5, 795 190, 820 190" class="n8n-wire-base" />
+            <path id="wire-active-2-3b" d="M 375 190 C 402 190, 402 297.5, 430 297.5" class="n8n-wire-base" />
+            <path id="wire-active-3b-4b" d="M 580 297.5 L 620 297.5" class="n8n-wire-base" />
+            <path id="wire-active-4b-5" d="M 770 297.5 C 795 297.5, 795 190, 820 190" class="n8n-wire-base" />
+            <path id="wire-active-5-6" d="M 960 190 L 990 190" class="n8n-wire-base" />
           </svg>
 
-          <!-- ==================== HTML NODES (Like n8n in User Screenshot) ==================== -->
+          <!-- ==================== HTML NODES (Clickable -> Opens Dynamic Popup Modal) ==================== -->
           
-          <!-- NODE 1: User Voice / Multimodal Trigger -->
-          <div id="node-trigger" onclick="inspectWorkflowNode('trigger')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 20px; top: 205px; width: 170px; height: 90px; z-index: 10;">
+          <!-- NODE 1: Multimodal User Trigger -->
+          <div id="node-trigger" onclick="openNodeModal('trigger')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 15px; top: 145px; width: 150px; height: 90px; z-index: 10;">
             <div class="flex items-center gap-2">
               <span class="w-7 h-7 rounded-lg bg-blue-500/20 border border-blue-400/40 flex items-center justify-center text-sm">🎙️</span>
               <div>
-                <div class="text-[11px] font-black text-white">Voice & Text Ingestion</div>
+                <div class="text-[11px] font-black text-white">User Ingestion</div>
                 <div class="text-[9px] text-slate-400">Trigger Node</div>
               </div>
             </div>
@@ -321,14 +330,14 @@
             <div class="node-port node-port-out"></div>
           </div>
 
-          <!-- NODE 2: Paytm Master Router (FastAPI + Groq) -->
-          <div id="node-orchestrator" onclick="inspectWorkflowNode('orchestrator')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 260px; top: 205px; width: 180px; height: 90px; z-index: 10;">
+          <!-- NODE 2: Master Router (FastAPI + Groq) -->
+          <div id="node-orchestrator" onclick="openNodeModal('orchestrator')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 210px; top: 145px; width: 165px; height: 90px; z-index: 10;">
             <div class="node-port node-port-in"></div>
             <div class="flex items-center gap-2">
               <span class="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-sm">🤖</span>
               <div>
                 <div class="text-[11px] font-black text-white">Master Router</div>
-                <div class="text-[9px] text-slate-400">Groq LLM Classifier</div>
+                <div class="text-[9px] text-cyan-300">FastAPI + Groq LLM</div>
               </div>
             </div>
             <div class="flex items-center justify-between text-[9px] font-mono text-slate-400 border-t border-slate-800 pt-1">
@@ -340,7 +349,7 @@
 
           <!-- ==================== TOP BRANCH: ⚡ ACTION MODE ==================== -->
           <!-- Node 3A: Action Mode Pillar -->
-          <div id="node-action_mode" onclick="inspectWorkflowNode('action_mode')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 510px; top: 30px; width: 170px; height: 90px; z-index: 10;">
+          <div id="node-action_mode" onclick="openNodeModal('action_mode')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 430px; top: 35px; width: 150px; height: 85px; z-index: 10;">
             <div class="node-port node-port-in"></div>
             <div class="flex items-center gap-2">
               <span class="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sm">⚡</span>
@@ -350,14 +359,14 @@
               </div>
             </div>
             <div class="flex items-center justify-between text-[9px] font-mono text-slate-400 border-t border-slate-800 pt-1">
-              <span id="badge-action_mode" class="text-slate-400">Branch A</span>
+              <span id="badge-action_mode" class="text-slate-400">Pillar A</span>
               <span class="text-sky-400">10+ Utils</span>
             </div>
             <div class="node-port node-port-out"></div>
           </div>
 
-          <!-- Node 4A: SerpApi Travel & Deal Engine -->
-          <div id="node-agent_action" onclick="inspectWorkflowNode('agent_action')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 730px; top: 30px; width: 170px; height: 90px; z-index: 10;">
+          <!-- Node 4A: SerpApi Travel & Deals Agent -->
+          <div id="node-agent_action" onclick="openNodeModal('agent_action')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 620px; top: 35px; width: 150px; height: 85px; z-index: 10;">
             <div class="node-port node-port-in"></div>
             <div class="flex items-center gap-2">
               <span class="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-sm">🔍</span>
@@ -373,9 +382,9 @@
             <div class="node-port node-port-out"></div>
           </div>
 
-          <!-- ==================== MIDDLE BRANCH: 🛡️ RESOLVE MODE ==================== -->
+          <!-- ==================== BOTTOM BRANCH: 🛡️ RESOLVE MODE ==================== -->
           <!-- Node 3B: Resolve Mode Pillar -->
-          <div id="node-resolve_mode" onclick="inspectWorkflowNode('resolve_mode')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 510px; top: 205px; width: 170px; height: 90px; z-index: 10;">
+          <div id="node-resolve_mode" onclick="openNodeModal('resolve_mode')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 430px; top: 255px; width: 150px; height: 85px; z-index: 10;">
             <div class="node-port node-port-in"></div>
             <div class="flex items-center gap-2">
               <span class="w-7 h-7 rounded-lg bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-sm">🛡️</span>
@@ -385,14 +394,14 @@
               </div>
             </div>
             <div class="flex items-center justify-between text-[9px] font-mono text-slate-400 border-t border-slate-800 pt-1">
-              <span id="badge-resolve_mode" class="text-slate-400">Branch B</span>
+              <span id="badge-resolve_mode" class="text-slate-400">Pillar B</span>
               <span class="text-rose-400">3-Way Audit</span>
             </div>
             <div class="node-port node-port-out"></div>
           </div>
 
-          <!-- Node 4B: 3-Way Matrix & You.com Legal Grounding -->
-          <div id="node-agent_resolve" onclick="inspectWorkflowNode('agent_resolve')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 730px; top: 205px; width: 170px; height: 90px; z-index: 10;">
+          <!-- Node 4B: 3-Way Audit + You.com + Nexconn Agent -->
+          <div id="node-agent_resolve" onclick="openNodeModal('agent_resolve')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 620px; top: 255px; width: 150px; height: 85px; z-index: 10;">
             <div class="node-port node-port-in"></div>
             <div class="flex items-center gap-2">
               <span class="w-7 h-7 rounded-lg bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-sm">⚖️</span>
@@ -408,43 +417,8 @@
             <div class="node-port node-port-out"></div>
           </div>
 
-          <!-- ==================== BOTTOM BRANCH: 📊 SMART MONEY ==================== -->
-          <!-- Node 3C: Smart Money Pillar -->
-          <div id="node-smart_mode" onclick="inspectWorkflowNode('smart_mode')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 510px; top: 380px; width: 170px; height: 90px; z-index: 10;">
-            <div class="node-port node-port-in"></div>
-            <div class="flex items-center gap-2">
-              <span class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-sm">📊</span>
-              <div>
-                <div class="text-[11px] font-black text-white">Smart Money</div>
-                <div class="text-[9px] text-emerald-300">Finance Intelligence</div>
-              </div>
-            </div>
-            <div class="flex items-center justify-between text-[9px] font-mono text-slate-400 border-t border-slate-800 pt-1">
-              <span id="badge-smart_mode" class="text-slate-400">Branch C</span>
-              <span class="text-emerald-400">₹9,150 Intel</span>
-            </div>
-            <div class="node-port node-port-out"></div>
-          </div>
-
-          <!-- Node 4C: Subscription Hunter & Savings Optimizer -->
-          <div id="node-agent_smart" onclick="inspectWorkflowNode('agent_smart')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 730px; top: 380px; width: 170px; height: 90px; z-index: 10;">
-            <div class="node-port node-port-in"></div>
-            <div class="flex items-center gap-2">
-              <span class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-sm">💰</span>
-              <div>
-                <div class="text-[11px] font-black text-white">Savings Optimizer</div>
-                <div class="text-[9px] text-emerald-300">Recurring Audit</div>
-              </div>
-            </div>
-            <div class="flex items-center justify-between text-[9px] font-mono text-slate-400 border-t border-slate-800 pt-1">
-              <span id="badge-agent_smart" class="text-slate-400">Idle</span>
-              <span class="text-emerald-400">₹499/mo</span>
-            </div>
-            <div class="node-port node-port-out"></div>
-          </div>
-
           <!-- NODE 5: UNWIND Security Gate -->
-          <div id="node-unwind" onclick="inspectWorkflowNode('unwind')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 970px; top: 205px; width: 170px; height: 90px; z-index: 10;">
+          <div id="node-unwind" onclick="openNodeModal('unwind')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 820px; top: 145px; width: 140px; height: 90px; z-index: 10;">
             <div class="node-port node-port-in"></div>
             <div class="flex items-center gap-2">
               <span class="w-7 h-7 rounded-lg bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-sm">🔒</span>
@@ -460,14 +434,14 @@
             <div class="node-port node-port-out"></div>
           </div>
 
-          <!-- NODE 6: Terminal Execution & Sarvam Audio Feedback -->
-          <div id="node-terminal" onclick="inspectWorkflowNode('terminal')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 1180px; top: 205px; width: 165px; height: 90px; z-index: 10;">
+          <!-- NODE 6: Terminal Settlement & Sarvam Audio -->
+          <div id="node-terminal" onclick="openNodeModal('terminal')" class="workflow-node absolute p-3 flex flex-col justify-between" style="left: 990px; top: 145px; width: 135px; height: 90px; z-index: 10;">
             <div class="node-port node-port-in"></div>
             <div class="flex items-center gap-2">
               <span class="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-sm">✅</span>
               <div>
-                <div class="text-[11px] font-black text-white">Settlement Output</div>
-                <div class="text-[9px] text-cyan-300">Dynamic QR / Chime</div>
+                <div class="text-[11px] font-black text-white">Settlement</div>
+                <div class="text-[9px] text-cyan-300">UPI QR / Audio</div>
               </div>
             </div>
             <div class="flex items-center justify-between text-[9px] font-mono text-slate-400 border-t border-slate-800 pt-1">
@@ -478,51 +452,173 @@
 
         </div>
 
-        <!-- ==================== THE BIG ORANGE "EXECUTE WORKFLOW" BUTTON (Like User's Image) ==================== -->
-        <div class="mt-4 pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div class="flex items-center gap-2">
-            <span class="text-xs text-slate-400">Active Test Query:</span>
-            <span id="workflow-query-label" class="text-xs font-mono text-cyan-300 font-semibold">
-              "मला ₹300 मध्ये Jio 2GB daily data recharge हवा"
-            </span>
-          </div>
-
-          <!-- Orange Button like n8n in image -->
-          <button id="btn-execute-workflow" onclick="executeWorkflowFlow()" class="px-7 py-3 bg-[#ea580c] hover:bg-[#c2410c] text-white font-black text-xs sm:text-sm rounded-xl shadow-lg shadow-orange-950/60 flex items-center gap-2 cursor-pointer transition-all hover:scale-102 active:scale-98">
-            <span class="text-base">▶</span>
-            <span>Execute workflow</span>
-          </button>
-        </div>
-
       </div>
 
-      <!-- Node Inspector Details Drawer (Right 4 Cols) -->
-      <div class="lg:col-span-4 bg-[#161b22] text-white p-5 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-slate-800">
-        <div id="inspector-content">
-          <!-- Dynamically populated via JS -->
+      <!-- Execution Control Bar (Bottom of Canvas) -->
+      <div class="bg-slate-900 px-6 py-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-xs">
+          <span class="text-slate-400">Test Query:</span>
+          <span id="workflow-query-label" class="font-mono text-cyan-300 font-semibold bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
+            "मला ₹300 मध्ये Jio 2GB daily data recharge हवा"
+          </span>
         </div>
 
-        <div class="pt-4 border-t border-slate-800 mt-4 space-y-2">
-          <div class="text-[10px] font-mono text-slate-400 flex items-center justify-between">
-            <span>FastAPI Backend:</span>
-            <span class="text-emerald-400 font-bold">http://localhost:8000/api/chat</span>
-          </div>
-          <button onclick="executeWorkflowFlow()" class="w-full py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:brightness-110 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
-            <span>⚡ Run This Flow Live</span>
-          </button>
-        </div>
+        <!-- The Big Orange "Execute Workflow" Button -->
+        <button id="btn-execute-workflow" onclick="executeWorkflowFlow()" class="px-8 py-3 bg-[#ea580c] hover:bg-[#c2410c] text-white font-black text-xs sm:text-sm rounded-xl shadow-lg shadow-orange-950/60 flex items-center gap-2.5 cursor-pointer transition-all hover:scale-102 active:scale-98">
+          <span class="text-base">▶</span>
+          <span>Execute workflow</span>
+        </button>
       </div>
-
     </div>
   </section>
 
-  <!-- ==================== SECTION 2: LIVE SIMULATOR LOGS ==================== -->
+  <!-- ==================== SECTION 2: SMART MONEY INTELLIGENCE ENGINE (DEDICATED SECTION) ==================== -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-8 py-5">
+    <div class="bg-white/95 rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 pb-4 border-b border-slate-200">
+        <div>
+          <div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1 rounded-full mb-1">
+            <span>📊</span> <span>PILLAR C: PERSONAL FINANCE INTELLIGENCE MODEL</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-black text-[#002970]">Paytm Smart Money AI Advisor</h2>
+          <p class="text-xs sm:text-sm text-slate-500">Autonomous spend intelligence, subscription auditing, and zero-drift monthly savings analysis.</p>
+        </div>
+        <a href="ai-workspace.html?mode=smart_money" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all">
+          <span>Open Smart Money Workspace</span>
+          <span>➔</span>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+        <!-- Spend Breakdown Stats (4 Cols) -->
+        <div class="md:col-span-4 bg-gradient-to-br from-slate-900 to-[#002970] text-white rounded-2xl p-5 shadow-lg border border-slate-800">
+          <div class="text-xs text-slate-300 font-medium">TOTAL MONTHLY SPEND</div>
+          <div class="text-3xl font-black text-white mt-1">₹9,150</div>
+          <div class="text-[11px] text-cyan-300 mt-0.5">Audited from connected accounts</div>
+
+          <div class="space-y-3 mt-5 pt-4 border-t border-white/10">
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span>🛍️ Shopping</span>
+                <span class="text-cyan-300">₹4,500 (49%)</span>
+              </div>
+              <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div class="bg-cyan-400 h-full rounded-full" style="width: 49%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span>🍔 Food & Dining</span>
+                <span class="text-amber-300">₹3,200 (35%)</span>
+              </div>
+              <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div class="bg-amber-400 h-full rounded-full" style="width: 35%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span>⚡ Bills & Recharge</span>
+                <span class="text-emerald-300">₹1,450 (16%)</span>
+              </div>
+              <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div class="bg-emerald-400 h-full rounded-full" style="width: 16%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Core Pillars of Smart Money (8 Cols) -->
+        <div class="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="p-4 bg-sky-50 border border-sky-200 rounded-2xl">
+            <div class="text-xl mb-1">📈</div>
+            <div class="text-xs font-black text-[#002970]">1. Expense Analysis</div>
+            <div class="text-[11px] text-slate-600 mt-1 leading-relaxed">
+              Automatic categorization of transactions across merchants, amounts, and dates without manual tagging.
+            </div>
+          </div>
+          <div class="p-4 bg-rose-50 border border-rose-200 rounded-2xl">
+            <div class="text-xl mb-1">🔄</div>
+            <div class="text-xs font-black text-rose-950">2. Recurring Payments Hunter</div>
+            <div class="text-[11px] text-slate-600 mt-1 leading-relaxed">
+              Detects unused recurring auto-debits, gym memberships, and duplicate streaming subscriptions.
+            </div>
+          </div>
+          <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl">
+            <div class="text-xl mb-1">💡</div>
+            <div class="text-xs font-black text-emerald-950">3. Smart Savings Engine</div>
+            <div class="text-[11px] text-slate-600 mt-1 leading-relaxed">
+              Recommends actionable savings up to <strong>₹499/mo</strong> with one-tap cancellation assistance.
+            </div>
+          </div>
+          <div class="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl">
+            <div class="text-xl mb-1">🎯</div>
+            <div class="text-xs font-black text-indigo-950">4. Budget Planner</div>
+            <div class="text-[11px] text-slate-600 mt-1 leading-relaxed">
+              Zero-drift deterministic math engine for monthly budget pacing and balance forecasting.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 3: PAYTM BUSINESS AI & ASTRAVOICE (DEDICATED SECTION) ==================== -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-8 py-5">
+    <div class="bg-gradient-to-r from-emerald-900 via-teal-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-emerald-800">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 pb-4 border-b border-emerald-800/80">
+        <div>
+          <div class="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 text-xs font-black px-3 py-1 rounded-full border border-emerald-500/30 mb-1">
+            <span>💼</span> <span>MSME & MERCHANT AUTONOMOUS AGENT</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-black text-white">Paytm Business AI & AstraVoice POS</h2>
+          <p class="text-xs sm:text-sm text-slate-300">Engineered for 60M+ Indian MSMEs (Kirana, Chai Stalls, Mandi, Fuel Pumps) with vernacular voice billing.</p>
+        </div>
+        <a href="https://astravoice-pos.vercel.app" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-lg flex items-center gap-1.5 transition-all">
+          <span>Launch AstraVoice POS</span>
+          <span>🚀</span>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-900/80 border border-emerald-500/30 p-4 rounded-2xl">
+          <span class="text-2xl block mb-1">🎙️</span>
+          <div class="text-xs font-black text-emerald-300">Voice-to-Payment POS</div>
+          <div class="text-[11px] text-slate-300 mt-1">
+            Compound orders in Marathi & Hindi (e.g., "2 cutting chai, 2 vadapav") generate dynamic UPI QR in &lt;50ms.
+          </div>
+        </div>
+        <div class="bg-slate-900/80 border border-emerald-500/30 p-4 rounded-2xl">
+          <span class="text-2xl block mb-1">📋</span>
+          <div class="text-xs font-black text-emerald-300">AstraVision Chitti Scanner</div>
+          <div class="text-[11px] text-slate-300 mt-1">
+            Scans handwritten Devnagari paper chittis; interactive voice unit-stepper resolves missing weights.
+          </div>
+        </div>
+        <div class="bg-slate-900/80 border border-emerald-500/30 p-4 rounded-2xl">
+          <span class="text-2xl block mb-1">⛽</span>
+          <div class="text-xs font-black text-emerald-300">Reverse-Math Fuel POS</div>
+          <div class="text-[11px] text-slate-300 mt-1">
+            Zero-drift integer engine: Converts "₹200 petrol" into exact 1.92 Ltr dispensing without floating-point errors.
+          </div>
+        </div>
+        <div class="bg-slate-900/80 border border-emerald-500/30 p-4 rounded-2xl">
+          <span class="text-2xl block mb-1">🛡️</span>
+          <div class="text-xs font-black text-emerald-300">AstraKavach Safeguards</div>
+          <div class="text-[11px] text-slate-300 mt-1">
+            Courtroom settlement safeguards for ISO 8583 U30 bank switch timeouts and network lags.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 4: LIVE FASTAPI LOG STREAM ==================== -->
   <section class="max-w-7xl mx-auto px-4 sm:px-8 py-5">
     <div class="bg-white/95 rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-4 border-b border-slate-200">
         <div>
-          <h2 class="text-xl font-black text-[#002970]">Live FastAPI Execution Stream</h2>
-          <p class="text-xs sm:text-sm text-slate-500">Step trace and Sarvam Indic Voice Audio output directly from our backend engine.</p>
+          <h2 class="text-xl font-black text-[#002970]">Live FastAPI Multi-Agent Log Stream</h2>
+          <p class="text-xs sm:text-sm text-slate-500">Live execution output and Sarvam Indic voice audio from <code>http://localhost:8000/api/chat</code>.</p>
         </div>
         <div id="workflow-live-latency" class="text-xs font-mono font-bold bg-cyan-50 text-cyan-900 border border-cyan-200 px-3 py-1.5 rounded-xl">
           Latency: Standby
@@ -532,7 +628,7 @@
       <!-- Steps Grid -->
       <div id="workflow-steps-log" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs font-mono mb-4">
         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-slate-500 text-center py-5 col-span-4">
-          Click the orange <strong>"Execute workflow"</strong> button above to watch the pipeline execute live node-by-node!
+          Click <strong>"Execute workflow"</strong> to trigger the multi-agent pipeline live!
         </div>
       </div>
 
@@ -554,182 +650,136 @@
     </div>
   </section>
 
-  <!-- ==================== SECTION 3: TECHNICAL COMPETITIVE ADVANTAGE ==================== -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-8 py-5">
-    <div class="bg-white/95 rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200">
-      <h2 class="text-lg sm:text-2xl font-black text-[#002970] mb-2 flex items-center gap-2">
-        <span>🏆</span> <span>Architectural Competitive Advantage (USP Matrix)</span>
-      </h2>
-      <p class="text-xs sm:text-sm text-slate-500 mb-5">Comparison with traditional financial assistants and basic conversational chatbots.</p>
+  <!-- ==================== DYNAMIC NODE INSPECTOR POPUP MODAL ==================== -->
+  <div id="node-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm hidden">
+    <div class="modal-pop max-w-xl w-full bg-[#161b22] text-white rounded-3xl p-6 sm:p-7 border border-slate-700 shadow-2xl relative">
+      
+      <!-- Close Button -->
+      <button onclick="closeNodeModal()" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold text-sm transition-all cursor-pointer">
+        ✕
+      </button>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs border-collapse">
-          <thead>
-            <tr class="bg-slate-100 text-[#002970] border-b border-slate-200 font-black text-[11px] uppercase tracking-wider">
-              <th class="p-3">Feature Dimension</th>
-              <th class="p-3">Standard Voice Bots (GPay / PhonePe)</th>
-              <th class="p-3 bg-blue-50 text-[#002970] border-x-2 border-blue-400">Paytm AI Hub & Paytm ONE</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-200 font-medium">
-            <tr>
-              <td class="p-3 font-bold text-slate-800">1. Cross-Service Bundling</td>
-              <td class="p-3 text-slate-600">Single service search; user manually jumps across 50+ screens</td>
-              <td class="p-3 bg-blue-50/70 font-semibold text-[#002970] border-x-2 border-blue-400">Universal Intent Routing: Bundles travel + recharge + hotel under unified budget</td>
-            </tr>
-            <tr>
-              <td class="p-3 font-bold text-slate-800">2. Dispute Resolution</td>
-              <td class="p-3 text-slate-600">Static FAQ tickets with generic "Wait 3 to 5 business days"</td>
-              <td class="p-3 bg-blue-50/70 font-semibold text-[#002970] border-x-2 border-blue-400">3-Way Reconciliation Matrix (Bank vs NPCI vs Merchant) with SHA-256 evidence docket</td>
-            </tr>
-            <tr>
-              <td class="p-3 font-bold text-slate-800">3. Regulatory Citations</td>
-              <td class="p-3 text-slate-600">None; proprietary internal policies only</td>
-              <td class="p-3 bg-blue-50/70 font-semibold text-[#002970] border-x-2 border-blue-400">You.com live retrieval of official RBI Ombudsman & NPCI Circular 81 SLAs</td>
-            </tr>
-            <tr>
-              <td class="p-3 font-bold text-slate-800">4. Human Escalation</td>
-              <td class="p-3 text-slate-600">Detached external IVR queue</td>
-              <td class="p-3 bg-blue-50/70 font-semibold text-[#002970] border-x-2 border-blue-400">Nexconn real-time WebSocket room with context pre-injected to officer</td>
-            </tr>
-            <tr>
-              <td class="p-3 font-bold text-slate-800">5. Security Governance</td>
-              <td class="p-3 text-slate-600">Unclear boundaries between AI and payment rail</td>
-              <td class="p-3 bg-blue-50/70 font-semibold text-[#002970] border-x-2 border-blue-400">UNWIND Governance Gate: Zero-trust isolation; AI never accesses UPI PIN</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Modal Content Body -->
+      <div id="modal-content" class="space-y-4">
+        <!-- Dynamically injected via openNodeModal(id) -->
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- Script for n8n Workflow Simulation & Node Inspector -->
+  <!-- Scripts -->
   <script src="app.js"></script>
   <script>
     let activeWorkflowMode = 'action';
     let isExecuting = false;
+    let currentZoom = 1.0;
     let activeAudioBase64 = null;
 
     const modeConfigs = {
       action: {
         title: "⚡ Action Mode (Paytm ONE)",
         query: "मला ₹300 मध्ये Jio 2GB daily data recharge हवा",
-        branchId: "action_mode",
-        agentId: "agent_action",
-        color: "#0284c7",
-        wireBranchIn: "M 440 250 C 475 250, 475 75, 510 75",
-        wireBranchMid: "M 680 75 L 730 75",
-        wireBranchOut: "M 900 75 C 935 75, 935 250, 970 250"
+        activeBranch: 'action_mode',
+        activeAgent: 'agent_action'
       },
       resolve: {
         title: "🛡️ Resolve Mode (Paytm Resolve)",
         query: "माझे ₹1200 कट झाले पण रिचार्ज झाला नाही, तक्रार नोंदवा",
-        branchId: "resolve_mode",
-        agentId: "agent_resolve",
-        color: "#e11d48",
-        wireBranchIn: "M 440 250 L 510 250",
-        wireBranchMid: "M 680 250 L 730 250",
-        wireBranchOut: "M 900 250 L 970 250"
+        activeBranch: 'resolve_mode',
+        activeAgent: 'agent_resolve'
       },
-      smart: {
-        title: "📊 Smart Money Advisor (Personal Finance)",
-        query: "या महिन्यात माझे पैसे कुठे खर्च झाले आणि मला ₹499 बचत कशी करता येईल?",
-        branchId: "smart_mode",
-        agentId: "agent_smart",
-        color: "#059669",
-        wireBranchIn: "M 440 250 C 475 250, 475 425, 510 425",
-        wireBranchMid: "M 680 425 L 730 425",
-        wireBranchOut: "M 900 425 C 935 425, 935 250, 970 250"
+      both: {
+        title: "🌐 Both Parallel Modes",
+        query: "पेटीएमच्या सर्व सेवा आणि तक्रार निवारण फ्लो दाखवा",
+        activeBranch: 'both',
+        activeAgent: 'both'
       }
     };
 
     const nodeInfoData = {
       trigger: {
+        icon: "🎙️",
         name: "Voice & Text Ingestion Trigger",
         category: "Input Trigger",
-        tech: "Web Speech API • Canvas OCR",
+        tech: "Web Speech API • Canvas OCR • Devnagari Normalizer",
         latency: "< 45ms",
+        desc_mr: "वापरकर्त्याचा मराठी, हिंदी किंवा इंग्रजी आवाज/मजकूर स्वीकारून बॅकग्राउंड आवाज काढून शुद्ध Devanagari मध्ये रूपांतर करतो.",
         desc: "Captures natural Marathi/Hindi spoken input or typed text. Automatically strips ambient noise and normalizes Devanagari numerals.",
         sample_in: '"मला ₹300 मध्ये Jio recharge हवा"',
         sample_out: '{ "lang": "mr", "audio_detected": true, "raw_text": "Jio ₹300 recharge" }'
       },
       orchestrator: {
+        icon: "🤖",
         name: "Paytm Master Router (FastAPI :8000)",
         category: "Neural Decision Engine",
-        tech: "FastAPI • Qwen 2.5 32B • Groq Llama 3.3",
+        tech: "FastAPI • Qwen 2.5 32B • Groq Llama 3.3 70B",
         latency: "~ 320ms",
+        desc_mr: "युझरची मुख्य इच्छा काय आहे (रिचार्ज, तिकीट, तक्रार) हे ओळखून योग्य एजंट पथकाकडे विनंती पाठवतो.",
         desc: "Classifies user intent, isolates entities (operator, budget, service), and dynamically switches the downstream execution pipeline.",
         sample_in: '{ "query": "Jio ₹300 recharge", "user_id": "judge_01" }',
         sample_out: '{ "intent": "ACTION", "sub_squad": "recharge", "budget": 300, "operator": "jio" }'
       },
       action_mode: {
+        icon: "⚡",
         name: "Action Mode Engine (Paytm ONE)",
         category: "Pillar A: Utilities",
-        tech: "Paytm ONE Unified Engine",
+        tech: "Paytm ONE Unified Super App Engine",
         latency: "~ 50ms",
+        desc_mr: "मोबाईल रिचार्ज, वीज बिल, FASTag, फ्लाईट्स आणि हॉटेल्स अशा १०+ सेवा एकाच संभाषणातून चालवतो.",
         desc: "Coordinates 10+ core consumer verticals (Mobile Recharge, Electricity, FASTag, Flights, Bus, Hotels, Gold) into one unified cart.",
         sample_in: '{ "service": "mobile_prepaid", "operator": "jio", "budget": 300 }',
         sample_out: '{ "route": "BBPS_RECHARGE_CATALOG", "filter_rules": ["2GB/day", "<=300"] }'
       },
       agent_action: {
-        name: "SerpApi & Catalog Scraper Agent",
-        category: "External Data Retrieval",
+        icon: "🔍",
+        name: "SerpApi & Deals Agent",
+        category: "External Live Scout",
         tech: "SerpApi Google Engine • BBPS Catalog",
         latency: "~ 850ms",
+        desc_mr: "थेट बाजारातील सर्वोत्तम रिचार्ज प्लॅन्स आणि विमान/बसचे लाईव्ह दर शोधून सर्वात फायदेशीर ऑफर निवडतो.",
         desc: "Queries real-time live travel rates and telecom recharge catalogs. Returns the highest-value plan with cashback.",
         sample_in: '{ "operator": "jio", "data_req": "2GB/Day" }',
         sample_out: '{ "plan_id": "JIO_299", "amount": 299, "validity": "28 Days", "cashback": 25 }'
       },
       resolve_mode: {
+        icon: "🛡️",
         name: "Resolve Mode Engine (Paytm Resolve)",
         category: "Pillar B: Dispute Hub",
         tech: "Paytm Dispute Audit Core",
         latency: "~ 50ms",
+        desc_mr: "पैसे कट झाले पण काम झाले नाही तर बँक, NPCI आणि मर्चंट यांच्यात ३-वे ऑडिट करून तात्काळ दोष शोधतो.",
         desc: "Orchestrates 3-way reconciliation across customer bank, NPCI switch, and merchant receiver ledger.",
         sample_in: '{ "txn_id": "PTM-UPI-9921", "amount": 1200, "status": "PENDING" }',
         sample_out: '{ "route": "3_WAY_RECONCILIATION", "audit_priority": "CRITICAL" }'
       },
       agent_resolve: {
+        icon: "⚖️",
         name: "3-Way Matrix & You.com Legal Grounding",
         category: "Dispute & Compliance",
-        tech: "You.com RBI Search • Nexconn WebSocket",
+        tech: "You.com RBI Search • Nexconn WebSocket Room",
         latency: "~ 1.1s",
+        desc_mr: "RBI परिपत्रक 81 नुसार २४ तासांत रिफंडचा नियम शोधतो आणि आवश्यक असल्यास Nexconn द्वारे थेट मानवी अधिकाऱ्याला जोडतो.",
         desc: "Retrieves official RBI Circular 81 T+1 compensation mandates, seals the SHA-256 evidence docket, and bridges live officer if needed.",
         sample_in: '{ "issue": "failed_recharge_debited" }',
         sample_out: '{ "matrix_status": "BANK_HOLD_CONFIRMED", "sla": "24_HOURS", "docket": "SHA256_VERIFIED" }'
       },
-      smart_mode: {
-        name: "Smart Money Advisor Engine",
-        category: "Pillar C: Personal Finance",
-        tech: "Paytm Financial Intelligence Core",
-        latency: "~ 50ms",
-        desc: "Audits monthly ledger data (₹9,150 spend), aggregates shopping, food, and bills, and flags recurring auto-debits.",
-        sample_in: '{ "user_id": "user_demo", "month": "November 2026" }',
-        sample_out: '{ "total_spent": 9150, "categories": { "shopping": 4500, "food": 3200, "bills": 1450 } }'
-      },
-      agent_smart: {
-        name: "Savings Optimizer & Subscription Hunter",
-        category: "Financial Reasoning",
-        tech: "Deterministic Integer Math • Sarvam AI",
-        latency: "~ 600ms",
-        desc: "Detects unused recurring subscriptions (₹499/mo) and prepares conversational advice in Marathi with Sarvam Bulbul voice.",
-        sample_in: '{ "subscriptions": ["Gym auto-debit", "Unused OTT"] }',
-        sample_out: '{ "potential_savings": 499, "recommendation_mr": "दरमहा ₹499 पर्यंत बचत शक्य आहे." }'
-      },
       unwind: {
+        icon: "🔒",
         name: "UNWIND Security Governance Gate",
         category: "Security & Governance",
-        tech: "Paytm Zero-Trust Consent Sandbox",
+        tech: "Paytm Zero-Trust Consent Sandbox • NPCI SDK",
         latency: "< 10ms",
+        desc_mr: "पैसे कापण्यापूर्वी मानवी संमती अनिवार्य करतो. AI ला कधीही तुमचा UPI PIN दिसत नाही किंवा सेव्ह होत नाही.",
         desc: "Ensures human approval is always granted before execution. The AI never sees or logs the UPI PIN. Complies strictly with RBI norms.",
         sample_in: '{ "action": "CONFIRM_PAYMENT", "pin_requested": false }',
         sample_out: '{ "consent": "GRANTED", "handshake": "NPCI_SECURE_KEYPAD" }'
       },
       terminal: {
+        icon: "✅",
         name: "Settlement Output & Voice Feedback",
         category: "Terminal Resolution",
-        tech: "Web Audio API • Sarvam Bulbul v3 TTS",
+        tech: "Dynamic UPI QR • Sarvam Bulbul v3 TTS Audio",
         latency: "< 50ms",
+        desc_mr: "स्क्रीनवर Dynamic UPI QR झटक्यात तयार करतो आणि Sarvam AI च्या मराठी आवाजात पेमेंटची खात्री देतो.",
         desc: "Displays the dynamic UPI QR or dispute docket to user, playing synthesized Indic voice confirmation.",
         sample_in: '{ "status": "SUCCESS", "audio_stream": "AVAILABLE" }',
         sample_out: '{ "rendered": "DYNAMIC_QR", "voice_played": true }'
@@ -741,144 +791,194 @@
       activeWorkflowMode = mode;
       const cfg = modeConfigs[mode];
 
-      // Update pills
-      ['action', 'resolve', 'smart'].forEach(m => {
+      // Update pill styles
+      ['action', 'resolve', 'both'].forEach(m => {
         const btn = document.getElementById(`pill-${m}`);
         if (!btn) return;
-        btn.className = 'mode-pill-btn px-3 py-1 rounded-lg text-xs font-bold text-slate-300 flex items-center gap-1.5 cursor-pointer ';
+        btn.className = 'mode-pill-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-300 flex items-center gap-1.5 cursor-pointer ';
         if (m === mode) {
           btn.classList.add(`active-${m}`);
+        } else {
+          btn.classList.add('hover:text-white');
         }
       });
 
       document.getElementById('workflow-query-label').textContent = `"${cfg.query}"`;
-      document.getElementById('canvas-status-pill').textContent = `Mode: ${cfg.title} (Ready)`;
+      highlightModeBranch(mode);
+    }
 
-      // Dim non-selected branches
+    function highlightModeBranch(mode) {
       resetWorkflowCards();
-      highlightActiveBranch(mode);
 
-      // Inspect mode primary node
-      inspectWorkflowNode(cfg.branchId);
+      const actionNodes = ['action_mode', 'agent_action'];
+      const resolveNodes = ['resolve_mode', 'agent_resolve'];
+
+      if (mode === 'action') {
+        resolveNodes.forEach(id => document.getElementById(`node-${id}`)?.classList.add('node-dimmed'));
+        // Light up Action paths
+        document.getElementById('wire-active-1-2').className.baseVal = 'n8n-wire-active';
+        document.getElementById('wire-active-2-3a').className.baseVal = 'n8n-wire-active';
+        document.getElementById('wire-active-3a-4a').className.baseVal = 'n8n-wire-active';
+        document.getElementById('wire-active-4a-5').className.baseVal = 'n8n-wire-active';
+        document.getElementById('wire-active-5-6').className.baseVal = 'n8n-wire-active';
+      } else if (mode === 'resolve') {
+        actionNodes.forEach(id => document.getElementById(`node-${id}`)?.classList.add('node-dimmed'));
+        // Light up Resolve paths
+        document.getElementById('wire-active-1-2').className.baseVal = 'n8n-wire-active';
+        document.getElementById('wire-active-2-3b').className.baseVal = 'n8n-wire-active';
+        document.getElementById('wire-active-3b-4b').className.baseVal = 'n8n-wire-active';
+        document.getElementById('wire-active-4b-5').className.baseVal = 'n8n-wire-active';
+        document.getElementById('wire-active-5-6').className.baseVal = 'n8n-wire-active';
+      } else {
+        // Both modes active
+        document.getElementById('wire-active-1-2').className.baseVal = 'n8n-wire-active';
+        document.getElementById('wire-active-2-3a').className.baseVal = 'n8n-wire-active';
+        document.getElementById('wire-active-3a-4a').className.baseVal = 'n8n-wire-active';
+        document.getElementById('wire-active-4a-5').className.baseVal = 'n8n-wire-active';
+        document.getElementById('wire-active-2-3b').className.baseVal = 'n8n-wire-active';
+        document.getElementById('wire-active-3b-4b').className.baseVal = 'n8n-wire-active';
+        document.getElementById('wire-active-4b-5').className.baseVal = 'n8n-wire-active';
+        document.getElementById('wire-active-5-6').className.baseVal = 'n8n-wire-active';
+      }
     }
 
     function resetWorkflowCards() {
-      const allNodes = ['trigger', 'orchestrator', 'action_mode', 'agent_action', 'resolve_mode', 'agent_resolve', 'smart_mode', 'agent_smart', 'unwind', 'terminal'];
+      const allNodes = ['trigger', 'orchestrator', 'action_mode', 'agent_action', 'resolve_mode', 'agent_resolve', 'unwind', 'terminal'];
       allNodes.forEach(id => {
         const el = document.getElementById(`node-${id}`);
-        if (el) {
-          el.classList.remove('node-running', 'node-completed', 'node-dimmed', 'active-selected');
-        }
+        if (el) el.classList.remove('node-running', 'node-completed', 'node-dimmed', 'active-selected');
         const b = document.getElementById(`badge-${id}`);
         if (b) b.textContent = 'Idle';
       });
 
-      // Reset active SVG wires
-      ['wire-active-1-2', 'wire-active-branch-in', 'wire-active-branch-mid', 'wire-active-branch-out', 'wire-active-5-6'].forEach(id => {
+      ['wire-active-1-2', 'wire-active-2-3a', 'wire-active-3a-4a', 'wire-active-4a-5', 'wire-active-2-3b', 'wire-active-3b-4b', 'wire-active-4b-5', 'wire-active-5-6'].forEach(id => {
         const w = document.getElementById(id);
         if (w) w.className.baseVal = 'n8n-wire-base';
       });
     }
 
-    function highlightActiveBranch(mode) {
-      const branches = {
-        action: ['action_mode', 'agent_action'],
-        resolve: ['resolve_mode', 'agent_resolve'],
-        smart: ['smart_mode', 'agent_smart']
-      };
+    // ==================== DYNAMIC POPUP MODAL (When Card is Clicked) ====================
+    function openNodeModal(nodeKey) {
+      const data = nodeInfoData[nodeKey];
+      if (!data) return;
 
-      const dim = [];
-      Object.keys(branches).forEach(k => {
-        if (k !== mode) {
-          dim.push(...branches[k]);
-        }
-      });
+      const modal = document.getElementById('node-modal');
+      const content = document.getElementById('modal-content');
 
-      dim.forEach(id => {
-        const el = document.getElementById(`node-${id}`);
-        if (el) el.classList.add('node-dimmed');
-      });
-    }
-
-    function inspectWorkflowNode(key) {
-      document.querySelectorAll('.workflow-node').forEach(c => c.classList.remove('active-selected'));
-      const activeEl = document.getElementById(`node-${key}`);
-      if (activeEl) activeEl.classList.add('active-selected');
-
-      const data = nodeInfoData[key] || nodeInfoData['orchestrator'];
-      const area = document.getElementById('inspector-content');
-
-      area.innerHTML = `
-        <div class="space-y-3">
-          <div class="flex items-center justify-between border-b border-slate-700 pb-2">
-            <div>
-              <span class="text-[10px] font-mono text-cyan-400 uppercase font-bold tracking-wider">${data.category}</span>
-              <h3 class="text-sm font-black text-white">${data.name}</h3>
-            </div>
-            <span class="text-[10px] font-mono font-bold bg-slate-800 text-cyan-300 px-2.5 py-1 rounded-full border border-slate-700">${data.latency}</span>
-          </div>
-
+      content.innerHTML = `
+        <div class="flex items-center gap-3 border-b border-slate-700 pb-3">
+          <span class="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-2xl">
+            ${data.icon}
+          </span>
           <div>
-            <span class="text-[10px] font-bold uppercase text-slate-400">Node Description:</span>
-            <p class="text-xs text-slate-300 mt-0.5 leading-relaxed font-medium">${data.desc}</p>
+            <span class="text-[10px] font-mono text-cyan-400 uppercase font-bold tracking-wider">${data.category}</span>
+            <h3 class="text-base sm:text-lg font-black text-white">${data.name}</h3>
           </div>
+          <span class="ml-auto text-xs font-mono font-bold bg-slate-800 text-cyan-300 px-3 py-1 rounded-full border border-slate-700">
+            ${data.latency}
+          </span>
+        </div>
 
-          <div>
-            <span class="text-[10px] font-bold uppercase text-slate-400">Technology & Framework:</span>
-            <div class="text-xs font-mono text-cyan-200 font-bold bg-slate-900/80 p-2 rounded-xl border border-slate-800 mt-0.5">
-              ${data.tech}
-            </div>
-          </div>
+        <div>
+          <div class="text-[11px] font-bold text-slate-400 uppercase">काम कसे चालते (How It Works):</div>
+          <p class="text-xs text-slate-200 mt-1 leading-relaxed font-medium bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+            ${data.desc_mr}
+          </p>
+          <p class="text-[11px] text-slate-400 mt-1 italic">
+            ${data.desc}
+          </p>
+        </div>
 
-          <div>
-            <span class="text-[10px] font-bold uppercase text-slate-400">Input Port Payload:</span>
-            <pre class="text-[10px] font-mono bg-slate-950 text-cyan-300 p-2.5 rounded-xl border border-slate-800 overflow-x-auto mt-0.5">${data.sample_in}</pre>
-          </div>
-
-          <div>
-            <span class="text-[10px] font-bold uppercase text-slate-400">Output Port Result:</span>
-            <pre class="text-[10px] font-mono bg-slate-950 text-emerald-400 p-2.5 rounded-xl border border-slate-800 overflow-x-auto mt-0.5">${data.sample_out}</pre>
+        <div>
+          <div class="text-[11px] font-bold text-slate-400 uppercase">Technology & Infrastructure:</div>
+          <div class="text-xs font-mono text-cyan-300 font-bold bg-slate-900 p-2.5 rounded-xl border border-slate-800 mt-1">
+            ${data.tech}
           </div>
         </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <div class="text-[10px] font-bold text-slate-400 uppercase">Inbound Payload:</div>
+            <pre class="text-[10px] font-mono bg-slate-950 text-cyan-300 p-2.5 rounded-xl border border-slate-800 overflow-x-auto mt-1">${data.sample_in}</pre>
+          </div>
+          <div>
+            <div class="text-[10px] font-bold text-slate-400 uppercase">Outbound Result:</div>
+            <pre class="text-[10px] font-mono bg-slate-950 text-emerald-400 p-2.5 rounded-xl border border-slate-800 overflow-x-auto mt-1">${data.sample_out}</pre>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
+          <button onclick="closeNodeModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl transition-all cursor-pointer">
+            Close
+          </button>
+          <button onclick="closeNodeModal(); executeWorkflowFlow();" class="px-5 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:brightness-110 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer">
+            ⚡ Run Pipeline Now
+          </button>
+        </div>
       `;
+
+      modal.classList.remove('hidden');
     }
 
-    // ==================== SEQUENTIAL NODE-BY-NODE WORKFLOW EXECUTION ====================
+    function closeNodeModal() {
+      document.getElementById('node-modal').classList.add('hidden');
+    }
+
+    // Close on outside click
+    window.addEventListener('click', (e) => {
+      const modal = document.getElementById('node-modal');
+      if (e.target === modal) closeNodeModal();
+    });
+
+    // ==================== ZOOM CONTROLS (+ / - / Reset) ====================
+    function zoomCanvas(delta) {
+      currentZoom = Math.min(Math.max(currentZoom + delta, 0.65), 1.35);
+      applyZoom();
+    }
+
+    function resetZoom() {
+      // Auto-fit to viewport width
+      const container = document.querySelector('.n8n-canvas-wrapper');
+      if (container && container.clientWidth < 1180) {
+        currentZoom = container.clientWidth / 1200;
+      } else {
+        currentZoom = 1.0;
+      }
+      applyZoom();
+    }
+
+    function applyZoom() {
+      const el = document.getElementById('zoomable-canvas');
+      if (el) {
+        el.style.transform = `scale(${currentZoom.toFixed(2)})`;
+      }
+      const ind = document.getElementById('zoom-indicator');
+      if (ind) ind.textContent = `${Math.round(currentZoom * 100)}%`;
+    }
+
+    // ==================== SEQUENTIAL WORKFLOW EXECUTION ====================
     async function executeWorkflowFlow() {
       if (isExecuting) return;
       isExecuting = true;
 
       const btn = document.getElementById('btn-execute-workflow');
-      const statusPill = document.getElementById('canvas-status-pill');
       const latencyBadge = document.getElementById('workflow-live-latency');
       const stepsLog = document.getElementById('workflow-steps-log');
       const aiMsg = document.getElementById('workflow-ai-msg');
 
       btn.disabled = true;
       btn.innerHTML = `<span class="animate-spin text-base">⏳</span> <span>Executing...</span>`;
-      statusPill.textContent = 'Executing Workflow Live...';
-      statusPill.className = 'text-amber-400 font-bold bg-amber-950/60 border border-amber-800 px-2.5 py-0.5 rounded-full animate-pulse';
 
-      resetWorkflowCards();
-      highlightActiveBranch(activeWorkflowMode);
+      highlightModeBranch(activeWorkflowMode);
 
       const cfg = modeConfigs[activeWorkflowMode];
-      const branchWireIn = document.getElementById('wire-active-branch-in');
-      const branchWireMid = document.getElementById('wire-active-branch-mid');
-      const branchWireOut = document.getElementById('wire-active-branch-out');
-
-      branchWireIn.setAttribute('d', cfg.wireBranchIn);
-      branchWireMid.setAttribute('d', cfg.wireBranchMid);
-      branchWireOut.setAttribute('d', cfg.wireBranchOut);
-
       stepsLog.innerHTML = `<div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-cyan-300 col-span-4 flex items-center justify-center gap-2">
-        <span class="animate-spin">🌀</span> Initiating pipeline against FastAPI Backend...
+        <span class="animate-spin">🌀</span> Calling FastAPI Backend (/api/chat)...
       </div>`;
       aiMsg.textContent = 'Processing request...';
 
       const startTime = performance.now();
 
-      // Helper function for step transition
       const stepRun = (nodeId, wireId, badgeText) => {
         return new Promise(res => {
           const el = document.getElementById(`node-${nodeId}`);
@@ -902,29 +1002,42 @@
               if (w) w.className.baseVal = 'n8n-wire-active';
             }
             res();
-          }, 320);
+          }, 300);
         });
       };
 
-      // 1. Trigger Node
+      // 1. Ingestion Node
       await stepRun('trigger', null, '✓ 40ms');
       
-      // 2. Wire 1-2 & Orchestrator Node
+      // 2. Router Node
       await stepRun('orchestrator', 'wire-active-1-2', '✓ 280ms');
 
-      // 3. Branch Wire & Mode Node
-      await stepRun(cfg.branchId, 'wire-active-branch-in', '✓ 50ms');
+      // 3. Branches
+      if (activeWorkflowMode === 'action') {
+        await stepRun('action_mode', 'wire-active-2-3a', '✓ 50ms');
+        await stepRun('agent_action', 'wire-active-3a-4a', '✓ 820ms');
+        await stepRun('unwind', 'wire-active-4a-5', '✓ 10ms');
+      } else if (activeWorkflowMode === 'resolve') {
+        await stepRun('resolve_mode', 'wire-active-2-3b', '✓ 50ms');
+        await stepRun('agent_resolve', 'wire-active-3b-4b', '✓ 1.0s');
+        await stepRun('unwind', 'wire-active-4b-5', '✓ 10ms');
+      } else {
+        // Both modes
+        await Promise.all([
+          stepRun('action_mode', 'wire-active-2-3a', '✓ 50ms'),
+          stepRun('resolve_mode', 'wire-active-2-3b', '✓ 50ms')
+        ]);
+        await Promise.all([
+          stepRun('agent_action', 'wire-active-3a-4a', '✓ 820ms'),
+          stepRun('agent_resolve', 'wire-active-3b-4b', '✓ 1.0s')
+        ]);
+        await stepRun('unwind', 'wire-active-4a-5', '✓ 10ms');
+      }
 
-      // 4. Mid Wire & Specialized Agent Node
-      await stepRun(cfg.agentId, 'wire-active-branch-mid', '✓ 750ms');
-
-      // 5. Out Wire & UNWIND Security Gate
-      await stepRun('unwind', 'wire-active-branch-out', '✓ 10ms');
-
-      // 6. Wire 5-6 & Terminal Settlement
+      // 4. Terminal Settlement Node
       await stepRun('terminal', 'wire-active-5-6', '✓ SUCCESS');
 
-      // Real Call to FastAPI Backend
+      // Call Backend API
       try {
         const resp = await fetch('http://localhost:8000/api/chat', {
           method: 'POST',
@@ -934,13 +1047,11 @@
 
         const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
         latencyBadge.textContent = `Latency: ${elapsed}s • Status 200 OK`;
-        statusPill.textContent = `Completed in ${elapsed}s (200 OK)`;
-        statusPill.className = 'text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800 px-2.5 py-0.5 rounded-full';
 
         if (resp.ok) {
           const d = await resp.json();
           activeAudioBase64 = d.audio_base64 || null;
-          aiMsg.textContent = d.ai_message || 'Workflow finished successfully.';
+          aiMsg.textContent = d.ai_message || 'Workflow executed successfully.';
 
           const steps = d.steps_log || [];
           if (steps.length > 0) {
@@ -956,7 +1067,6 @@
             `).join('');
           }
 
-          // Auto-play audio if available
           if (activeAudioBase64 && window.paytm) {
             window.paytm.playSarvamAudio(activeAudioBase64);
           }
@@ -964,22 +1074,19 @@
       } catch (err) {
         const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
         latencyBadge.textContent = `Latency: ${elapsed}s (Simulated)`;
-        statusPill.textContent = `Completed in ${elapsed}s (Simulated)`;
-        statusPill.className = 'text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800 px-2.5 py-0.5 rounded-full';
-        
-        aiMsg.textContent = `मी तुमच्यासाठी ${cfg.title} ची विनंती यशस्वीरित्या प्रोसेस केली आहे. (Simulated Output)`;
+        aiMsg.textContent = `मी तुमच्यासाठी ${cfg.title} ची विनंती पूर्ण केली आहे.`;
         stepsLog.innerHTML = `
           <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
             <span class="text-blue-700 font-bold">⚡ Step 1: Ingestion</span>
-            <div class="text-xs text-slate-700 mt-1">Normalizing voice query in Marathi</div>
+            <div class="text-xs text-slate-700 mt-1">Spoken Marathi audio normalized</div>
           </div>
           <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
             <span class="text-blue-700 font-bold">⚡ Step 2: Routing</span>
-            <div class="text-xs text-slate-700 mt-1">Intent mapped to ${cfg.title}</div>
+            <div class="text-xs text-slate-700 mt-1">Intent assigned to ${cfg.title}</div>
           </div>
           <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-            <span class="text-blue-700 font-bold">⚡ Step 3: Execution</span>
-            <div class="text-xs text-slate-700 mt-1">Specialized agents completed task</div>
+            <span class="text-blue-700 font-bold">⚡ Step 3: Agents</span>
+            <div class="text-xs text-slate-700 mt-1">Specialized squad completed execution</div>
           </div>
           <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
             <span class="text-blue-700 font-bold">⚡ Step 4: UNWIND Gate</span>
@@ -1002,9 +1109,14 @@
       }
     }
 
-    // Default initialization
+    // Auto initialize on load
     window.addEventListener('DOMContentLoaded', () => {
+      resetZoom();
       setFlowMode('action');
+    });
+
+    window.addEventListener('resize', () => {
+      resetZoom();
     });
   </script>
 </body>
