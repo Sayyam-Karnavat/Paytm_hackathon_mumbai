@@ -841,11 +841,11 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         })
 
         if lang == "mr":
-            ai_msg = "या महिन्यात तुमचा एकूण खर्च ₹14,850 झाला आहे. यात सर्वाधिक 34% (₹5,050) खर्च जेवण आणि ग्रोसरीवर झाला आहे. RuPay क्रेडिट कार्ड व पेटीएम कॅशबॅक वापरून तुम्ही पुढील महिन्यात ₹580 वाचवू शकता."
+            ai_msg = "या महिन्यात तुमचा एकूण खर्च ₹9,150 झाला आहे. यात सर्वाधिक 49% (₹4,500) खर्च शॉपिंगवर झाला आहे. तुमच्या खर्चात recurring सबस्क्रिप्शन आढळल्या असून आढावा घेतल्यास दरमहा ₹499 पर्यंत बचत शक्य आहे."
         elif lang == "hi":
-            ai_msg = "इस महीने आपका कुल खर्च ₹14,850 हुआ है। इसमें सबसे ज्यादा 34% (₹5,050) खर्च खाने-पीने और डाइनिंग पर हुआ है। RuPay क्रेडिट कार्ड और कैशबैक से आप ₹580 बचा सकते हैं।"
+            ai_msg = "इस महीने आपका कुल खर्च ₹9,150 हुआ है। इसमें सबसे ज्यादा 49% (₹4,500) खर्च शॉपिंग पर हुआ है। आपकी recurring सब्सक्रिप्शन से आप हर महीने ₹499 तक बचा सकते हैं।"
         else:
-            ai_msg = "You spent ₹14,850 this month. Top category is Food & Dining at 34% (₹5,050). Switch to Paytm RuPay UPI to save up to ₹580 next month."
+            ai_msg = "Your total monthly spend is ₹9,150. Top category is Shopping at 49% (₹4,500). Reviewing your recurring subscriptions can save you up to ₹499/month."
 
         steps_log.append({
             "step": 4,
@@ -861,24 +861,23 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "language": lang,
             "ai_message": ai_msg,
             "service_data": {
-                "total_spent": 14850,
+                "total_spent": 9150,
                 "month": "November 2026",
                 "categories": [
-                    {"name": "Food & Dining", "name_mr": "फूड व जेवण", "icon": "🍔", "amount": 5050, "percent": 34, "color": "emerald"},
-                    {"name": "Travel & Commute", "name_mr": "प्रवास व पेट्रोल", "icon": "🚗", "amount": 3860, "percent": 26, "color": "cyan"},
-                    {"name": "Utility Bills & Recharge", "name_mr": "लाईट बिल व रिचार्ज", "icon": "⚡", "amount": 3260, "percent": 22, "color": "amber"},
-                    {"name": "Shopping & Mall", "name_mr": "शॉपिंग व खरेदी", "icon": "🛍️", "amount": 2680, "percent": 18, "color": "purple"}
+                    {"name": "Shopping", "name_mr": "शॉपिंग व खरेदी", "icon": "🛍️", "amount": 4500, "percent": 49, "color": "purple"},
+                    {"name": "Food & Zomato", "name_mr": "फूड व जोमॅटो", "icon": "🍔", "amount": 3200, "percent": 35, "color": "emerald"},
+                    {"name": "Bills & Recharge", "name_mr": "लाईट बिल व रिचार्ज", "icon": "⚡", "amount": 1450, "percent": 16, "color": "amber"}
                 ],
                 "recurring_bills": [
-                    {"name": "MSEDCL Electricity", "amount": 1420, "due": "Due in 5 days", "status": "upcoming"},
-                    {"name": "Jio 5G Unlimited", "amount": 299, "due": "Due in 3 days", "status": "upcoming"},
-                    {"name": "Netflix Premium", "amount": 649, "due": "Auto-debit 28th", "status": "active"}
+                    {"name": "Netflix Mobile", "amount": 199, "due": "Auto-debit 28th", "status": "active"},
+                    {"name": "Disney+ Hotstar", "amount": 149, "due": "Auto-debit 24th", "status": "active"},
+                    {"name": "Jio Prime Membership", "amount": 151, "due": "Due in 3 days", "status": "upcoming"}
                 ],
                 "savings_tip": {
-                    "title": "AI Smart Savings Opportunity",
-                    "title_mr": "एआय बचत संधी",
-                    "saving_amount": 580,
-                    "desc": "Link your RuPay Credit Card to Paytm UPI for 5% instant cashback on grocery & fuel plus ₹200 off on utility bills."
+                    "title": "AI Savings Insight",
+                    "title_mr": "एआय बचत सल्ला",
+                    "saving_amount": 499,
+                    "desc": "तुमच्या खर्चात recurring subscriptions आढळल्या. त्यांचा आढावा घेतल्यास दरमहा ₹499 पर्यंत बचत होण्याची शक्यता आहे."
                 }
             },
             "steps_log": steps_log,

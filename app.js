@@ -575,34 +575,30 @@ class PaytmAgentOrchestrator {
   updateModeTabsUi(mode) {
     const actBtn = document.getElementById('mode-tab-action');
     const resBtn = document.getElementById('mode-tab-resolve');
+    const smBtn = document.getElementById('mode-tab-smart_money');
     const promptInput = document.getElementById('user-chat-prompt');
 
+    if (actBtn) actBtn.className = 'px-3 py-1 rounded-full text-xs font-black text-slate-600 hover:text-blue-900 cursor-pointer flex items-center gap-1 transition-all';
+    if (resBtn) resBtn.className = 'px-3 py-1 rounded-full text-xs font-black text-slate-600 hover:text-red-700 cursor-pointer flex items-center gap-1 transition-all';
+    if (smBtn) smBtn.className = 'px-3 py-1 rounded-full text-xs font-black text-slate-600 hover:text-emerald-700 cursor-pointer flex items-center gap-1 transition-all';
+
     if (mode === 'action') {
-      if (actBtn) {
-        actBtn.className = 'px-3 py-1 rounded-full text-xs font-black bg-[#002970] text-white shadow-xs cursor-pointer flex items-center gap-1 transition-all';
-      }
-      if (resBtn) {
-        resBtn.className = 'px-3 py-1 rounded-full text-xs font-black text-slate-600 hover:text-red-700 cursor-pointer flex items-center gap-1 transition-all';
-      }
-      if (promptInput) {
-        promptInput.placeholder = 'बोलिए या टाइप करें... (उदा. Jio 299 रिचार्ज, पुणे ते मुंबई बस, 1000 मध्ये हॉटेल, 50% ऑफ शॉपिंग...)';
-      }
-    } else {
-      if (actBtn) {
-        actBtn.className = 'px-3 py-1 rounded-full text-xs font-black text-slate-600 hover:text-blue-900 cursor-pointer flex items-center gap-1 transition-all';
-      }
-      if (resBtn) {
-        resBtn.className = 'px-3 py-1 rounded-full text-xs font-black bg-rose-600 text-white shadow-xs cursor-pointer flex items-center gap-1 transition-all';
-      }
-      if (promptInput) {
-        promptInput.placeholder = 'आपकी समस्या बताएं... (उदा. पैसे कट गए रिचार्ज नहीं हुआ, रिफंड अटका है, मर्चेंट को पैसे नहीं मिले...)';
-      }
+      if (actBtn) actBtn.className = 'px-3 py-1 rounded-full text-xs font-black bg-[#002970] text-white shadow-xs cursor-pointer flex items-center gap-1 transition-all';
+      if (promptInput) promptInput.placeholder = 'बोलिए या टाइप करें... (उदा. Jio 299 रिचार्ज, पुणे ते मुंबई बस, 1000 मध्ये हॉटेल, 50% ऑफ शॉपिंग...)';
+    } else if (mode === 'resolve') {
+      if (resBtn) resBtn.className = 'px-3 py-1 rounded-full text-xs font-black bg-rose-600 text-white shadow-xs cursor-pointer flex items-center gap-1 transition-all';
+      if (promptInput) promptInput.placeholder = 'आपकी समस्या बताएं... (उदा. पैसे कट गए रिचार्ज नहीं हुआ, रिफंड अटका है, मर्चेंट को पैसे नहीं मिले...)';
+    } else if (mode === 'smart_money') {
+      if (smBtn) smBtn.className = 'px-3 py-1 rounded-full text-xs font-black bg-emerald-600 text-white shadow-xs cursor-pointer flex items-center gap-1 transition-all';
+      if (promptInput) promptInput.placeholder = 'Smart Money ला विचारा... (उदा. या महिन्यात किती खर्च झाला?, सर्वाधिक पैसे कुठे गेले?, कुठे बचत करता येईल?)';
     }
   }
 
   renderModeShowcase(mode) {
     if (mode === 'resolve') {
       this.renderResolveShowcase();
+    } else if (mode === 'smart_money') {
+      this.renderSmartMoneyShowcase();
     } else {
       this.renderActionShowcase();
     }
@@ -818,6 +814,160 @@ class PaytmAgentOrchestrator {
             <button onclick="window.agentEngine.processQuery('Refund not received yet 4 days passed')" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-900 text-xs font-bold rounded-xl border border-sky-200 cursor-pointer">↩️ 4 दिवस झाले रिफंड नाही</button>
             <button onclick="window.agentEngine.processQuery('Galti se dusre number par UPI transfer ho gaya')" class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold rounded-xl border border-amber-200 cursor-pointer">⚠️ चुकीच्या नंबरवर UPI ट्रान्सफर</button>
             <button onclick="window.agentEngine.processQuery('Merchant claims payment not received but money debited')" class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-900 text-xs font-bold rounded-xl border border-purple-200 cursor-pointer">🏪 मर्चंट म्हणतो पैसे नाही मिळाले</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Smart Money Intelligence Showcase
+  renderSmartMoneyShowcase() {
+    const container = document.getElementById('workspace-dynamic-content');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-emerald-400 text-left animate-in fade-in duration-200">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-emerald-100">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-2xl shadow-xs">📊</div>
+            <div>
+              <h2 class="text-base sm:text-lg font-black text-[#002970]">Paytm Smart Money</h2>
+              <p class="text-xs text-emerald-800 font-semibold">PAYTM AI HUB • Your Personal AI Money Advisor</p>
+            </div>
+          </div>
+          <span class="text-xs font-black bg-emerald-100 text-emerald-900 px-3 py-1 rounded-full">Finance Intelligence</span>
+        </div>
+
+        <!-- Smart Money Banner Image (Crisp 3D Card) -->
+        <div class="mb-4 text-center">
+          <img src="assets/paytm_smart_money_card.png?v=full_crisp" alt="Paytm Smart Money" class="max-h-28 sm:max-h-32 mx-auto rounded-2xl shadow-lg border-2 border-emerald-400 hover:scale-102 transition-all">
+        </div>
+
+        <!-- Monthly Spending & Interactive Analytics Card -->
+        <div class="bg-slate-900 text-white rounded-2xl p-4 sm:p-5 mb-4 shadow-lg border border-slate-800">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3 pb-3 border-b border-slate-800">
+            <div>
+              <span class="text-[10px] font-mono uppercase tracking-wider text-cyan-400 font-bold">MONTHLY SPENDING (या महिन्यातील एकूण खर्च)</span>
+              <div class="text-3xl font-black text-white mt-0.5">₹9,150</div>
+              <div class="text-[11px] text-slate-400">उदाहरणार्थ Demo Data • 32 Payments Analyzed</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="window.agentEngine.processQuery('या महिन्यात किती खर्च झाला?')" class="px-3.5 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5">
+                <span>🤖</span> <span>AI Voice Analysis</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Category Progress Bars -->
+          <div class="space-y-2.5">
+            <div class="text-xs font-bold text-slate-300 mb-1">तुमचे पैसे कुठे खर्च झाले?</div>
+            
+            <!-- Shopping 49% -->
+            <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
+              <div class="flex justify-between items-center text-xs font-bold mb-1">
+                <div class="flex items-center gap-2">
+                  <span>🛍️</span>
+                  <span>Shopping</span>
+                </div>
+                <span class="font-mono text-cyan-300">₹4,500 <span class="text-slate-400 text-[10px]">(49%)</span></span>
+              </div>
+              <div class="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+                <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style="width: 49%"></div>
+              </div>
+            </div>
+
+            <!-- Food & Zomato 35% -->
+            <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
+              <div class="flex justify-between items-center text-xs font-bold mb-1">
+                <div class="flex items-center gap-2">
+                  <span>🍔</span>
+                  <span>Food & Zomato</span>
+                </div>
+                <span class="font-mono text-emerald-400">₹3,200 <span class="text-slate-400 text-[10px]">(35%)</span></span>
+              </div>
+              <div class="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+                <div class="bg-gradient-to-r from-emerald-400 to-teal-500 h-2 rounded-full" style="width: 35%"></div>
+              </div>
+            </div>
+
+            <!-- Bills & Recharge 16% -->
+            <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
+              <div class="flex justify-between items-center text-xs font-bold mb-1">
+                <div class="flex items-center gap-2">
+                  <span>⚡</span>
+                  <span>Bills & Recharge</span>
+                </div>
+                <span class="font-mono text-amber-300">₹1,450 <span class="text-slate-400 text-[10px]">(16%)</span></span>
+              </div>
+              <div class="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+                <div class="bg-gradient-to-r from-amber-400 to-orange-500 h-2 rounded-full" style="width: 16%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Savings Insight Box -->
+        <div class="p-4 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-blue-500/10 rounded-2xl border border-emerald-300 mb-4 flex items-center justify-between gap-3">
+          <div class="flex items-start gap-2.5">
+            <span class="text-2xl">💡</span>
+            <div>
+              <div class="text-xs font-black text-emerald-950 flex items-center gap-1.5">
+                <span>AI Savings Insight</span>
+                <span class="bg-emerald-200 text-emerald-900 text-[10px] font-bold px-2 py-0.5 rounded-full">बचत ₹499/महिना</span>
+              </div>
+              <p class="text-xs text-slate-700 mt-1 leading-relaxed">तुमच्या खर्चात recurring subscriptions आढळल्या. त्यांचा आढावा घेतल्यास दरमहा ₹499 पर्यंत बचत होण्याची शक्यता आहे.</p>
+            </div>
+          </div>
+          <button onclick="window.agentEngine.processQuery('माझे recurring payments कोणते आहेत?')" class="shrink-0 px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:brightness-110 text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer">
+            आढावा घ्या
+          </button>
+        </div>
+
+        <!-- 4 Core Pillars Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
+          <!-- Pillar 1: Expense Analysis -->
+          <button onclick="window.agentEngine.processQuery('या महिन्यात माझे पैसे कुठे जास्त खर्च झाले?')" class="p-3 bg-slate-50 hover:bg-emerald-50 rounded-2xl border border-slate-200 hover:border-emerald-300 text-left transition-all cursor-pointer">
+            <div class="text-2xl mb-1">📊</div>
+            <div class="text-xs font-black text-[#002970]">Expense Analysis</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">पैसे कुठे खर्च झाले?</div>
+          </button>
+
+          <!-- Pillar 2: Recurring Payments -->
+          <button onclick="window.agentEngine.processQuery('माझे recurring payments कोणते?')" class="p-3 bg-slate-50 hover:bg-emerald-50 rounded-2xl border border-slate-200 hover:border-emerald-300 text-left transition-all cursor-pointer">
+            <div class="text-2xl mb-1">🔄</div>
+            <div class="text-xs font-black text-[#002970]">Recurring Payments</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">नियमित खर्च शोधणे</div>
+          </button>
+
+          <!-- Pillar 3: Smart Savings -->
+          <button onclick="window.agentEngine.processQuery('कुठे पैसे वाचवता येतील?')" class="p-3 bg-slate-50 hover:bg-emerald-50 rounded-2xl border border-slate-200 hover:border-emerald-300 text-left transition-all cursor-pointer">
+            <div class="text-2xl mb-1">🪙</div>
+            <div class="text-xs font-black text-[#002970]">Smart Savings</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">बचतीच्या संधी दाखवणे</div>
+          </button>
+
+          <!-- Pillar 4: Budget Planner -->
+          <button onclick="window.agentEngine.processQuery('5000 मध्ये महिन्याचा budget बनव')" class="p-3 bg-slate-50 hover:bg-emerald-50 rounded-2xl border border-slate-200 hover:border-emerald-300 text-left transition-all cursor-pointer">
+            <div class="text-2xl mb-1">🎯</div>
+            <div class="text-xs font-black text-[#002970]">Budget Planner</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">आर्थिक नियोजन</div>
+          </button>
+        </div>
+
+        <!-- 7 One-Tap Ask Money AI Question Chips -->
+        <div class="pt-3 border-t border-slate-200/80">
+          <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2 flex items-center gap-1.5">
+            <span>🤖</span> <span>Ask Money AI (विचारून माहिती घ्या):</span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="window.agentEngine.processQuery('या महिन्यात किती खर्च झाला?')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold rounded-xl border border-emerald-200 cursor-pointer">💰 या महिन्यात किती खर्च झाला?</button>
+            <button onclick="window.agentEngine.processQuery('सर्वाधिक पैसे कुठे गेले?')" class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-900 text-xs font-bold rounded-xl border border-purple-200 cursor-pointer">🛍️ सर्वाधिक पैसे कुठे गेले?</button>
+            <button onclick="window.agentEngine.processQuery('माझे recurring payments कोणते?')" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-900 text-xs font-bold rounded-xl border border-blue-200 cursor-pointer">🔄 Recurring payments कोणते?</button>
+            <button onclick="window.agentEngine.processQuery('कुठे पैसे वाचवता येतील?')" class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold rounded-xl border border-amber-200 cursor-pointer">💡 कुठे पैसे वाचवता येतील?</button>
+            <button onclick="window.agentEngine.processQuery('माझा प्रवासाचा खर्च किती झाला?')" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-900 text-xs font-bold rounded-xl border border-sky-200 cursor-pointer">🚗 प्रवासाचा खर्च किती झाला?</button>
+            <button onclick="window.agentEngine.processQuery('5000 मध्ये महिन्याचा budget बनव')" class="px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-900 text-xs font-bold rounded-xl border border-teal-200 cursor-pointer">🎯 ₹5,000 मध्ये बजेट बनव</button>
+            <button onclick="window.agentEngine.processQuery('मागील महिन्यापेक्षा खर्च वाढला का?')" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-900 text-xs font-bold rounded-xl border border-rose-200 cursor-pointer">📈 मागील महिन्याशी तुलना</button>
           </div>
         </div>
       </div>
