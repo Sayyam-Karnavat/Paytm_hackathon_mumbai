@@ -285,12 +285,20 @@
 
 
       <!-- D. 3 PROMO CARDS -->
-      <!-- Promo 1: Download App -->
-      <div onclick="paytm.openModal('download-modal')" 
-           class="hotspot ripple-effect" 
-           title="Download Paytm App"
-           style="left: 11.2%; top: 68.0%; width: 10.4%; height: 5.1%; border-radius: 9999px;">
-      </div>
+      <!-- Promo 1: NEW INSIDE PAYTM AI (LIVE SYSTEM ARCHITECTURE SHOWCASE) -->
+      <a href="system-showcase.html" 
+         onclick="paytm.playSound('chime'); paytm.showToast('⚡ Opening Inside Paytm AI — Live System Showcase...', 'ai', '🤖')"
+         class="hotspot hotspot-ai-card ripple-effect group" 
+         title="Inside Paytm AI — Live System Architecture & Agent Showcase (Click to Launch)"
+         style="position: absolute; left: 9.25%; top: 54.8%; width: 27.0%; height: 23.5%; z-index: 25; border-radius: 24px; overflow: hidden; cursor: pointer; filter: drop-shadow(0 10px 30px rgba(0, 185, 241, 0.4)); display: block; background: #ffffff;">
+        <img src="assets/inside_paytm_ai_card.png?v=full_crisp" alt="Inside Paytm AI - Live System Showcase" class="w-full h-full object-fill pointer-events-none group-hover:scale-103 transition-all duration-300">
+        
+        <!-- Live Glow Indicator -->
+        <span class="absolute top-3.5 right-3.5 flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-80"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-[#002970] shadow-[0_0_8px_#00b9f1]"></span>
+        </span>
+      </a>
 
       <!-- Promo 2: NEW PAYTM SMART MONEY CARD OVERLAY -->
       <a href="ai-workspace.html?mode=smart_money" 

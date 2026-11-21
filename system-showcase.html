@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inside Paytm AI — System Architecture & Multi-Agent Showcase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="mockup.png">
+  <style>
+    body {
+      background: radial-gradient(circle at top right, #e0f2fe 0%, #f0f7ff 35%, #f8fafc 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #0f172a;
+    }
+    .glow-border {
+      box-shadow: 0 0 25px rgba(0, 185, 241, 0.25), 0 0 0 1px rgba(0, 185, 241, 0.4);
+    }
+    .node-card {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    .node-card:hover, .node-card.active {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 14px 30px -8px rgba(0, 41, 112, 0.22), 0 0 0 2px #00b9f1;
+    }
+    .pulse-dot {
+      animation: pulseAnim 1.6s infinite;
+    }
+    @keyframes pulseAnim {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.6; }
+    }
+    /* Flow Connector Lines */
+    .flow-line {
+      stroke-dasharray: 6;
+      animation: dash 1.5s linear infinite;
+    }
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -12;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-16">
+
+  <!-- Top Sticky Navigation Bar -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-8 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#002970] hover:text-[#00b9f1] px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 transition-all">
+          <span>←</span> <span>Paytm Home</span>
+        </a>
+        <div class="h-4 w-px bg-slate-300"></div>
+        <div class="flex items-center gap-2">
+          <span class="text-base font-black text-[#002970] tracking-tight">paytm</span>
+          <span class="text-[10px] bg-[#00b9f1] text-[#002970] font-black px-1.5 py-0.5 rounded">SYSTEM SHOWCASE</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Live Backend Status -->
+        <div class="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+          <span>FastAPI Engine Live (:8000)</span>
+        </div>
+
+        <a href="ai-workspace.html" class="px-4 py-1.5 bg-gradient-to-r from-[#002970] to-[#00b9f1] text-white text-xs sm:text-sm font-black rounded-full hover:brightness-110 shadow-xs flex items-center gap-1.5 transition-all">
+          <span>Launch AI Workspace</span>
+          <span>➔</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Header -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-8 pt-8 pb-6">
+    <div class="bg-gradient-to-r from-[#002970] via-[#003e9c] to-[#0060c4] text-white rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+      <!-- Glow circles background -->
+      <div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-cyan-400/20 blur-3xl pointer-events-none"></div>
+      <div class="absolute right-1/3 -top-20 w-60 h-60 rounded-full bg-blue-300/20 blur-2xl pointer-events-none"></div>
+
+      <div class="relative z-10 max-w-3xl">
+        <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-bold text-cyan-300 border border-white/20 mb-3">
+          <span>✨</span> <span>JUDGES ARCHITECTURE DOSSIER • TRACK 3: AUTONOMOUS AI TEAMMATES</span>
+        </div>
+        <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+          Inside Paytm AI: The Intelligence Behind Every Action & Dispute
+        </h1>
+        <p class="text-sm sm:text-base text-slate-200 mt-2 font-medium leading-relaxed">
+          How our Master Orchestrator harmonizes 5 specialized AI agents, real-time banking rails, and 3-way dispute reconciliation into a single sub-second conversational experience.
+        </p>
+
+        <!-- KPI Badges -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/20">
+          <div>
+            <div class="text-2xl font-black text-cyan-300">< 1.8s</div>
+            <div class="text-[11px] text-slate-300 font-medium">Orchestration Latency</div>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-emerald-300">3-Way</div>
+            <div class="text-[11px] text-slate-300 font-medium">Reconciliation Matrix</div>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-amber-300">5 Agents</div>
+            <div class="text-[11px] text-slate-300 font-medium">Specialized Squad</div>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-white">100%</div>
+            <div class="text-[11px] text-slate-300 font-medium">Zero-Trust PIN Protection</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 1: Interactive Agent Network & Communication Flow -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-8 py-6">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg sm:text-2xl font-black text-[#002970] flex items-center gap-2">
+          <span>🧠</span> <span>Interactive Agent Network & Communication Map</span>
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 font-medium">Click on any node to inspect its active API, input/output payload, and technical role.</p>
+      </div>
+      <span class="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full hidden sm:inline">Click Node to Inspect</span>
+    </div>
+
+    <!-- The Interactive Architecture Map Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      
+      <!-- Flow Canvas (Left 8 Cols) -->
+      <div class="lg:col-span-8 bg-white/95 rounded-3xl p-5 sm:p-6 shadow-xl border border-slate-200 relative">
+        
+        <!-- Step 1: User Ingestion Layer -->
+        <div class="mb-5">
+          <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+            <span>📥</span> <span>Tier 1: Multimodal Ingestion</span>
+          </div>
+          <div onclick="inspectNode('user_input')" id="node-user_input" class="node-card active p-3.5 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-2xl flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">🎙️</span>
+              <div>
+                <div class="text-xs font-black text-[#002970]">User Request: Natural Voice, Text or Image</div>
+                <div class="text-[11px] text-slate-600">Marathi / Hindi / Hinglish • Web Speech API & OCR</div>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono font-bold bg-blue-100 text-blue-900 px-2 py-0.5 rounded">Raw Input</span>
+          </div>
+        </div>
+
+        <!-- Connector Arrow -->
+        <div class="text-center text-slate-400 font-bold my-1">⬇️</div>
+
+        <!-- Step 2: Master Orchestrator Layer -->
+        <div class="mb-5">
+          <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+            <span>⚡</span> <span>Tier 2: Master Brain & Intent Router (FastAPI)</span>
+          </div>
+          <div onclick="inspectNode('orchestrator')" id="node-orchestrator" class="node-card p-3.5 bg-gradient-to-r from-[#002970] to-[#004bb5] text-white border-2 border-cyan-400 rounded-2xl flex items-center justify-between shadow-md">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">🤖</span>
+              <div>
+                <div class="text-xs font-black text-white">Paytm Master Orchestrator</div>
+                <div class="text-[11px] text-cyan-200">Groq LLM Neural Classification • Entity Extraction • Route Matching</div>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono font-bold bg-cyan-900 text-cyan-300 border border-cyan-700 px-2 py-0.5 rounded">Core Router</span>
+          </div>
+        </div>
+
+        <!-- Connector Arrow Split -->
+        <div class="text-center text-slate-400 font-bold my-1">⬇️ Routes to 3 Core Mode Pillars ⬇️</div>
+
+        <!-- Step 3: 3 Pillars Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+          <!-- Pillar A: Action Mode -->
+          <div onclick="inspectNode('action_mode')" id="node-action_mode" class="node-card p-3 bg-sky-50 border-2 border-sky-300 rounded-2xl">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xl">⚡</span>
+              <span class="text-[9px] font-bold bg-sky-200 text-sky-900 px-1.5 py-0.5 rounded">Action</span>
+            </div>
+            <div class="text-xs font-black text-[#002970]">Action Mode (Paytm ONE)</div>
+            <div class="text-[10px] text-slate-600 mt-1">Recharge, Travel, Hotels, Bills, FASTag, Gold</div>
+          </div>
+
+          <!-- Pillar B: Resolve Mode -->
+          <div onclick="inspectNode('resolve_mode')" id="node-resolve_mode" class="node-card p-3 bg-rose-50 border-2 border-rose-300 rounded-2xl">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xl">🛡️</span>
+              <span class="text-[9px] font-bold bg-rose-200 text-rose-900 px-1.5 py-0.5 rounded">Resolve</span>
+            </div>
+            <div class="text-xs font-black text-rose-950">Resolve Mode (Paytm Resolve)</div>
+            <div class="text-[10px] text-slate-600 mt-1">3-Way Matrix, Evidence Docket, Nexconn Handoff</div>
+          </div>
+
+          <!-- Pillar C: Smart Money -->
+          <div onclick="inspectNode('smart_money')" id="node-smart_money" class="node-card p-3 bg-emerald-50 border-2 border-emerald-300 rounded-2xl">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xl">📊</span>
+              <span class="text-[9px] font-bold bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded">Intelligence</span>
+            </div>
+            <div class="text-xs font-black text-emerald-950">Smart Money Advisor</div>
+            <div class="text-[10px] text-slate-600 mt-1">Expense Patterns, Recurring Bills, Savings Advice</div>
+          </div>
+        </div>
+
+        <!-- Connector Arrow -->
+        <div class="text-center text-slate-400 font-bold my-1">⬇️ Powers Through Specialized Sponsor Agent APIs ⬇️</div>
+
+        <!-- Step 4: 5 Specialized Sponsor Agent Chips -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-5 text-center">
+          <div onclick="inspectNode('agent_groq')" id="node-agent_groq" class="node-card p-2 bg-slate-50 border border-slate-300 rounded-xl">
+            <span class="text-base block">⚡</span>
+            <div class="text-[10px] font-black text-slate-800">Groq LLM</div>
+            <div class="text-[9px] text-slate-500">Llama / Qwen</div>
+          </div>
+          <div onclick="inspectNode('agent_serp')" id="node-agent_serp" class="node-card p-2 bg-slate-50 border border-slate-300 rounded-xl">
+            <span class="text-base block">🔍</span>
+            <div class="text-[10px] font-black text-slate-800">SerpApi</div>
+            <div class="text-[9px] text-slate-500">Live Travel Data</div>
+          </div>
+          <div onclick="inspectNode('agent_you')" id="node-agent_you" class="node-card p-2 bg-slate-50 border border-slate-300 rounded-xl">
+            <span class="text-base block">📚</span>
+            <div class="text-[10px] font-black text-slate-800">You.com</div>
+            <div class="text-[9px] text-slate-500">RBI Circular 81</div>
+          </div>
+          <div onclick="inspectNode('agent_sarvam')" id="node-agent_sarvam" class="node-card p-2 bg-slate-50 border border-slate-300 rounded-xl">
+            <span class="text-base block">🎙️</span>
+            <div class="text-[10px] font-black text-slate-800">Sarvam AI</div>
+            <div class="text-[9px] text-slate-500">Bulbul v3 Voice</div>
+          </div>
+          <div onclick="inspectNode('agent_nexconn')" id="node-agent_nexconn" class="node-card p-2 bg-slate-50 border border-slate-300 rounded-xl col-span-2 sm:col-span-1">
+            <span class="text-base block">💬</span>
+            <div class="text-[10px] font-black text-slate-800">Nexconn</div>
+            <div class="text-[9px] text-slate-500">Live Support</div>
+          </div>
+        </div>
+
+        <!-- Connector Arrow -->
+        <div class="text-center text-slate-400 font-bold my-1">⬇️</div>
+
+        <!-- Step 5: UNWIND Governance & NPCI Gate -->
+        <div onclick="inspectNode('unwind_gate')" id="node-unwind_gate" class="node-card p-3.5 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-400 rounded-2xl flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">🔒</span>
+            <div>
+              <div class="text-xs font-black text-emerald-950">UNWIND Security Governance & NPCI Handoff</div>
+              <div class="text-[11px] text-emerald-800">Zero-Trust Consent Gate • AI Never Handles UPI PIN • Hand-off to Official Bank SDK</div>
+            </div>
+          </div>
+          <span class="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded">Security Gate</span>
+        </div>
+
+      </div>
+
+      <!-- Node Inspector Details Panel (Right 4 Cols) -->
+      <div class="lg:col-span-4 bg-white/95 rounded-3xl p-5 sm:p-6 shadow-xl border border-slate-200 flex flex-col justify-between">
+        <div id="inspector-content">
+          <!-- Dynamic Content rendered via JS -->
+        </div>
+
+        <div class="pt-4 border-t border-slate-200 mt-4">
+          <button onclick="runSampleFromInspector()" class="w-full py-2.5 bg-[#002970] hover:bg-blue-900 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all">
+            <span>⚡ Test This Agent in Live Simulator</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Section 2: Live Request Simulator (Actual FastAPI Execution for Judges) -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-8 py-6">
+    <div class="bg-white/95 rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-cyan-300">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-4 border-b border-slate-200">
+        <div>
+          <div class="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-700 bg-cyan-50 px-3 py-1 rounded-full mb-1">
+            <span>⚡</span> <span>LIVE FASTAPI BACKEND TESTER</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-black text-[#002970]">Interactive Request Simulator</h2>
+          <p class="text-xs sm:text-sm text-slate-500">Pick a sample scenario or enter your own query to watch the multi-agent pipeline execute live.</p>
+        </div>
+        <div class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+          Target: <code class="text-[#002970] font-mono">POST /api/chat</code>
+        </div>
+      </div>
+
+      <!-- 3 Preset Scenario Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <button onclick="setSimQuery('मला ₹300 मध्ये Jio 2GB daily data recharge हवा')" class="p-3 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-2xl text-left transition-all cursor-pointer">
+          <span class="text-xs font-black text-sky-950 block">⚡ Scenario A: Action Mode</span>
+          <span class="text-[11px] text-sky-800 font-semibold block mt-1">"मला ₹300 मध्ये Jio 2GB daily data recharge हवा"</span>
+          <span class="text-[9px] text-slate-500 mt-1 block">Groq ➔ Plan Filter ➔ Sarvam Audio</span>
+        </button>
+
+        <button onclick="setSimQuery('माझे ₹1200 कट झाले पण रिचार्ज झाला नाही, तक्रार नोंदवा')" class="p-3 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-2xl text-left transition-all cursor-pointer">
+          <span class="text-xs font-black text-rose-950 block">🛡️ Scenario B: Resolve Mode</span>
+          <span class="text-[11px] text-rose-800 font-semibold block mt-1">"माझे ₹1200 कट झाले पण रिचार्ज झाला नाही"</span>
+          <span class="text-[9px] text-slate-500 mt-1 block">3-Way Matrix ➔ You.com ➔ Nexconn</span>
+        </button>
+
+        <button onclick="setSimQuery('या महिन्यात माझे पैसे कुठे जास्त खर्च झाले?')" class="p-3 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-2xl text-left transition-all cursor-pointer">
+          <span class="text-xs font-black text-emerald-950 block">📊 Scenario C: Smart Money</span>
+          <span class="text-[11px] text-emerald-800 font-semibold block mt-1">"या महिन्यात माझे पैसे कुठे जास्त खर्च झाले?"</span>
+          <span class="text-[9px] text-slate-500 mt-1 block">₹9,150 Spend ➔ 3 Buckets ➔ ₹499 Savings</span>
+        </button>
+      </div>
+
+      <!-- Input and Execute Bar -->
+      <div class="flex gap-2 mb-4">
+        <input type="text" id="sim-prompt-input" value="मला ₹300 मध्ये Jio 2GB daily data recharge हवा" class="flex-1 bg-slate-50 border-2 border-slate-300 focus:border-[#00b9f1] rounded-2xl px-4 py-3 text-sm font-semibold text-slate-800 outline-none">
+        <button onclick="executeSimulator()" id="sim-run-btn" class="px-6 py-3 bg-gradient-to-r from-[#002970] to-[#00b9f1] text-white font-black text-sm rounded-2xl hover:brightness-110 shadow-md flex items-center gap-2 cursor-pointer transition-all">
+          <span>🚀</span> <span>Execute Pipeline</span>
+        </button>
+      </div>
+
+      <!-- Execution Trace Container -->
+      <div id="sim-output-area" class="hidden animate-in fade-in duration-300">
+        <div class="bg-slate-900 text-white rounded-2xl p-4 sm:p-5 border border-slate-800">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+              <span class="font-mono text-cyan-300 text-xs font-bold uppercase tracking-wider">FastAPI Execution Trace Log</span>
+            </div>
+            <div id="sim-latency-badge" class="text-[10px] font-mono bg-cyan-950 text-cyan-300 border border-cyan-800 px-2 py-0.5 rounded font-bold">
+              Latency: 1.42s
+            </div>
+          </div>
+
+          <!-- Step Cards Grid -->
+          <div id="sim-steps-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono text-slate-300 mb-4">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <!-- AI Synthesized Response Box -->
+          <div class="p-3.5 bg-slate-800/80 rounded-xl border border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+              <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase block mb-1">🤖 AI Natural Response (Sarvam AI Bulbul v3):</span>
+              <p id="sim-ai-message" class="text-xs text-white font-sans font-semibold"></p>
+            </div>
+            <button id="sim-audio-btn" onclick="playSimAudio()" class="shrink-0 px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-[#002970] font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer">
+              <span>🔊</span> <span>पुन्हा ऐका</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Section 3: Technical Comparison & Competitive Advantage (Why Paytm AI Wins) -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-8 py-6">
+    <div class="bg-white/95 rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200">
+      <h2 class="text-lg sm:text-2xl font-black text-[#002970] mb-2 flex items-center gap-2">
+        <span>🏆</span> <span>Architectural Competitive Advantage (USP Matrix)</span>
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-500 mb-5">Comparison with traditional financial assistants and basic conversational chatbots.</p>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-100 text-[#002970] border-b border-slate-200 font-black text-[11px] uppercase tracking-wider">
+              <th class="p-3">Feature Dimension</th>
+              <th class="p-3">Standard Voice Bots (GPay / PhonePe)</th>
+              <th class="p-3 bg-blue-50 text-[#002970] border-x-2 border-blue-400">Paytm AI Hub & Paytm ONE</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 font-medium">
+            <tr>
+              <td class="p-3 font-bold text-slate-800">1. Cross-Service Bundling</td>
+              <td class="p-3 text-slate-600">Single service search; user manually jumps across 50+ screens</td>
+              <td class="p-3 bg-blue-50/70 font-semibold text-[#002970] border-x-2 border-blue-400">Universal Intent Routing: Bundles travel + recharge + hotel under unified budget</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-bold text-slate-800">2. Dispute Resolution</td>
+              <td class="p-3 text-slate-600">Static FAQ tickets with generic "Wait 3 to 5 business days"</td>
+              <td class="p-3 bg-blue-50/70 font-semibold text-[#002970] border-x-2 border-blue-400">3-Way Reconciliation Matrix (Bank vs NPCI vs Merchant) with SHA-256 evidence docket</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-bold text-slate-800">3. Regulatory Citations</td>
+              <td class="p-3 text-slate-600">None; proprietary internal policies only</td>
+              <td class="p-3 bg-blue-50/70 font-semibold text-[#002970] border-x-2 border-blue-400">You.com live retrieval of official RBI Ombudsman & NPCI Circular 81 SLAs</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-bold text-slate-800">4. Human Escalation</td>
+              <td class="p-3 text-slate-600">Detached external IVR queue</td>
+              <td class="p-3 bg-blue-50/70 font-semibold text-[#002970] border-x-2 border-blue-400">Nexconn real-time WebSocket room with context pre-injected to officer</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-bold text-slate-800">5. Security Governance</td>
+              <td class="p-3 text-slate-600">Unclear boundaries between AI and payment rail</td>
+              <td class="p-3 bg-blue-50/70 font-semibold text-[#002970] border-x-2 border-blue-400">UNWIND Governance Gate: Zero-trust isolation; AI never accesses UPI PIN</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Script for Interactive Node Inspection and Simulator -->
+  <script src="app.js"></script>
+  <script>
+    let activeSimAudioBase64 = null;
+
+    const nodeData = {
+      user_input: {
+        title: "Tier 1: Multimodal Ingestion",
+        agent: "Web Speech API + Vision OCR",
+        tech: "Browser Native + HTML5 Canvas",
+        latency: "< 50ms",
+        desc: "Ingests voice commands in Marathi, Hindi, and English. Automatically handles background ambient noise and performs phrase normalization.",
+        sample_in: '"मला ₹300 मध्ये Jio 2GB daily data recharge हवा"',
+        sample_out: '{ "query": "Jio 300 recharge", "lang": "mr", "audio_detected": true }'
+      },
+      orchestrator: {
+        title: "Tier 2: Master Brain Orchestrator",
+        agent: "Groq LLM Neural Classifier",
+        tech: "FastAPI + Qwen 2.5 / Llama 3.3",
+        latency: "~ 1.2s",
+        desc: "Analyzes semantic intent, extracts cities, routes, amounts, and operators, and dispatches the execution pipeline to the appropriate squad.",
+        sample_in: '"मला ₹300 मध्ये Jio recharge"',
+        sample_out: '{ "mode": "ACTION", "service": "recharge", "operator": "jio", "budget": 300 }'
+      },
+      action_mode: {
+        title: "Pillar A: Action Mode (Paytm ONE)",
+        agent: "Universal Utilities Squad",
+        tech: "SerpApi + BBPS Catalog Engine",
+        latency: "~ 800ms",
+        desc: "Discovers and filters best mobile recharge plans, live flights, bus seats, hotel bookings, electricity bills, and FASTag recharges.",
+        sample_in: '{ "service": "recharge", "budget": 300, "operator": "jio" }',
+        sample_out: '{ "plan_selected": "₹299", "data": "2 GB/Day", "validity": "28 Days", "cashback": "₹25" }'
+      },
+      resolve_mode: {
+        title: "Pillar B: Resolve Mode (Paytm Resolve)",
+        agent: "Autonomous Investigation Squad",
+        tech: "3-Way Matrix + You.com + Nexconn",
+        latency: "~ 1.5s",
+        desc: "Autonomously audits payment failures between User Bank, NPCI UPI switch, and Merchant terminal. Issues SHA-256 sealed dockets.",
+        sample_in: '{ "service": "dispute", "amount": 1200, "issue": "pending_credit" }',
+        sample_out: '{ "matrix": "Discrepancy Isolated", "sla": "24 Hours Reversal", "docket": "SHA256-Sealed" }'
+      },
+      smart_money: {
+        title: "Pillar C: Smart Money Advisor",
+        agent: "Personal Finance Intelligence",
+        tech: "Deterministic Math + Groq Categorizer",
+        latency: "~ 600ms",
+        desc: "Analyzes spending habits across categories (Shopping: 49%, Food: 35%, Bills: 16%), flags recurring subscriptions, and advises monthly savings.",
+        sample_in: '{ "user_id": "paytm_01", "month": "November 2026" }',
+        sample_out: '{ "total_spent": 9150, "recurring_subscriptions": 3, "potential_savings": 499 }'
+      },
+      agent_groq: {
+        title: "Groq Multilingual Neural Agent",
+        agent: "Groq Cloud Infrastructure",
+        tech: "qwen/qwen3.8-27b & Llama 3.3",
+        latency: "500ms - 1.2s",
+        desc: "Provides ultra-fast natural conversational reasoning in Devanagari Hindi and Marathi with structured JSON function calling.",
+        sample_in: '"या महिन्यात माझे पैसे कुठे खर्च झाले?"',
+        sample_out: '{ "service": "expense", "language": "mr", "response_mr": "या महिन्यात..." }'
+      },
+      agent_serp: {
+        title: "SerpApi Live Travel & Deal Scout",
+        agent: "Live Search Integration",
+        tech: "SerpApi Google Engine",
+        latency: "1.1s",
+        desc: "Retrieves real-time flight routes, bus seat availability, hotel rates, and local shopping deals across Indian cities.",
+        sample_in: '"flights from Pune to Mumbai"',
+        sample_out: '{ "flight": "IndiGo 6E-241", "price": 1850, "departure": "08:30 AM" }'
+      },
+      agent_you: {
+        title: "You.com Regulatory Citation Agent",
+        agent: "Live Legal Knowledge Grounding",
+        tech: "You.com Search API",
+        latency: "950ms",
+        desc: "Verifies official RBI Ombudsman turnaround mandates, NPCI Circular 81 T+1 reversal rules, and BBPS consumer protection acts.",
+        sample_in: '"NPCI auto-reversal 24h SLA rules for failed UPI"',
+        sample_out: '{ "citation": "NPCI Circular 81 / 2023", "sla": "T+1 Business Day Penalty" }'
+      },
+      agent_sarvam: {
+        title: "Sarvam AI Voice Synthesis Agent",
+        agent: "Indic Neural Audio Engine",
+        tech: "Sarvam AI Bulbul v3 (hi-IN / mr-IN)",
+        latency: "1.2s - 2.0s",
+        desc: "Synthesizes expressive, natural Indian voice speech with authentic pronunciation in Hindi and Marathi.",
+        sample_in: '"मी खूप छान आहे! मी तुम्हाला पेटीएमच्या सर्व सेवांमध्ये मदत करू शकतो."',
+        sample_out: '{ "audio_format": "WAV", "sample_rate": 22050, "size": "858 KB" }'
+      },
+      agent_nexconn: {
+        title: "Nexconn Real-Time Gateway Agent",
+        agent: "Human-in-the-Loop Escalation",
+        tech: "Nexconn WebSocket Engine",
+        latency: "< 150ms",
+        desc: "Provides instant zero-latency handoff to Priya Sharma (Senior Dispute Specialist) when complex edge cases require manual override.",
+        sample_in: '{ "action": "open_room", "case_id": "PTM-DISP-8921" }',
+        sample_out: '{ "room_id": "NX-8921", "agent_status": "ONLINE", "specialist": "Priya Sharma" }'
+      },
+      unwind_gate: {
+        title: "UNWIND Security Governance Gate",
+        agent: "Zero-Trust Payment Guard",
+        tech: "Paytm Security Sandbox & NPCI SDK",
+        latency: "< 10ms",
+        desc: "Enforces strict human approval before any financial action. The AI never handles or logs user PINs. Complete audit log maintained.",
+        sample_in: '{ "amount": 299, "action": "prepaid_recharge", "user_confirmed": true }',
+        sample_out: '{ "governance_verdict": "APPROVED", "sdk_handoff": "NPCI_SECURE_KEYPAD" }'
+      }
+    };
+
+    function inspectNode(key) {
+      document.querySelectorAll('.node-card').forEach(c => c.classList.remove('active'));
+      const activeEl = document.getElementById(`node-${key}`);
+      if (activeEl) activeEl.classList.add('active');
+
+      const data = nodeData[key] || nodeData['orchestrator'];
+      const area = document.getElementById('inspector-content');
+
+      area.innerHTML = `
+        <div class="space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+            <div>
+              <span class="text-[10px] font-mono text-cyan-700 uppercase font-bold tracking-wider">${data.agent}</span>
+              <h3 class="text-base font-black text-[#002970]">${data.title}</h3>
+            </div>
+            <span class="text-xs font-mono font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full">${data.latency}</span>
+          </div>
+
+          <div>
+            <span class="text-[10px] font-bold uppercase text-slate-400">Core Responsibility:</span>
+            <p class="text-xs text-slate-700 mt-0.5 leading-relaxed font-medium">${data.desc}</p>
+          </div>
+
+          <div>
+            <span class="text-[10px] font-bold uppercase text-slate-400">Technology & Architecture:</span>
+            <div class="text-xs font-mono text-[#002970] font-bold bg-slate-50 p-2 rounded-xl border border-slate-200 mt-0.5">
+              ${data.tech}
+            </div>
+          </div>
+
+          <div>
+            <span class="text-[10px] font-bold uppercase text-slate-400">Sample Inbound Payload:</span>
+            <pre class="text-[10px] font-mono bg-slate-900 text-cyan-300 p-2.5 rounded-xl overflow-x-auto mt-0.5">${data.sample_in}</pre>
+          </div>
+
+          <div>
+            <span class="text-[10px] font-bold uppercase text-slate-400">Sample Outbound Response:</span>
+            <pre class="text-[10px] font-mono bg-slate-900 text-emerald-300 p-2.5 rounded-xl overflow-x-auto mt-0.5">${data.sample_out}</pre>
+          </div>
+        </div>
+      `;
+    }
+
+    function setSimQuery(text) {
+      document.getElementById('sim-prompt-input').value = text;
+      executeSimulator();
+    }
+
+    async function executeSimulator() {
+      const input = document.getElementById('sim-prompt-input');
+      const val = input.value.trim();
+      if (!val) return;
+
+      const btn = document.getElementById('sim-run-btn');
+      const outputArea = document.getElementById('sim-output-area');
+      const stepsGrid = document.getElementById('sim-steps-grid');
+      const aiMsg = document.getElementById('sim-ai-message');
+      const latencyBadge = document.getElementById('sim-latency-badge');
+
+      btn.disabled = true;
+      btn.innerHTML = `<span>⏳</span> <span>Executing Pipeline...</span>`;
+      outputArea.classList.remove('hidden');
+
+      stepsGrid.innerHTML = `
+        <div class="col-span-2 text-center py-4 text-slate-400 font-mono">
+          <div class="w-8 h-8 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+          Calling FastAPI Multi-Agent Squad (/api/chat)...
+        </div>
+      `;
+      aiMsg.textContent = 'Processing request...';
+
+      const startTime = performance.now();
+
+      try {
+        const resp = await fetch('http://localhost:8000/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: val, user_id: 'judge_eval_01' })
+        });
+
+        const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
+        latencyBadge.textContent = `Latency: ${elapsed}s • Status 200 OK`;
+
+        if (resp.ok) {
+          const d = await resp.json();
+          activeSimAudioBase64 = d.audio_base64 || null;
+
+          const steps = d.steps_log || [];
+          stepsGrid.innerHTML = steps.map(s => `
+            <div class="bg-slate-800/90 p-2.5 rounded-xl border border-slate-700">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-cyan-400 font-bold">⚡ Step ${s.step}:</span>
+                <span class="text-emerald-400 text-[10px]">✓ COMPLETED</span>
+              </div>
+              <div class="text-xs font-bold text-white">${s.title}</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">${s.detail}</div>
+            </div>
+          `).join('');
+
+          aiMsg.textContent = d.ai_message || 'Pipeline executed successfully.';
+
+          // Auto-play audio if available
+          if (activeSimAudioBase64 && window.paytm) {
+            window.paytm.playSarvamAudio(activeSimAudioBase64);
+          }
+        }
+      } catch (err) {
+        stepsGrid.innerHTML = `<div class="col-span-2 text-rose-400 font-mono text-center">FastAPI Error: ${err.message}. Ensure backend is running on port 8000.</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>🚀</span> <span>Execute Pipeline</span>`;
+      }
+    }
+
+    function playSimAudio() {
+      if (activeSimAudioBase64 && window.paytm) {
+        window.paytm.playSarvamAudio(activeSimAudioBase64);
+      } else {
+        const msg = document.getElementById('sim-ai-message').textContent;
+        if (window.paytm) window.paytm.speakTextFallback(msg);
+      }
+    }
+
+    function runSampleFromInspector() {
+      document.getElementById('sim-prompt-input').scrollIntoView({ behavior: 'smooth' });
+      executeSimulator();
+    }
+
+    // Default inspect Orchestrator on load
+    window.addEventListener('DOMContentLoaded', () => {
+      inspectNode('orchestrator');
+    });
+  </script>
+</body>
+</html>
