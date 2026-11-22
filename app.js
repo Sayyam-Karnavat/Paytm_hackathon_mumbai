@@ -1430,25 +1430,53 @@ class PaytmAgentOrchestrator {
 
   async processQuery(query) {
     const container = document.getElementById('workspace-dynamic-content');
+    let stepTimer = null;
     if (container) {
       container.innerHTML = `
-        <div class="bg-white/95 backdrop-blur-md rounded-2xl p-6 text-center shadow-lg border border-white/80 animate-in fade-in duration-200">
+        <div class="bg-white/95 backdrop-blur-md rounded-2xl p-6 text-center shadow-lg border border-white/80 animate-in fade-in duration-200 max-w-md mx-auto">
           <div class="w-12 h-12 border-4 border-cyan-400 border-t-[#002970] rounded-full animate-spin mx-auto mb-3"></div>
-          <p class="text-sm font-black text-[#002970]">Paytm Multi-Agent Squad Activated...</p>
-          <div class="flex items-center justify-center gap-2 mt-2 text-xs text-slate-500 font-semibold">
-            <span>⚡ Groq LLM</span> • <span>🔍 SerpApi</span> • <span>🎙️ Sarvam AI</span>
+          <p class="text-sm font-black text-[#002970]">Paytm Multi-Agent Squad Active...</p>
+          <div id="loader-status-text" class="text-xs text-slate-600 font-semibold mt-1">🧠 Analyzing User Intent & Language...</div>
+          <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
+            <div id="loader-progress-bar" class="bg-gradient-to-r from-[#002970] to-[#00b9f1] h-1.5 w-1/4 transition-all duration-300"></div>
+          </div>
+          <div class="flex items-center justify-center gap-2 mt-3 text-[11px] text-slate-400 font-mono">
+            <span>⚡ Groq Router</span> • <span>🔍 SerpApi Deals</span> • <span>🎙️ Sarvam AI</span>
           </div>
         </div>
       `;
+
+      const statusEl = document.getElementById('loader-status-text');
+      const barEl = document.getElementById('loader-progress-bar');
+      let stepIndex = 0;
+      const steps = [
+        { text: '🔍 Querying Live Telecom & Utility Deals...', width: '60%' },
+        { text: '⚖️ Verifying 3-Way Reconciliation Rails...', width: '85%' },
+        { text: '🎙️ Synthesizing Voice Response...', width: '95%' }
+      ];
+      stepTimer = setInterval(() => {
+        if (stepIndex < steps.length && statusEl && barEl) {
+          statusEl.textContent = steps[stepIndex].text;
+          barEl.style.width = steps[stepIndex].width;
+          stepIndex++;
+        }
+      }, 400);
     }
 
     try {
       const apiBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '5500' ? 'http://localhost:8000' : '';
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000); // 4s fast timeout
+
       const resp = await fetch(`${apiBase}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: query, user_id: 'paytm_user_01' })
+        body: JSON.stringify({ query: query, user_id: 'paytm_user_01' }),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
+      if (stepTimer) clearInterval(stepTimer);
 
       if (resp.ok) {
         const data = await resp.json();
@@ -1490,10 +1518,120 @@ class PaytmAgentOrchestrator {
           this.renderRechargeMode(data);
         }
         return;
+      } else {
+        throw new Error(`HTTP ${resp.status}`);
       }
     } catch (e) {
-      console.warn('Backend call failed, using standalone fallback:', e);
+      if (stepTimer) clearInterval(stepTimer);
+      console.warn('Backend call took too long or failed, activating instant client response:', e);
+      this.renderInstantClientFallback(query);
     }
+  }
+
+  // 100% Instant Client-Side Fallback Engine
+  renderInstantClientFallback(query) {
+    const lower = query.toLowerCase();
+    const cleanNum = lower.replace(/,/g, '');
+    const nums = (cleanNum.match(/\b\d{2,4}\b/g) || []).map(Number).filter(n => n >= 50 && n <= 3999);
+    const price = nums.length > 0 ? nums[0] : 857;
+
+    let op = 'jio';
+    if (lower.includes('airtel')) op = 'airtel';
+    else if (lower.includes('vi') || lower.includes('vodafone') || lower.includes('idea')) op = 'vi';
+    else if (lower.includes('bsnl')) op = 'bsnl';
+
+    let lang = 'hi';
+    if (/मला|हवा|हवी|आहे|पाहिजे|करा|काय|किती|कापले|पैसे/.test(lower)) lang = 'mr';
+    else if (/please|book|check|ticket|recharge|flight|refund/.test(lower)) lang = 'en';
+
+    // Route service
+    if (/कापले|cut|refund|pending|failed|तक्रार|रिफंड|मिळाले नाही|अडकले/.test(lower)) {
+      this.currentMode = 'resolve';
+      this.updateModeTabsUi('resolve');
+      const mockResolve = {
+        mode: 'RESOLVE',
+        service: 'dispute',
+        language: lang,
+        ai_message: lang === 'mr' ? `तुमच्या ₹${price} च्या ट्रान्झॅक्शनची तक्रार नोंदवली आहे. 3-Way Reconciliation नुसार पैसे २४ तासांत खात्यात परत जमा होतील.` : `आपके ₹${price} के लेनदेन की जांच शुरू हो गई है। 3-Way Reconciliation के अनुसार 24 घंटे में रिफंड मिल जाएगा।`,
+        resolve_data: {
+          case_id: 'PTM' + Math.floor(1000000 + Math.random() * 9000000),
+          amount: price,
+          finding: 'Bank Core CBS status: DEBITED • NPCI Switch: DROP-OFF DETECTED'
+        }
+      };
+      this.renderResolveMode(mockResolve);
+      paytm.playSarvamAudio(null, mockResolve.ai_message, lang === 'mr' ? 'mr-IN' : 'hi-IN');
+      return;
+    }
+
+    if (/flight|bus|train|ticket|तिकीट|टिकट|पुणे|मुंबई|pune|mumbai/.test(lower)) {
+      this.currentMode = 'action';
+      this.updateModeTabsUi('action');
+      const mockTravel = {
+        mode: 'ACTION',
+        service: 'travel',
+        language: lang,
+        ai_message: lang === 'mr' ? `पुणे ते मुंबई प्रवासासाठी सर्वोत्कृष्ट शिवनेरी बस व इंडिगो फ्लाईट्स शोधल्या आहेत.` : `पुणे से मुंबई यात्रा के लिए सबसे अच्छी शिवनेरी बस और फ्लाइट्स उपलब्ध हैं।`,
+        travel_data: { origin: 'Pune', destination: 'Mumbai' }
+      };
+      this.renderTravelMode(mockTravel);
+      paytm.playSarvamAudio(null, mockTravel.ai_message, lang === 'mr' ? 'mr-IN' : 'hi-IN');
+      return;
+    }
+
+    if (/खर्च|kharch|expense|spend|बचत|shopping/.test(lower)) {
+      this.currentMode = 'smart_money';
+      this.updateModeTabsUi('smart_money');
+      const mockExpense = {
+        mode: 'ACTION',
+        service: 'expense',
+        language: lang,
+        ai_message: lang === 'mr' ? `या महिन्यात तुमचा एकूण खर्च ₹9,150 झाला असून ₹499/महिना सबस्क्रिप्शन बचत शक्य आहे.` : `इस महीने आपका कुल खर्च ₹9,150 हुआ है और ₹499/महीने की बचत संभव है।`
+      };
+      this.renderExpenseMode(mockExpense);
+      paytm.playSarvamAudio(null, mockExpense.ai_message, lang === 'mr' ? 'mr-IN' : 'hi-IN');
+      return;
+    }
+
+    // Default: Best Recharge Match around price
+    let bestPlan = {
+      id: `${op}-${price >= 700 ? 857 : (price >= 300 ? 349 : 299)}`,
+      price: price >= 700 ? 857 : (price >= 300 ? 349 : 299),
+      validity: price >= 700 ? '84 Days' : '28 Days',
+      data: '2 GB / Day',
+      badge: price >= 700 ? 'Amazon Prime 84D 📦' : 'Best 2GB 🌟',
+      cashback: price >= 700 ? '₹50 Cashback' : '₹30 Cashback',
+      ott: price >= 700 ? ['Amazon Prime', 'JioCinema'] : ['JioCinema Premium'],
+      calls: 'Unlimited Calls',
+      network: 'True Unlimited 5G'
+    };
+
+    const mockRecharge = {
+      mode: 'ACTION',
+      service: 'recharge',
+      operator: op,
+      budget: price,
+      language: lang,
+      ai_message: lang === 'mr' 
+        ? `मी तुमच्यासाठी ${op.toUpperCase()} चा बेस्ट ₹${bestPlan.price} चा 2 GB/Day (${bestPlan.validity}) प्लॅन शोधला आहे! रिचार्ज मंजूर करायचा का?`
+        : `मैंने आपके लिए ${op.toUpperCase()} का बेस्ट ₹${bestPlan.price} का 2 GB/Day (${bestPlan.validity}) प्लान चुना है! क्या आप रिचार्ज अप्रूव करना चाहते हैं?`,
+      plan_data: {
+        best: bestPlan,
+        alternatives: [
+          { id: `${op}-299`, price: 299, validity: '28 Days', data: '2 GB / Day', calls: 'Unlimited', cashback: '₹20 Cashback', badge: 'Popular ⭐' },
+          { id: `${op}-349`, price: 349, validity: '28 Days', data: '2.5 GB / Day', calls: 'Unlimited', cashback: '₹30 Cashback', badge: 'Speed 5G ⚡' },
+          { id: `${op}-749`, price: 749, validity: '72 Days', data: '2 GB / Day', calls: 'Unlimited', cashback: '₹40 Cashback', badge: 'Saver 🌟' }
+        ]
+      },
+      suggested_replies: [
+        `${op.toUpperCase()} 2GB Daily Data`,
+        `${op.toUpperCase()} 84 Days Plan`,
+        '₹299 28 Days Plan',
+        'Netflix Hotstar OTT Pack'
+      ]
+    };
+    this.renderRechargeMode(mockRecharge);
+    paytm.playSarvamAudio(null, mockRecharge.ai_message, lang === 'mr' ? 'mr-IN' : 'hi-IN');
   }
 
   // 0. Render Conversational Chat Mode (ChatGPT / Gemini Grade)

@@ -28,16 +28,15 @@ def generate_sarvam_speech(text: str, language_code: str = "hi-IN", speaker: str
     clean = re.sub(r'[\*\#\_\[\]\(\)\{\}\<\>•–—\|]', ' ', text)
     clean = re.sub(r'\s+', ' ', clean).strip()
 
-    # Sarvam Bulbul:v3 supports up to 500 characters per utterance.
-    # Allow up to 450 characters so full complete thoughts and sentences are spoken!
-    if len(clean) > 450:
-        truncated = clean[:450]
+    # For sub-second voice synthesis and low latency, speak the primary concise finding (up to 180 chars)
+    if len(clean) > 180:
+        truncated = clean[:180]
         last_punct = -1
         for p in ['।', '.', '?', '!']:
             idx = truncated.rfind(p)
             if idx > last_punct:
                 last_punct = idx
-        if last_punct > 100:
+        if last_punct > 50:
             clean_text = truncated[:last_punct + 1].strip()
         else:
             clean_text = truncated.strip()
@@ -65,7 +64,7 @@ def generate_sarvam_speech(text: str, language_code: str = "hi-IN", speaker: str
             "model": "bulbul:v3"
         }
 
-        resp = requests.post(url, headers=headers, json=payload, timeout=(3.0, 15.0))
+        resp = requests.post(url, headers=headers, json=payload, timeout=(1.5, 3.5))
         if resp.status_code == 200:
             audios = resp.json().get("audios", [])
             if audios and len(audios[0]) > 0:

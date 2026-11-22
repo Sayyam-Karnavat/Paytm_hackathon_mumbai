@@ -122,8 +122,9 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         'jio', 'airtel', 'vi', 'bsnl', 'बस', 'ट्रेन', 'विमान', 'गाडी', 'तिकीट', 'टिकट',
         'galti', 'गलत', 'wrong', 'transfer', 'recall', 'unpaid', 'not updated', 'चूक', 'चुकीच्या', 'दो बार', 'दोनदा', 'duplicate',
         'shopping', 'shoping', 'शॉपिंग', 'offer', 'offers', 'ऑफर', 'deal', 'deals', 'डील', 'discount', 'cashback', 'कॅशबॅक', 'कॅशबैक', 'mall', 'मॉल',
-        'movie', 'movies', 'cinema', 'theatre', 'theater', 'चित्रपट', 'सिनेमा', 'थिएटर'
-    ]) or bool(re.search(r'\blight\b', lower_q))
+        'movie', 'movies', 'cinema', 'theatre', 'theater', 'चित्रपट', 'सिनेमा', 'थिएटर',
+        'recharge', 'रिचार्ज', 'रीचार्ज', 'plan', 'प्लॅन', 'pack', 'पॅक', 'पेकार', 'data', 'डेटा', 'gb', 'जीबी', 'validity', 'वॅलिडिटी', 'वैलिडिटी'
+    ]) or bool(re.search(r'\b(?:light|₹|\d{3,4})\b', lower_q)) or bool(explicit_price)
 
     parsed = None
     if not is_clear_intent:
@@ -299,9 +300,9 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
 
     # Generic Mobile Recharge (Excludes FASTag, DTH, electricity)
     is_recharge = (not is_fastag and not is_dth and not is_electricity and not is_gold) and (
-        any(k in lower_q for k in ['recharge', 'रिचार्ज', 'रीचार्ज', 'plan', 'प्लॅन', 'data pack', 'validity']) or (
+        any(k in lower_q for k in ['recharge', 'रिचार्ज', 'रीचार्ज', 'plan', 'प्लॅन', 'data pack', 'validity', 'pack', 'पॅक', 'पेकार', 'gb', 'जीबी', 'data', 'डेटा']) or (
             any(op in lower_q for op in ['jio', 'airtel', 'vi', 'bsnl']) and not is_bus and not is_train and not is_flight and not is_dispute
-        )
+        ) or bool(explicit_price and any(d in lower_q for d in ['gb', 'जीबी', 'data', 'डेटा', 'pack', 'पॅक', 'पेकार']))
     )
 
     # Shopping, Deals, Cashback & Discounts
@@ -398,12 +399,15 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
     elif is_travel:
         service = "travel"
         mode = "ACTION"
-    elif is_recharge:
+    elif is_recharge or groq_service == "recharge":
         service = "recharge"
         mode = "ACTION"
-    elif groq_service in ['expense', 'merchant_summary', 'hotel', 'travel', 'electricity', 'fastag', 'dth', 'merchant', 'gold', 'shopping', 'movie', 'dispute']:
+    elif groq_service in ['recharge', 'expense', 'merchant_summary', 'hotel', 'travel', 'electricity', 'fastag', 'dth', 'merchant', 'gold', 'shopping', 'movie', 'dispute']:
         service = groq_service
         mode = "RESOLVE" if service == "dispute" else "ACTION"
+    elif explicit_price and not is_dispute:
+        service = "recharge"
+        mode = "ACTION"
     else:
         service = "chat"
         mode = "CHAT"
