@@ -442,7 +442,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "detail": f"Synthesizing authentic voice with Bulbul v3 ({lang}-IN)",
             "status": "completed"
         })
-        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"), fast_only=True)
 
         suggested = (parsed.get("suggested_replies") if parsed else None) or (
             ["Jio ₹299 रिचार्ज करा ⚡", "पुणे ते मुंबई बस/फ्लाइट 🚌", "माझे ₹500 कट झाले (तक्रार) 🛡️", "वीज बिल भरा 💡"] if lang == "mr"
@@ -508,7 +508,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "detail": "Synthesizing authentic empathetic resolution audio",
             "status": "completed"
         })
-        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"), fast_only=True)
 
         dispute_suggestions = (
             ["तक्रार ड्राफ्ट कॉपी करा 📋", "डिजिटल पुरावा डाऊनलोड 📥", "लाईव्ह स्पेशालिस्टशी बोला 💬", "NPCI रिफंड नियम 🛡️"] if lang == "mr"
@@ -566,7 +566,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "detail": "Synthesizing authentic voice with Bulbul v3",
             "status": "completed"
         })
-        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"), fast_only=True)
 
         steps_log.append({
             "step": 5,
@@ -625,7 +625,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "detail": "Synthesizing authentic voice with Bulbul v3",
             "status": "completed"
         })
-        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"), fast_only=True)
 
         steps_log.append({
             "step": 5,
@@ -683,7 +683,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "detail": "Synthesizing authentic voice with Bulbul v3",
             "status": "completed"
         })
-        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"), fast_only=True)
 
         steps_log.append({
             "step": 5,
@@ -741,7 +741,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "detail": "Synthesizing authentic voice with Bulbul v3",
             "status": "completed"
         })
-        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"), fast_only=True)
 
         steps_log.append({
             "step": 5,
@@ -801,7 +801,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "detail": "Synthesizing authentic voice with Bulbul v3",
             "status": "completed"
         })
-        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"), fast_only=True)
 
         steps_log.append({
             "step": 5,
@@ -857,7 +857,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "detail": f"Synthesizing authentic voice with Bulbul v3 ({lang}-IN)",
             "status": "completed"
         })
-        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"), fast_only=True)
 
         return {
             "mode": "ACTION",
@@ -918,7 +918,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "detail": f"Synthesizing authentic voice with Bulbul v3 ({lang}-IN)",
             "status": "completed"
         })
-        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"), fast_only=True)
 
         return {
             "mode": "ACTION",
@@ -1011,7 +1011,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "detail": "Generating natural human voice audio response",
             "status": "completed"
         })
-        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"), fast_only=True)
 
         travel_suggestions = (
             ["सगळ्यात स्वस्त दाखवा 💰", "फक्त शिवनेरी बस 🚌", "फास्टेस्ट फ्लाईट ✈️", "उद्या सकाळी 🌅"] if lang == "mr"
@@ -1062,7 +1062,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "detail": "Generating natural human voice audio response",
             "status": "completed"
         })
-        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"), fast_only=True)
 
         hotel_suggestions = (
             ["₹1000 च्या आतील हॉटेल्स 🏷️", "टॉप ४.५+ स्टार रेटिंग ⭐", "विमानतळाच्या जवळ 📍", "फ्री ब्रेकफास्ट ☕"] if lang == "mr"
@@ -1110,7 +1110,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "detail": "Generating natural human voice audio response",
             "status": "completed"
         })
-        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"), fast_only=True)
 
         shopping_suggestions = (
             ["इलेक्ट्रॉनिक्स कॅशबॅक 📱", "झोमॅटो ५०% डिस्काउंट 🍔", "फॅशन व कपडे डील्स 👗", "किराणा ५% कॅशबॅक 🏪"] if lang == "mr"
@@ -1158,7 +1158,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
             "detail": "Generating natural human voice audio response",
             "status": "completed"
         })
-        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+        audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"), fast_only=True)
 
         movie_suggestions = (
             ["पुष्पा २ PVR शो 💥", "स्त्री २ आज संध्याकाळी 👻", "मराठी चित्रपट 🚩", "कांतारा 4DX 🌲"] if lang == "mr"
@@ -1231,7 +1231,7 @@ def orchestrate_query(query: str, user_id: str = "paytm_user_01"):
         "detail": "Synthesizing authentic Indian audio with Bulbul v3",
         "status": "completed"
     })
-    audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"))
+    audio_b64 = generate_sarvam_speech(ai_msg, "hi-IN" if lang == "hi" else ("mr-IN" if lang == "mr" else "en-IN"), fast_only=True)
 
     steps_log.append({
         "step": 5,
