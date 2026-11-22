@@ -93,7 +93,7 @@ def generate_sarvam_speech(text: str, language_code: str = "hi-IN", speaker: str
             "model": "bulbul:v3"
         }
 
-        resp = requests.post(url, headers=headers, json=payload, timeout=(1.0, 2.0))
+        resp = requests.post(url, headers=headers, json=payload, timeout=(1.5, 3.5))
         if resp.status_code == 200:
             audios = resp.json().get("audios", [])
             if audios and len(audios[0]) > 0:

@@ -167,14 +167,37 @@ class PaytmApp {
     }
   }
 
-  playSarvamAudio(base64Audio, fallbackText = null, targetLang = null) {
+  async playSarvamAudio(base64Audio, fallbackText = null, targetLang = null) {
     if (!this.soundEnabled) return;
     if (base64Audio) this.lastAudioBase64 = base64Audio;
     if (fallbackText) this.lastSpokenText = fallbackText;
     if (targetLang) this.lastSpokenLang = targetLang;
 
     if (!base64Audio) {
-      if (fallbackText) this.speakTextFallback(fallbackText, targetLang || this.currentLanguage);
+      if (fallbackText) {
+        try {
+          const apiTarget = this.backendUrl !== undefined ? this.backendUrl : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '5500' ? 'http://localhost:8000' : '');
+          const resp = await fetch(`${apiTarget}/api/tts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: fallbackText,
+              language_code: targetLang || this.currentLanguage || 'hi-IN',
+              speaker: 'priya'
+            })
+          });
+          if (resp.ok) {
+            const d = await resp.json();
+            if (d.audio_base64) {
+              this.lastAudioBase64 = d.audio_base64;
+              return this.playSarvamAudio(d.audio_base64, fallbackText, targetLang);
+            }
+          }
+        } catch (e) {
+          console.warn('[Sarvam AI] On-demand TTS fetch error:', e);
+        }
+        this.speakTextFallback(fallbackText, targetLang || this.currentLanguage);
+      }
       return;
     }
 
@@ -214,9 +237,11 @@ class PaytmApp {
             }
             document.removeEventListener('click', unlockHandler);
             document.removeEventListener('touchstart', unlockHandler);
+            document.removeEventListener('pointerdown', unlockHandler);
           };
           document.addEventListener('click', unlockHandler, { once: true });
           document.addEventListener('touchstart', unlockHandler, { once: true });
+          document.addEventListener('pointerdown', unlockHandler, { once: true });
         });
       }
 
@@ -239,11 +264,34 @@ class PaytmApp {
     }
   }
 
-  replayAudio() {
+  async replayAudio() {
     this.playSound('click');
     if (this.lastAudioBase64) {
       this.playSarvamAudio(this.lastAudioBase64, this.lastSpokenText, this.lastSpokenLang);
     } else if (this.lastSpokenText) {
+      this.showToast('🎙️ Generating Sarvam Voice...', 'info', '⏳');
+      try {
+        const apiTarget = this.backendUrl !== undefined ? this.backendUrl : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '5500' ? 'http://localhost:8000' : '');
+        const resp = await fetch(`${apiTarget}/api/tts`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: this.lastSpokenText,
+            language_code: this.lastSpokenLang || this.currentLanguage || 'hi-IN',
+            speaker: 'priya'
+          })
+        });
+        if (resp.ok) {
+          const d = await resp.json();
+          if (d.audio_base64) {
+            this.lastAudioBase64 = d.audio_base64;
+            this.playSarvamAudio(d.audio_base64, this.lastSpokenText, this.lastSpokenLang);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Replay TTS fetch failed:', err);
+      }
       this.speakTextFallback(this.lastSpokenText, this.lastSpokenLang || this.currentLanguage);
     } else {
       this.showToast('🔊 व्हॉईस क्लिप तयार आहे, पुन्हा टॅप करा.', 'info', 'ℹ️');
@@ -1281,7 +1329,10 @@ class PaytmAgentOrchestrator {
       ttsLang = 'en-IN';
     }
 
-    fetch(`${this.backendUrl}/api/tts`, {
+    const apiTarget = (typeof paytm !== 'undefined' && paytm.backendUrl !== undefined) 
+      ? paytm.backendUrl 
+      : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '5500' ? 'http://localhost:8000' : '');
+    fetch(`${apiTarget}/api/tts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: msg, language_code: ttsLang, speaker: 'priya' })
